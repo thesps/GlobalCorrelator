@@ -6,8 +6,9 @@ cd p2fwk-work
 #ipbb add git https://:@gitlab.cern.ch:8443/p2-xware/firmware/emp-fwk.git
 #ipbb add git https://:@gitlab.cern.ch:8443/cms-cactus/firmware/mp7.git -b ephemeral/phase2-vC
 ipbb add git https://github.com/ipbus/ipbus-firmware 
+ipbb add git https://github.com/violatingcp/emp-fwk
 cd src
-git clone https://:@gitlab.cern.ch:8443/p2-xware/firmware/emp-fwk.git -b serenity_dc_ku115
+#git clone https://:@gitlab.cern.ch:8443/p2-xware/firmware/emp-fwk.git -b serenity_dc_ku115
 git clone https://:@gitlab.cern.ch:8443/cms-cactus/firmware/mp7.git   -b ephemeral/phase2-vC
 cd ..
 ```
