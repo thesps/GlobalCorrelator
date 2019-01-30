@@ -9,6 +9,11 @@ ipbb add git https://github.com/ipbus/ipbus-firmware
 cd src
 #git clone https://:@gitlab.cern.ch:8443/p2-xware/firmware/emp-fwk.git -b serenity_dc_ku115
 git clone https://github.com/violatingcp/emp-fwk
+mv emp-fwk emp-fwk_v0
+cd emp-fwk_v0
+mv emp-fwk ../
+cd ..
+rm -rf emp-fwk_v0
 git clone https://:@gitlab.cern.ch:8443/cms-cactus/firmware/mp7.git   -b ephemeral/phase2-vC
 cd ..
 ```
