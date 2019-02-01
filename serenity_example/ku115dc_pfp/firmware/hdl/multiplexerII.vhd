@@ -27,62 +27,59 @@ architecture rtl of multiplexer is
   type tSelArray is array (natural range <>) of integer range 0 to PF_RESHAPE_FACTOR - 1;
   signal sel : tSelArray(N_PF_IP_CORES - 1 downto 0);
   signal start_pf_int : std_logic_vector(PF_RESHAPE_FACTOR - 1 downto 0) := (others => '0'); --(0 => '1', others => '0');
+  signal d0ValidLast : std_logic; -- The valid bit of the 0th input from the previous cycle
+  signal dPipe : ldata(N_IN_CHANS - 1 downto 0);
 
 begin
 
+  -- Record the valid bit from the previous cycle
+  valid_pipe : process(clk)
+  begin
+    if rising_edge(clk) then
+      d0ValidLast <= d(0).valid;
+      dPipe <= d;
+    end if;
+  end process valid_pipe;
+  
   gSel : for i in 0 to N_PF_IP_CORES - 1 generate
     set_select : process(clk)
     begin
       start_pf_int <= (others => '0');
       if rising_edge(clk) then
-        if sel(i) = PF_RESHAPE_FACTOR - 1 then
-          sel(i) <= 0;
-          start_pf_int(i) <= '1';
-        else
-          sel(i) <= sel(i) + 1;
-        end if;
+        -- Only count when the input is valid
+        if d(0).valid = '1' then
+          -- Reset the counter if it has reached the maximum, or if the incoming data is newly valid
+          if (sel(i) = PF_RESHAPE_FACTOR - 1) or (d0ValidLast = '0') then
+            sel(i) <= 0;
+          else
+            sel(i) <= sel(i) + 1;
+          end if; 
+          
+          -- The start PF signal needs to go high after receiving 6 frames of valid data,
+          -- then every 6th frame
+          if sel(i) = PF_RESHAPE_FACTOR - 1 then
+            start_pf_int(i) <= '1';
+          end if;
+          
+        end if;       
       end if;
     end process set_select;
   end generate gSel;
 
---g0 : for i in 71 downto 0 generate
---  proc : process(clk, d)
---  begin
---    q_pf(0)(i) <= d(i).data(31 downto 0);
---  end process proc;
---end generate;
-
+  -- On the 0th count d inputs 0 to 11 map to q_pf inputs 0 to 11
+  -- On the 1st count d inputs 0 to 11 map to q_pf inputs 12 to 23, etc...
   g0 : for i in N_PF_IP_CORES - 1 downto 0 generate
     g1 : for j in N_PF_IP_CORE_IN_CHANS - 1 downto 0 generate
       mux_process : process(clk, d)
       begin
         if rising_edge(clk) then
           if j / N_CHANS_PER_CORE = sel(i) then
-            q_pf(i)(j) <= d(i * N_CHANS_PER_CORE + j mod N_CHANS_PER_CORE).data(31 downto 0);
+            q_pf(i)(j) <= dPipe(i * N_CHANS_PER_CORE + j mod N_CHANS_PER_CORE).data(31 downto 0);
           end if;
         end if;
       end process;
     end generate g1;
   end generate g0;
-  
-  --g0 : for i in N_PF_IP_CORES - 1 downto 0 generate
-  --g1 : for j in N_CHANS_PER_CORE - 1 downto 0 generate
-  --  mux_process : process(clk, d)
-  --  begin
-  --    if rising_edge(clk) then
-        --for j in N_CHANS_PER_CORE - 1 downto 0 loop
-          --q_pf(i)(j * PF_RESHAPE_FACTOR + sel(i)) <= d(i * N_CHANS_PER_CORE + j).data(31 downto 0);
-  --        q_pf(i)(sel(i) * PF_RESHAPE_FACTOR + j) <= d(i * N_CHANS_PER_CORE + j).data(31 downto 0);
-        --end loop;
-  --    end if;
-  --  end process mux_process;
-  --end generate g1;
-  --end generate g0;
-
-  --start_process : process(clk, start_pf_int)
-  --begin
-  --  start_pf_int <= std_logic_vector(rotate_left(unsigned(start_pf_int), 1));
-  --end process start_process;
   
   start_pf <= start_pf_int;  
 
