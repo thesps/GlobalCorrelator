@@ -1,4 +1,4 @@
-open_project top/top.xpr
+#open_project top/top.xpr
 
 set pfRoot ../../src/GlobalCorrelator_HLS
 source ${pfRoot}/config_hls_fullpfalgo_mp7.tcl
