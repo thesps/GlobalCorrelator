@@ -1,4 +1,4 @@
-include -c GlobalCorrelator:serenity_example/wrapper emp_pf_wrapper.dep
+include -c GlobalCorrelator:emp_examples/wrapper emp_pf_wrapper.dep
 include -c emp-fwk:boards/vcu118 vcu118.dep 
 src vcu118_decl.vhd 
 src -c mp7:components/mp7_datapath mp7_data_types.vhd
