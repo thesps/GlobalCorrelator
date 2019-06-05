@@ -1,0 +1,12 @@
+# Pattern File location
+PatternFile : IDontExistYet.mp7
+# SW Reference file location
+ReferenceFile : IDontExistYetReference.csv
+# Directory for simulation output
+DebuggingOutputDir : DebuggingOutput
+# Number of events in the file
+nEvents : 1
+# Length of one event in clock cycles (including gap)
+EventLength : 36
+# Clock period in nanoseconds
+clkPeriod : 2.1
