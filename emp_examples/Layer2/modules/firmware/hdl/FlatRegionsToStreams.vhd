@@ -56,7 +56,7 @@ begin
     -- Increment the counter
     if rising_edge(clk) then
       -- Reset the counter if the data is newly valid
-      if not FlatInVectorPipe(1)(0).DataValid and FlatInVectorPipe(0)(0).FrameValid then
+      if not FlatInVectorPipe(1)(0).FrameValid and FlatInVectorPipe(0)(0).FrameValid then
         if i = 0 then
           counter <= 0;
         else

@@ -16,9 +16,8 @@ def test(yamlConfig):
 
   with open('top_simulate.do', 'w') as dofile:
     dofile.write("do {top_compile.do}\n")
-    #dofile.write('vsim -G/top/g1/MP7CaptureFileReaderInstance/FileName="{}" -GDebugInstance/FilePath="{}" -voptargs="+acc" -L Utilities -L PFChargedObj -L Layer2 -L Interfaces -L Utilities -lib xil_defaultlib Layer2.top\n'.format(yamlConfig['PatternFile'], yamlConfig['DebuggingOutputDir']))
-    dofile.write('vsim -GDebugInstance/FilePath="{}/" -voptargs="+acc" -L Utilities -L PFChargedObj -L Layer2 -L Interfaces -L Utilities -lib xil_defaultlib Layer2.top\n'.format(yamlConfig['DebuggingOutputDir']))
-    #dofile.write('vsim -G/top/g1/MP7CaptureFileReaderInstance/FileName="{}" -GDebugInstance/FilePath="{}" -voptargs="+acc" -L Utilities -L Vertex -L Track -L VertexFinder -L Interfaces -L secureip -lib xil_defaultlib Layer2.top \n'.format(os.path.expanduser(yamlConfig['PatternFile']), './DebuggingOutput/'))
+    dofile.write('vsim -G/top/g1/MP7CaptureFileReaderInstance/FileName="{}" -GDebugInstance/FilePath="{}/" -voptargs="+acc" -L Utilities -L PFChargedObj -L Layer2 -L Interfaces -L Utilities -lib xil_defaultlib Layer2.top\n'.format(yamlConfig['PatternFile'], yamlConfig['DebuggingOutputDir']))
+    #dofile.write('vsim -GDebugInstance/FilePath="{}/" -voptargs="+acc" -L Utilities -L PFChargedObj -L Layer2 -L Interfaces -L Utilities -lib xil_defaultlib Layer2.top\n'.format(yamlConfig['DebuggingOutputDir']))
     dofile.write('set NumericStdNoWarnings 1\n')
     dofile.write('set StdArithNoWarnings 1\n')
 

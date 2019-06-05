@@ -1,5 +1,5 @@
 # Pattern File location
-PatternFile : IDontExistYet.mp7
+PatternFile : PatternFiles/UniformEvent.txt
 # SW Reference file location
 ReferenceFile : IDontExistYetReference.csv
 # Directory for simulation output

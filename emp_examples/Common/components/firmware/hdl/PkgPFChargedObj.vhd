@@ -57,8 +57,9 @@ package body DataType is
     h := h + x.z0'length;
     l := l + x.id'length;
     y(h downto l) := std_logic_vector(x.z0);
-    h := h + x.z0'length;
-    l := l + x.z0'length;
+    y(h+1) := to_std_logic(x.DataValid);
+    --h := h + x.z0'length;
+    --l := l + x.z0'length;
     return y;
   end function;
 
@@ -80,8 +81,9 @@ package body DataType is
     h := h + y.z0'length;
     l := l + y.id'length;
     y.z0 := signed(x(h downto l));
-    h := h + y.z0'length;
-    l := l + y.z0'length;
+    y.DataValid := to_boolean(x(h+1));
+    --h := h + y.z0'length;
+    --l := l + y.z0'length;
     return y;
   end function;
 

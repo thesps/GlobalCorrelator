@@ -59,8 +59,8 @@ ARCHITECTURE rtl OF top IS
   SIGNAL linksOut           : ldata( 4 * N_REGION - 1 DOWNTO 0 ) := ( OTHERS => LWORD_NULL );
 
 -- SELECT THE STIMULUS
-  CONSTANT Stimulus        : STRING               := "Dummy";
-  --CONSTANT Stimulus         : STRING               := "MP7file";
+  --CONSTANT Stimulus        : STRING               := "Dummy";
+  CONSTANT Stimulus         : STRING               := "MP7file";
 
 BEGIN
 

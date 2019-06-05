@@ -54,7 +54,7 @@ begin
     PFChargedObjInt(i).phi <= tmp.phi;
     PFChargedObjInt(i).id <= tmp.id;
     PFChargedObjInt(i).z0 <= tmp.z0;
-    PFChargedObjInt(i).DataValid <= to_boolean(LinksIn(i).valid);
+    PFChargedObjInt(i).DataValid <= tmp.DataValid;
     PFChargedObjInt(i).FrameValid <= to_boolean(LinksIn(i).valid);
   end generate;
 
