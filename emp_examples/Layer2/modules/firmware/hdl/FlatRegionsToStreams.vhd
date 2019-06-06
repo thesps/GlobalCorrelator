@@ -49,26 +49,71 @@ FlatPipe : entity PFChargedObj.DataPipe
 port map(clk, FlatInVector, FlatInVectorPipe);
 
 GenMux : for i in 0 to N_PF_Regions - 1 generate
-  signal counter : integer range 0 to N_PFChargedObj_PerRegion - 1 := 0;
+  signal objcounter : integer range 0 to N_PFChargedObj_PerRegion - 1 := 0;
+  signal framecounter : integer range 0 to N_PF_Regions - 1 := 0;
 begin
   MuxPrc : process(clk)
   begin
-    -- Increment the counter
+    -- Increment the framecounter
     if rising_edge(clk) then
-      -- Reset the counter if the data is newly valid
-      if not FlatInVectorPipe(1)(0).FrameValid and FlatInVectorPipe(0)(0).FrameValid then
-        if i = 0 then
-          counter <= 0;
+      if FlatInVectorPipe(0)(0).FrameValid then
+        if (not FlatInVectorPipe(1)(0).FrameValid) or (framecounter = N_PF_Regions - 1) then
+          framecounter <= 0;
         else
-          counter <= N_PFChargedObj_PerRegion - 1;
+          framecounter <= framecounter + 1;
         end if;
-      elsif counter = N_PFChargedObj_PerRegion - 1 then
-        counter <= 0;
       else
-        counter <= counter + 1;
+        framecounter <= 0;
       end if;
+
+      -- Increment the object counter
+      if i = 0 then
+        -- For i = 0, count when the incoming data is valid
+        if FlatInVectorPipe(0)(0).FrameValid then
+          -- Reset when the incoming data is newly valid
+          if not FlatInVectorPipe(1)(0).FrameValid then
+            objcounter <= 0;
+          else
+            -- Reset when the end is reached
+            if objcounter = N_PFChargedObj_PerRegion - 1 then
+              objcounter <= 0;
+            else
+              objcounter <= objcounter + 1;
+            end if;
+          end if;
+        else
+          objcounter <= 0;
+        end if;
+      else
+        -- for i > 0, start counting when the framecounter has ticked up to 'i'
+        -- i.e. this region is ready to start
+        if framecounter = i then
+          objcounter <= 1;
+        elsif objcounter > 0 then
+          if objcounter = N_PFChargedObj_PerRegion - 1 then
+            objcounter <= 0;
+          else 
+            objcounter <= objcounter + 1;
+          end if;
+        else
+          objcounter <= 0;
+        end if;
+      end if; 
+
       -- Multiplex the input to the output
-      PFChargedObjStreamInt(i) <= FlatInVectorPipe(1)(counter);
+      if i = 0 then
+        if FlatInVectorPipe(0)(0).FrameValid then
+          PFChargedObjStreamInt(i) <= FlatInVectorPipe(1)(objcounter);
+        else
+          PFChargedObjStreamInt(i) <= PFChargedObj.DataType.cNull;
+        end if;
+      else
+        if (framecounter = i) or objcounter > 0 then
+          PFChargedObjStreamInt(i) <= FlatInVectorPipe(1)(objcounter);
+        else
+          PFChargedObjStreamInt(i) <= PFChargedObj.DataType.cNull;
+        end if;
+      end if;
     end if;
   end process;
 end generate;
