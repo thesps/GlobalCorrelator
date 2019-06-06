@@ -45,6 +45,7 @@ vcom -64 -2008 -work PFChargedObj  \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PkgArrayTypes.vhd" \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/DataPipe.vhd" \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/Debugger.vhd" \
+"../../../Common/modules/firmware/hdl/ParallelToSerial.vhd" \
 
 vcom -64 -2008 -work Layer2  \
 "../../modules/firmware/hdl/FlatRegionsToStreams.vhd" \

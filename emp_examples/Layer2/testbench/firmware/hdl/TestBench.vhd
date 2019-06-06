@@ -80,7 +80,7 @@ BEGIN
                    StartFrameInclAnyHeader => 0 ,
                    GapLength               => 8 ,
                    HeaderLength            => 0 ,
-                   PayloadLength           => 36 ,
+                   PayloadLength           => 72 ,
                    DebugMessages           => FALSE
       )
       PORT MAP( clk      => clk ,
