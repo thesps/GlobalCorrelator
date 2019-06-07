@@ -40,10 +40,13 @@ architecture rtl of PFLayer2ProcessorTop is
   signal PFChargedObjIn : PFChargedObj.ArrayTypes.Vector(0 to N_PFChargedObj_PerRegion - 1) := PFChargedObj.ArrayTypes.NullVector(N_PFChargedObj_PerRegion);
   --signal PFNeutralObjIn : PFNeutralObj.Vector;
 
-  --subtype tPFChargedObjStream is PFChargedObj.ArrayTypes.VectorPipe(0 to 9)(0 to N_PF_REGIONS - 1);
-  --signal PFChargedObjStream : tPFChargedObjStream := PFChargedObj.ArrayTypes.NullVectorPipe(10, N_PF_REGIONS);
-  signal PFChargedObjStream : PFChargedObj.ArrayTypes.VectorPipe(0 to 9)(0 to N_PF_REGIONS - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(10, N_PF_REGIONS);
-  --signal PFNeutralObjStream : PFNeutralObj.Vector(9 downto 0)(N_PF_REGIONS - 1 downto 0);
+  --subtype tPFChargedObjStream is PFChargedObj.ArrayTypes.VectorPipe(0 to 9)(0 to N_PF_REGIONS_PerLayer1Board - 1);
+  --signal PFChargedObjStream : tPFChargedObjStream := PFChargedObj.ArrayTypes.NullVectorPipe(10, N_PF_REGIONS_PerLayer1Board);
+  signal PFChargedObjStream : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS_PerLayer1Board - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS_PerLayer1Board);
+  --signal PFNeutralObjStream : PFNeutralObj.Vector(9 downto 0)(N_PF_REGIONS_PerLayer1Board - 1 downto 0);
+
+  signal Seeds : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS);
+  signal PFChargedObjAssociated : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS);
 begin
 
   LinkDecode : entity Layer2.LinkDecode
@@ -63,5 +66,20 @@ begin
     --PFNeautralObjStream => PFNeutralObjStream
   );
 
-  DebuggingOutput <= PFChargedObjStream(0);
+  MakeSeeds : entity Layer2.Seeding
+  port map(
+    clk => clk,
+    PFChargedObjStream => PFChargedObjStream,
+    Seeds => Seeds
+  );
+
+  CandidateToSeedAssoc : entity Layer2.FindClosestSeed
+  port map(
+    clk => clk,
+    Seeds => Seeds,
+    PFChargedObjIn => PFChargedObjStream,
+    PFChargedObjOut => PFChargedObjAssociated
+  );
+
+  DebuggingOutput <= PFChargedObjAssociated(0);
 end rtl;

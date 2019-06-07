@@ -27,15 +27,15 @@ architecture behavioral of FlatRegionsToStreams is
   -- This stream sees every input offset by 1 cycle
   signal FlatInVector : PFChargedObj.ArrayTypes.Vector(0 to N_PFChargedObj_PerRegion - 1) := PFChargedObj.ArrayTypes.NullVector(N_PFChargedObj_PerRegion);
   signal FlatInVectorPipe : PFChargedObj.ArrayTypes.VectorPipe(0 to 1)(0 to N_PFChargedObj_PerRegion - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(2, N_PFChargedObj_PerRegion);
-  signal PFChargedObjStreamInt : PFChargedObj.ArrayTypes.Vector(0 to N_PF_Regions - 1) := PFChargedObj.ArrayTypes.NullVector(N_PF_Regions);
+  signal PFChargedObjStreamInt : PFChargedObj.ArrayTypes.Vector(0 to N_PF_REGIONS_PerLayer1Board - 1) := PFChargedObj.ArrayTypes.NullVector(N_PF_REGIONS_PerLayer1Board);
 begin
 
 FlatPipe : entity PFChargedObj.DataPipe
 port map(clk, PFChargedObjFlat, FlatInVectorPipe);
 
 pisos :
-for i in 0 to N_PF_Regions - 1 generate
-  signal framecounter : integer range 0 to N_PF_regions - 1 := 0;
+for i in 0 to N_PF_REGIONS_PerLayer1Board - 1 generate
+  signal framecounter : integer range 0 to N_PF_REGIONS_PerLayer1Board - 1 := 0;
   signal objcounter : integer range 0 to N_PFChargedObj_PerRegion - 1 := 0;
   signal we : boolean := false;
   signal re : boolean := false;
@@ -47,8 +47,8 @@ begin
 
       -- Increment the frame counter while new data is arriving
       if FlatInVectorPipe(0)(0).FrameValid then
-        if (not FlatInVectorPipe(1)(0).FrameValid) or (framecounter = N_PF_Regions - 1) then
-          framecounter <= 0;
+        if (not FlatInVectorPipe(1)(0).FrameValid) or (framecounter = N_PF_REGIONS_PerLayer1Board - 1) then
+          framecounter <= 1;
         else
           framecounter <= framecounter + 1;
         end if;
@@ -60,7 +60,7 @@ begin
       -- Keep going until the counter reaches the number of objects
       if objcounter = N_PFChargedObj_PerRegion - 1 then
         objcounter <= 0;
-      elsif framecounter = N_PF_Regions - 1 or objcounter > 0 then
+      elsif framecounter = N_PF_REGIONS_PerLayer1Board - 1 or objcounter > 0 then
         objcounter <= objcounter + 1;
       else
         objcounter <= 0;
@@ -69,9 +69,10 @@ begin
       if i = 0 then
         we <= (not FlatInVectorPipe(1)(0).FrameValid) and FlatInVectorPipe(0)(0).FrameValid;
       else
-        we <= framecounter = i;
+        --we <= framecounter = i;
+        we <= framecounter = i and not re;
       end if;
-      re <= (framecounter = N_PF_Regions - 1) or (objcounter > 0); 
+      re <= (framecounter = N_PF_REGIONS_PerLayer1Board - 1) or (objcounter > 0); 
     end if;
   end process;
 

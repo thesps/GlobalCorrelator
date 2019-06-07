@@ -20,12 +20,17 @@ package DataType is
     z0  : z0_t;         -- 10 bits
     DataValid : boolean;
     FrameValid : boolean;
+    ---------------------
+    -- Below this not stored if object written to RAM
+    --------------------
+    deltaR2 : deltaR2_t;
+    NeighbourID : integer range -1 to 8;
   end record;
  
   attribute size : natural;
   attribute size of tData : type is 72; -- Actual is 56, round up to BRAM boundary 
 
-  constant cNull : tData := ((others => '0'), (others => '0'), (others => '0'), (others => '0'), (others => '0'), false, false);
+  constant cNull : tData := ((others => '0'), (others => '0'), (others => '0'), (others => '0'), (others => '0'), false, false, (others => '0'), 0);
 
   function ToStdLogicVector(x : tData) return std_logic_vector;
   function ToDataType(x : std_logic_vector) return tData;
@@ -82,6 +87,7 @@ package body DataType is
     l := l + y.id'length;
     y.z0 := signed(x(h downto l));
     y.DataValid := to_boolean(x(h+1));
+
     --h := h + y.z0'length;
     --l := l + y.z0'length;
     return y;
@@ -97,6 +103,8 @@ package body DataType is
     write(x, string'("z0"), right, 15);
     write(x, string'("FrameValid"), right, 15);
     write(x, string'("DataValid"), right, 15);
+    write(x, string'("DeltaR2"), right, 15);
+    write(x, string'("NeighbourID"), right, 15);
     return x.all;
   end WriteHeader;
 
@@ -110,6 +118,8 @@ package body DataType is
     write(x, to_integer(d.z0), right, 15);
     write(x, d.FrameValid, right, 15);
     write(x, d.DataValid, right, 15);
+    write(x, to_integer(d.DeltaR2), right, 15);
+    write(x, d.NeighbourID, right, 15);
  
     return x.all;
   end WriteData;
