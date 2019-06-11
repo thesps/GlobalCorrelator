@@ -1,0 +1,4 @@
+include -c emp-fwk:boards/vcu118 vcu118.dep
+src vcu118_decl_full.vhd
+
+setup RUFL.tcl
