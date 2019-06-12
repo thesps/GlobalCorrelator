@@ -64,7 +64,7 @@ ARCHITECTURE rtl OF top IS
 
 BEGIN
 
-    clk <= NOT clk AFTER 2.5 ns;
+    clk <= NOT clk AFTER 1.39 ns;
 
 -- -------------------------------------------------------------------------
 -- STIMULII FOR THE ALGORITHMS

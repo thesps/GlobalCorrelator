@@ -35,18 +35,18 @@ end PFLayer2ProcessorTop;
 
 architecture rtl of PFLayer2ProcessorTop is
 
-  --subtype tPFChargedObjVectorIn is PFChargedObj.ArrayTypes.Vector(0 to N_PFChargedObj_PerRegion - 1);
-  --signal PFChargedObjIn : tPFChargedObjVectorIn := PFChargedObj.ArrayTypes.NullVector(N_PFChargedObj_PerRegion);
   signal PFChargedObjIn : PFChargedObj.ArrayTypes.Vector(0 to N_PFChargedObj_PerRegion - 1) := PFChargedObj.ArrayTypes.NullVector(N_PFChargedObj_PerRegion);
   --signal PFNeutralObjIn : PFNeutralObj.Vector;
 
-  --subtype tPFChargedObjStream is PFChargedObj.ArrayTypes.VectorPipe(0 to 9)(0 to N_PF_REGIONS_PerLayer1Board - 1);
-  --signal PFChargedObjStream : tPFChargedObjStream := PFChargedObj.ArrayTypes.NullVectorPipe(10, N_PF_REGIONS_PerLayer1Board);
   signal PFChargedObjStream : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS_PerLayer1Board - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS_PerLayer1Board);
+  signal PFChargedObjSeedSynced : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS);
   --signal PFNeutralObjStream : PFNeutralObj.Vector(9 downto 0)(N_PF_REGIONS_PerLayer1Board - 1 downto 0);
 
   signal Seeds : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS);
+  signal SeedsDelayed : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS);
   signal PFChargedObjAssociated : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS);
+  signal SeedsSumPt : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_PF_REGIONS - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_PF_REGIONS);
+
 begin
 
   LinkDecode : entity Layer2.LinkDecode
@@ -70,16 +70,26 @@ begin
   port map(
     clk => clk,
     PFChargedObjStream => PFChargedObjStream,
-    Seeds => Seeds
+    Seeds => Seeds,
+    PFChargedObjOut => PFChargedObjSeedSynced
   );
 
   CandidateToSeedAssoc : entity Layer2.FindClosestSeed
   port map(
     clk => clk,
-    Seeds => Seeds,
-    PFChargedObjIn => PFChargedObjStream,
+    SeedsIn => Seeds,
+    PFChargedObjIn => PFChargedObjSeedSynced,
+    SeedsOut => SeedsDelayed,
     PFChargedObjOut => PFChargedObjAssociated
   );
+ 
+  SumPt : entity Layer2.SumCandidatesAroundSeed
+  port map(
+    clk => clk,
+    SeedsIn => SeedsDelayed,
+    PFChargedObjIn => PFChargedObjAssociated,
+    PFChargedObjOut => SeedsSumPt
+  );
 
-  DebuggingOutput <= PFChargedObjAssociated(0);
+  DebuggingOutput <= SeedsSumPt(0);
 end rtl;

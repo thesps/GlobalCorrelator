@@ -20,18 +20,20 @@ use SeedReduce.ArrayTypes;
 entity FindClosestSeed is
 port(
   clk : in std_logic;
-  Seeds : in PFChargedObj.ArrayTypes.VectorPipe;
+  SeedsIn : in PFChargedObj.ArrayTypes.VectorPipe;
   PFChargedObjIn : in PFChargedObj.ArrayTypes.VectorPipe;
+  SeedsOut : out PFChargedObj.ArrayTypes.VectorPipe;
   PFChargedObjOut : out PFChargedObj.ArrayTypes.VectorPipe
 );
 end FindClosestSeed;
 
 architecture behavioral of FindClosestSeed is
   -- Verify this latency
-  constant ModuleLatency : integer := 10;
+  constant ModuleLatency : integer := 9;
   constant DeltaRLatency : integer := 5;
   type deltaR2Array is array(0 to 8) of deltaR2_t;
   signal PFChargedObjOutInt : PFChargedObj.ArrayTypes.Vector(0 to N_PF_Regions - 1) := PFChargedObj.ArrayTypes.NullVector(N_PF_Regions);
+  signal SeedsOutInt : PFChargedObj.ArrayTypes.Vector(0 to N_PF_Regions - 1) := PFChargedObj.ArrayTypes.NullVector(N_PF_Regions);
 begin
 
 -- Simplest, most naive seeding: take the highest pT object from each region
@@ -53,17 +55,19 @@ begin
   SeedLoop:
   for j in 0 to 8 generate
     signal seed : PFChargedObj.DataType.tData := PFChargedObj.DataType.cNull;
-    signal seedDelayed : PFChargedObj.DataType.tData := PFChargedObj.DataType.cNull;
+    --signal seedDelayed : PFChargedObj.DataType.tData := PFChargedObj.DataType.cNull;
   begin
     process(clk)
     begin
       if rising_edge(clk) then
       if Neighbours(i, j) /= -1 then
-        seed <= Seeds(0)(Neighbours(i, j));
-        seedDelayed <= Seeds(DeltaRLatency)(Neighbours(i, j));
+        if not SeedsIn(1)(Neighbours(i, j)).DataValid and SeedsIn(0)(Neighbours(i, j)).DataValid then
+          seed <= SeedsIn(0)(Neighbours(i, j));
+          --seedDelayed <= SeedsIn(DeltaRLatency)(Neighbours(i, j));
+        end if;
       else
         seed <= PFChargedObj.DataType.cNull;
-        seedDelayed <= PFChargedObj.DataType.cNull;
+        --seedDelayed <= PFChargedObj.DataType.cNull;
       end if;
       end if;
     end process;
@@ -74,8 +78,8 @@ begin
     -- The null-object padding should never be propagated by the 'closest' function
     seedsTreeReduce(0)(j).deltaR2 <= deltaR2s(j);
     seedsTreeReduce(0)(j).NeighbourID <= j;
-    seedsTreeReduce(0)(j).FrameValid <= seedDelayed.FrameValid;
-    seedsTreeReduce(0)(j).DataValid <= seedDelayed.DataValid and PFChargedObjIn(DeltaRLatency)(i).DataValid;
+    seedsTreeReduce(0)(j).FrameValid <= seed.FrameValid;
+    seedsTreeReduce(0)(j).DataValid <= seed.DataValid and PFChargedObjIn(DeltaRLatency)(i).DataValid;
   end generate;
 
   TreeReduce:
@@ -111,11 +115,16 @@ begin
   PFChargedObjOutInt(i).FrameValid <= PFChargedObjIn(ModuleLatency)(i).FrameValid;
   PFChargedObjOutInt(i).NeighbourID <= seedsTreeReduce(4)(0).NeighbourID;
   PFChargedObjOutInt(i).DeltaR2 <= seedsTreeReduce(4)(0).DeltaR2;
-  
+
 end generate;
+
+SeedsOutInt <= SeedsIn(ModuleLatency);
 
 OutPipe : entity PFChargedObj.DataPipe
 port map(clk, PFChargedObjOutInt, PFChargedObjOut);
+
+OutPipeSeeds : entity PFChargedObj.DataPipe
+port map(clk, SeedsOutInt, SeedsOut);
 
 DebugInstance : entity PFChargedObj.Debug
 generic map( FileName => "FindClosest" )
