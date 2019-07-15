@@ -39,8 +39,8 @@ package DataType is
   function WriteData(d : tData) return string;
 
   function SumPt(x, y : tData) return tData;
-  function "<" (x, y : tData) return boolean;
-  function ">" (x, y : tData) return boolean;
+  function "<" (left, right : tData) return boolean;
+  function ">" (left, right : tData) return boolean;
 
 end DataType;
 
@@ -133,10 +133,10 @@ package body DataType is
     return z;
   end SumPt;
 
-  function "<" (x, y : tData) return boolean is
+  function "<" (left, right : tData) return boolean is
     variable ret : boolean := false;
   begin
-      if to_integer(x.pt) < to_integer(y.pt) then
+      if to_integer(left.pt) < to_integer(right.pt) then
           ret := true;
       else
           ret := false;
@@ -144,10 +144,10 @@ package body DataType is
       return ret;
   end "<";
   
-  function ">" (x, y : tData) return boolean is
+  function ">" (left, right : tData) return boolean is
     variable ret : boolean := false;
   begin
-      if to_integer(x.pt) > to_integer(y.pt) then
+      if to_integer(left.pt) > to_integer(right.pt) then
           ret := true;
       else
           ret := false;
