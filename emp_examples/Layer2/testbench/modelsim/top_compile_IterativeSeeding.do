@@ -46,7 +46,7 @@ vcom -64 -2008 -work PFChargedObj  \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/DataPipe.vhd" \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/Debugger.vhd" \
 "../../../Common/modules/firmware/hdl/DeltaR2.vhd" \
-"../../../Layer2/modules/firmware/hdl/PairReduceNoClk.vhd" \
+"../../../Layer2/modules/firmware/hdl/PairReduce.vhd" \
 
 vcom -64 -2008 -work Layer2  \
 "../../../Layer2/modules/firmware/hdl/IterativeSeeding.vhd" \
