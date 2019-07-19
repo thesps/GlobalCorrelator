@@ -34,11 +34,12 @@ architecture behavioral of IterativeSeeding is
   constant inConeLatency : integer := 6;
   constant pairReduceLatency : integer := 2;
   constant read_limit : integer := N_Parts_Per_Region_Group;
+  constant wAddrsNewSeedDelay : integer := 4; -- Determined from sim
 
-  signal PFChargedObjInPipe : PFChargedObj.ArrayTypes.VectorPipe(0 to 9)(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(10, N_Region_Groups);
+  signal PFChargedObjInPipe : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_Region_Groups);
   signal ObjInt : PFChargedObj.ArrayTypes.Matrix(0 to N_Region_Groups - 1)(0 to N_Parts_Per_Region_Group - 1) := PFCHargedObj.ArrayTypes.NullMatrix(N_Region_Groups, N_Parts_Per_Region_Group);
   signal ObjRead : PFChargedObj.ArrayTypes.Vector(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVector(N_Region_Groups); -- One per region group
-  signal ObjReadPipe : PFChargedObj.ArrayTypes.VectorPipe(0 to inConeLatency - 1)(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(inConeLatency, N_Region_Groups);
+  signal ObjReadPipe : PFChargedObj.ArrayTypes.VectorPipe(0 to 19)(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(20, N_Region_Groups);
   signal ObjWrite : PFChargedObj.ArrayTypes.Vector(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVector(N_Region_Groups); -- One per region group
   signal wData : PFChargedObj.ArrayTypes.Vector(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVector(N_Region_Groups); -- One per region group
   signal GlobalSeeds : PFChargedObj.ArrayTypes.Vector(0 to N_SEEDS - 1) := PFChargedObj.ArrayTypes.NullVector(N_SEEDS);
@@ -54,6 +55,8 @@ architecture behavioral of IterativeSeeding is
   signal wAddrsInt : tAddrArr(0 to N_Region_Groups - 1) := (others => 0);
   signal wAddrExt : tAddr := 0;
   signal wAddrs : tAddrArr(0 to N_Region_Groups - 1) := (others => 0);
+  signal wAddrsDel : tAddrArr(0 to N_Region_Groups - 1) := (others => 0); -- Delayed by one
+  signal regMaxAddr : tAddrArr(0 to N_Region_Groups - 1) := (others => 0); -- Keep track of the number of particles written back
 
   type tBoolArr is array(natural range <>) of boolean;
   type tBoolArrPipe is array(natural range <>) of tBoolArr;
@@ -62,7 +65,7 @@ architecture behavioral of IterativeSeeding is
   signal wEn : tBoolArr(0 to N_Region_Groups - 1) := (others => false);
   signal wEnInt : tBoolArr(0 to N_Region_Groups - 1) := (others => false);
   signal newSeed : boolean := false;
-  signal newSeedPipe : tBoolArr(0 to 9) := (others => false);
+  signal newSeedPipe : tBoolArr(0 to 19) := (others => false);
 
   -- Signals for the pair reduce to find maximum pT cand
   signal PairReduce0 : PFChargedObj.ArrayTypes.Vector(0 to 4 - 1) := PFChargedObj.ArrayTypes.NullVector(4);
@@ -131,7 +134,7 @@ process(clk)
 begin
   if rising_edge(clk) then
     -- Takes pairReduceLatency to get the GS, 2 cycles for w/r
-    if newSeedPipe(pairReduceLatency + 2) then -- when?
+    if newSeedPipe(pairReduceLatency + 1) then -- when?
       GlobalSeeds(iSeed) <= PairReduce2_r(0);
       CurrentGlobalSeed <= PairReduce2_r(0);
     end if;
@@ -146,7 +149,7 @@ begin
   begin
     if rising_edge(clk) then
       -- Read needs to lag the write by 1 cycle
-      if PFChargedObjInPipe(1)(i).FrameValid and not PFChargedObjInPipe(2)(i).FrameValid then
+      if PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency)(i).FrameValid and not PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency + 1)(i).FrameValid then
         rAddrs(i) <= 0;
       -- Need to iterate from 0 when the new Global Seed arrives
       --elsif newSeedPipe(pairReduceLatency + 2) then
@@ -156,7 +159,11 @@ begin
       else
         rAddrs(i) <= rAddrs(i) + 1;
       end if;
-    ObjRead(i) <= ObjInt(i)(rAddrs(i));
+      if rAddrs(i) < regMaxAddr(i) then -- Mask objects not overwritten
+        ObjRead(i) <= ObjInt(i)(rAddrs(i));
+      else
+        ObjRead(i) <= PFChargedObj.DataType.cNull;
+      end if;  
     end if;
   end process;
 end generate;
@@ -167,7 +174,7 @@ begin
   if rising_edge(clk) then
     if rAddrs(0) = read_limit - 1 then
       newSeed <= true;
-    elsif PFChargedObjInPipe(0)(0).FrameValid and not PFChargedObjInPipe(1)(0).FrameValid then
+    elsif PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency)(0).FrameValid and not PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency + 1)(0).FrameValid then
       newSeed <= true;
     elsif newSeed = true then
       newSeed <= false;
@@ -183,7 +190,7 @@ for i in 0 to N_Region_Groups - 1 generate
 begin
   -- Make the DR2 comparisons
   dr2 : entity PFChargedObj.DeltaR2
-  port map(clk, CurrentGlobalSeed, ObjReadPipe(pairReduceLatency + 2)(i), deltaR2_arr(i));
+  port map(clk, CurrentGlobalSeed, ObjReadPipe(pairReduceLatency + 1)(i), deltaR2_arr(i));
   deltaR2_sig2.deltaR2 <= deltaR2_arr(i); -- just a convenience thing
   -- Compare the dr2 with the cone size
   dr2Comp:
@@ -194,7 +201,8 @@ begin
     end if;  
   end process;
   inConePipe(0)(i) <= inCone(i);
-  wEnInt(i) <= not inConePipe(inConeLatency)(i);
+  --wEnInt(i) <= not inConePipe(inConeLatency)(i);
+  wEnInt(i) <= not inCone(i);
 
   WriteAddr:
   process(clk)
@@ -205,11 +213,16 @@ begin
         --ObjInt(i)(wAddrs(i)) <= ObjWrite(i);
        if wAddrsInt(i) = read_limit - 1 then
         wAddrsInt(i) <= 0;
+       -- Start writing once the comparisons are valid
        else
         wAddrsInt(i) <= wAddrsInt(i) + 1;
        end if;
       else
-        wAddrsInt(i) <= wAddrsInt(i);
+        if newSeedPipe(wAddrsNewSeedDelay) then
+            wAddrsInt(i) <= 0;
+        else
+            wAddrsInt(i) <= wAddrsInt(i);
+        end if;
       end if;
     end if;
   end process;
@@ -233,6 +246,23 @@ begin
         --if writeEn(i) then
         --  ObjInt(i)(wAddrs(i)) <= ObjWrite(i);
         --end if;
+      end if;
+    end if;
+  end process;
+end generate;
+
+-- Keep track of the maximum adress written into per region
+MaxAddr:
+for i in 0 to N_Region_Groups - 1 generate
+begin
+  process(clk)
+  begin
+    if rising_edge(clk) then
+      wAddrsDel(i) <= wAddrs(i);
+      if wAddrs(i) > wAddrsDel(i) then
+        regMaxAddr(i) <= wAddrs(i);
+      elsif wAddrs(i) < wAddrsDel(i) then
+        regMaxAddr(i) <= regMaxAddr(i);
       end if;
     end if;
   end process;
@@ -262,7 +292,7 @@ end process;
 
 PipeObjRead : entity PFChargedObj.DataPipe
 port map(clk, ObjRead, ObjReadPipe);
-ObjWrite <= ObjReadPipe(inConeLatency - 1);
+ObjWrite <= ObjReadPipe(inConeLatency + 3);
 
 OutPipe : entity PFChargedObj.DataPipe
 port map(clk, GlobalSeeds, Seeds);
