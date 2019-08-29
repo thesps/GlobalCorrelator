@@ -84,8 +84,8 @@ BEGIN
                                  deltaR2 => (others => '0'),
                                  NeighbourID => 0);
     PFChargedObjBuffer(1)(0) <= (pt => to_signed(90, 16),
-                                 eta => to_signed(2, 10),
-                                 phi => to_signed(0, 10),
+                                 eta => to_signed(511, 10),
+                                 phi => to_signed(511, 10),
                                  id => to_unsigned(0, 3),
                                  z0 => to_signed(0, 10),
                                  DataValid => true,
@@ -93,8 +93,8 @@ BEGIN
                                  deltaR2 => (others => '0'),
                                  NeighbourID => 0);
     PFChargedObjBuffer(2)(0) <= (pt => to_signed(80, 16),
-                                 eta => to_signed(511, 10),
-                                 phi => to_signed(0, 10),
+                                 eta => to_signed(1, 10),
+                                 phi => to_signed(1, 10),
                                  id => to_unsigned(0, 3),
                                  z0 => to_signed(0, 10),
                                  DataValid => true,
@@ -102,8 +102,8 @@ BEGIN
                                  deltaR2 => (others => '0'),
                                  NeighbourID => 0);
     PFChargedObjBuffer(0)(1) <= (pt => to_signed(85, 16),
-                                 eta => to_signed(511, 10),
-                                 phi => to_signed(0, 10),
+                                 eta => to_signed(510, 10),
+                                 phi => to_signed(510, 10),
                                  id => to_unsigned(0, 3),
                                  z0 => to_signed(0, 10),
                                  DataValid => true,
@@ -115,8 +115,15 @@ BEGIN
     process(clk)
     begin
         if rising_edge(clk) then
-            if counter < 3 then
-                PFChargedObjIn <= PFChargedObjBuffer(counter);
+            if counter < N_Parts_Per_Region_Group then
+              if counter < 3 then
+                  PFChargedObjIn <= PFChargedObjBuffer(counter);
+              else
+                  PFChargedObjIn <= PFChargedObj.ArrayTypes.NullVector(N_Region_Groups); 
+              end if;
+              for i in 0 to N_Region_Groups - 1 loop
+                PFChargedObjIn(i).FrameValid <= True;
+              end loop;
             else
                 PFChargedObjIn <= PFChargedObj.ArrayTypes.NullVector(N_Region_Groups); 
             end if;

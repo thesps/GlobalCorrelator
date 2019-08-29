@@ -17,7 +17,7 @@ package constants is
   ----------------------------------------------
   constant N_PF_REGIONS : integer := 72;
   -- With TMUX=6 there will be 18 regions per board, but keep 36 pending implementation of II=2 input decode
-  constant N_PF_REGIONS_PerLayer1Board : integer := 36;
+  constant N_PF_REGIONS_PerLayer1Board : integer := 18;
   constant N_PFChargedObj_PerRegion : integer := 25;
   constant N_Layer1Boards : integer := 4;
   constant N_LinksPerLayer1Board : integer := 8;

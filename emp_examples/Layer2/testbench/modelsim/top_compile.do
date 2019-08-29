@@ -54,8 +54,11 @@ vcom -64 -2008 -work PFChargedObj  \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/Debugger.vhd" \
 "../../../Common/modules/firmware/hdl/ParallelToSerial.vhd" \
 "../../../Common/modules/firmware/hdl/DeltaR2.vhd" \
+"../../../Common/modules/firmware/hdl/StreamSort.vhd" \
 
 vcom -64 -2008 -work Layer2  \
+"../../modules/firmware/hdl/HighestPtCandidatesInCone.vhd" \
+"../../modules/firmware/hdl/SumCandidatesAroundSeed.vhd" \
 "../../modules/firmware/hdl/FindClosestSeed.vhd" \
 "../../modules/firmware/hdl/Seeding.vhd" \
 "../../modules/firmware/hdl/FlatRegionsToStreams.vhd" \

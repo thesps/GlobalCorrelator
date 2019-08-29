@@ -15,14 +15,13 @@ vlib modelsim_lib/msim/xil_defaultlib
 vlib modelsim_lib/msim/PFChargedObj
 vlib modelsim_lib/msim/SeedReduce
 vlib modelsim_lib/msim/Layer2
-vlib modelsim_lib/msim/TDeltaR2
 
 vmap Utilities modelsim_lib/msim/Utilities
 vmap Interfaces modelsim_lib/msim/Interfaces
 vmap xil_defaultlib modelsim_lib/msim/xil_defaultlib
 vmap PFChargedObj modelsim_lib/msim/PFChargedObj
+vmap SeedReduce modelsim_lib/msim/SeedReduce
 vmap Layer2 modelsim_lib/msim/Layer2
-vmap TDeltaR2 modelsim_lib/msim/TDeltaR2
 
 vcom -64 -work xil_defaultlib \
 "../../top/firmware/hdl/vcu118_decl_sim.vhd"\
@@ -30,24 +29,41 @@ vcom -64 -work xil_defaultlib \
  vcom -64 -2008 -work Layer2 \
 "../../../Common/components/firmware/hdl/PkgConstants.vhd" \
 "../../components/firmware/hdl/PkgRegions.vhd" \
-"../../components/firmware/hdl/PkgIterativeSeeding.vhd"\
 
-vcom -64 -2008 -work TDeltaR2 \
-"../../../Common/components/firmware/hdl/PkgDeltaR2.vhd"\
+vcom -64 -2008 -work SeedReduce \
+"../../components/firmware/hdl/PkgSeedReduce.vhd" \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PkgArrayTypes.vhd" \
+
+vcom -64 -2008 -work Interfaces \
+"../firmware/hdl/mp7_data_types.vhd"
 
 vcom -64 -2008 -work Utilities  \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PkgUtilities.vhd" \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PkgDebug.vhd" \
+"../../../../../HGC-firmware/projects/Common/firmware/hdl/TestingAndDebugging/MP7CaptureFileReader.vhd" \
+
+vcom -64 -2008 -work Interfaces \
+"../../../../../HGC-firmware/projects/Common/firmware/hdl/TopLevelInterfaces/PkgInterfaces.vhd" \
+"../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PkgArrayTypes.vhd" \
+"../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/Debugger.vhd" \
+
+vcom -64 -2008 -work TDeltaR2 \
+"../../../Common/components/firmware/hdl/PkgDeltaR2.vhd"\
+"../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PkgArrayTypes.vhd" \
 
 vcom -64 -2008 -work PFChargedObj  \
 "../../../Common/components/firmware/hdl/PkgPFChargedObj.vhd" \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PkgArrayTypes.vhd" \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/DataPipe.vhd" \
 "../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/Debugger.vhd" \
-"../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PairReduceMax.vhd" \
+"../../../Common/modules/firmware/hdl/ParallelToSerial.vhd" \
 "../../../Common/modules/firmware/hdl/DeltaR2.vhd" \
 
 vcom -64 -2008 -work Layer2  \
-"../../../Layer2/modules/firmware/hdl/IterativeSeeding.vhd" \
-"../firmware/hdl/TestBenchIterativeSeeding.vhd"
+"../../modules/firmware/hdl/FlatRegionsToStreams.vhd" \
+"../../modules/firmware/hdl/LinkDecode.vhd" \
+"../../modules/firmware/hdl/IterativeSeeding.vhd" \
+"../../top/firmware/hdl/PFLayer2ProcessorTopIterativeSeeding.vhd" \
+"../firmware/hdl/DummyData.vhd" \
+"../firmware/hdl/TestBench.vhd" \
+

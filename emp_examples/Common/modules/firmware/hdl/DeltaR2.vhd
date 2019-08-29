@@ -32,6 +32,10 @@ architecture rtl of DeltaR2 is
   signal qEta_tmp0 : etaphi2_t; -- DSP internal reg
   signal qEta_tmp1 : etaphi2_t; -- DSP q reg
 
+  attribute USE_DSP48 : string;
+  attribute USE_DSP48 of qPhi_tmp0 : signal is "YES";
+  attribute USE_DSP48 of qEta_tmp0 : signal is "YES";
+
 begin
 
   process(clk)

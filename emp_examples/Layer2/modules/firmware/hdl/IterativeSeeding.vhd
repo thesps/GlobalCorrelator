@@ -20,11 +20,11 @@ use TDeltaR2.ArrayTypes;
 entity IterativeSeeding is
 port(
   clk : in std_logic;
-  rst : in std_logic;
   PFChargedObjIn : in PFCHargedObj.ArrayTypes.Vector(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVector(N_Region_Groups);
   -- PFChargedObjBuffer : in PFChargedObj.ArrayTypes.Matrix(0 to N_Region_Groups - 1)(0 to N_Parts_Per_Region_Group - 1); -- Region-streams in groups
-  Seeds : out PFChargedObj.ArrayTypes.VectorPipe(0 to 7)(0 to N_Seeds - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(8, N_Seeds)
-  --PFChargedObjOut : out PFChargedObj.ArrayTypes.VectorPipe
+  Seeds : out PFChargedObj.ArrayTypes.VectorPipe(0 to 7)(0 to N_Seeds - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(8, N_Seeds);
+  DebugSeed : out PFChargedObj.DataType.tData := PFChargedObj.DataType.cNull;
+  NewSeedOut : out std_logic := '0'
 );
 end IterativeSeeding;
 
@@ -32,7 +32,7 @@ architecture behavioral of IterativeSeeding is
 
   -- TODO check this value: nothing will work correctly if it is wrong
   constant inConeLatency : integer := 6;
-  constant pairReduceLatency : integer := 2;
+  constant pairReduceLatency : integer := LatencyOfPairReduce(N_Region_Groups);
   constant read_limit : integer := N_Parts_Per_Region_Group;
   constant wAddrsNewSeedDelay : integer := 4; -- Determined from sim
 
@@ -65,13 +65,11 @@ architecture behavioral of IterativeSeeding is
   signal wEn : tBoolArr(0 to N_Region_Groups - 1) := (others => false);
   signal wEnInt : tBoolArr(0 to N_Region_Groups - 1) := (others => false);
   signal newSeed : boolean := false;
-  signal newSeedPipe : tBoolArr(0 to 19) := (others => false);
+  signal newSeedPipe : tBoolArr(0 to 29) := (others => false);
 
   -- Signals for the pair reduce to find maximum pT cand
-  signal PairReduce0 : PFChargedObj.ArrayTypes.Vector(0 to 4 - 1) := PFChargedObj.ArrayTypes.NullVector(4);
-  signal PairReduce1 : PFChargedObj.ArrayTypes.Vector(0 to 2 - 1) := PFChargedObj.ArrayTypes.NullVector(2);
-  signal PairReduce2 : PFChargedObj.ArrayTypes.Vector(0 to 1 - 1) := PFChargedObj.ArrayTypes.NullVector(1);
-  signal PairReduce2_r : PFChargedObj.ArrayTypes.Vector(0 to 1 - 1) := PFChargedObj.ArrayTypes.NullVector(1);
+  signal PairReduceIn : PFChargedObj.ArrayTypes.Vector(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVector(N_Region_Groups);
+  signal PairReduceOut : PFChargedObj.ArrayTypes.Vector(0 to 1 - 1) := PFChargedObj.ArrayTypes.NullVector(1);
 
 begin
 
@@ -107,27 +105,10 @@ end process;
 
 -- TODO only works for 4 region groups
 -- Find the maximum Pt object from the front of the grouped-regions
-PRIn:
-for i in 0 to 3 generate
-begin
-  PairReduce0(i) <= ObjRead(i);
-end generate;
+PairReduceIn <= ObjRead;
 
--- Try just clocking every other time
-PR0 : entity PFChargedObj.PairReduce
-port map(clk, PairReduce0, PairReduce1);
-
-PR1 : entity PFChargedObj.PairReduce
-port map(clk, PairReduce1, PairReduce2);
-
---PR1_r:
---process(clk)
---begin
---  if rising_edge(clk) then
---    PairReduce2_r <= PairReduce2;
---  end if;
---end process;
-PairReduce2_r <= PairReduce2;
+PR : entity PFChargedObj.PairReduceMax
+port map(clk, PairReduceIn, PairReduceOut);
 
 UpdateGlobalSeed:
 process(clk)
@@ -135,8 +116,15 @@ begin
   if rising_edge(clk) then
     -- Takes pairReduceLatency to get the GS, 2 cycles for w/r
     if newSeedPipe(pairReduceLatency + 1) then -- when?
-      GlobalSeeds(iSeed) <= PairReduce2_r(0);
-      CurrentGlobalSeed <= PairReduce2_r(0);
+      GlobalSeeds(iSeed) <= PairReduceOut(0);
+      CurrentGlobalSeed <= PairReduceOut(0);
+    end if;
+    if newSeedPipe(pairReduceLatency + 1) then
+      DebugSeed <= PairReduceOut(0);
+      NewSeedOut <= '1';
+    else
+      DebugSeed <= PFChargedObj.DataType.cNull;
+      NewSeedOut <= '0';
     end if;
   end if;
 end process;
@@ -152,8 +140,8 @@ begin
       if PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency)(i).FrameValid and not PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency + 1)(i).FrameValid then
         rAddrs(i) <= 0;
       -- Need to iterate from 0 when the new Global Seed arrives
-      --elsif newSeedPipe(pairReduceLatency + 2) then
-      --  rAddrs(i) <= 0;
+      elsif newSeedPipe(N_Parts_Per_Region_Group + inConeLatency + pairReduceLatency) then
+        rAddrs(i) <= 0;
       elsif rAddrs(i) = read_limit - 1 then
         rAddrs(i) <= 0;
       else
@@ -172,9 +160,13 @@ NewSeedProc:
 process(clk)
 begin
   if rising_edge(clk) then
-    if rAddrs(0) = read_limit - 1 then
+    --if rAddrs(0) = read_limit - 1 then
+    --  newSeed <= true;
+    -- Start from new data
+    if PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency)(0).FrameValid and not PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency + 1)(0).FrameValid then
       newSeed <= true;
-    elsif PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency)(0).FrameValid and not PFChargedObjInPipe(N_Parts_Per_Region_Group - inConeLatency + 1)(0).FrameValid then
+    -- Next iteration
+    elsif newSeedPipe(N_Parts_Per_Region_Group + inConeLatency + pairReduceLatency) then
       newSeed <= true;
     elsif newSeed = true then
       newSeed <= false;
@@ -292,7 +284,7 @@ end process;
 
 PipeObjRead : entity PFChargedObj.DataPipe
 port map(clk, ObjRead, ObjReadPipe);
-ObjWrite <= ObjReadPipe(inConeLatency + 3);
+ObjWrite <= ObjReadPipe(inConeLatency + pairReduceLatency + 1);
 
 OutPipe : entity PFChargedObj.DataPipe
 port map(clk, GlobalSeeds, Seeds);

@@ -23,8 +23,8 @@ USE work.DataType.ALL;
 -- -------------------------------------------------------------------------
 ENTITY StreamSort IS
   GENERIC(
-    size : integer := 16;
-         )
+    size : integer := 16
+         );
   PORT(
     clk      : in std_logic := '0'; -- The algorithm clock
     rst       : in boolean := false;
@@ -42,6 +42,7 @@ BEGIN
 
   DataInternal(0) <= DataIn;
 
+  GenPipe:
   for i in 0 to size - 1 generate
   begin
     process(clk)
@@ -63,4 +64,4 @@ BEGIN
 
   DataOut <= Accumulator;
 
-END ARCHITECTURE StreamSort;
+END ARCHITECTURE rtl;

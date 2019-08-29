@@ -5,7 +5,7 @@ package PkgIterativeSeeding is
 
   -- Number of groups of non-neighbouring PF regions
   -- Generall expected to be 4 or 9 depending on sub-region size   
-  constant N_Region_Groups : integer := 4;
+  constant N_Region_Groups : integer := 72;
 
   -- Number of particles to select from each region before sorting down
   -- Any particles further down the pt-sorted region list will not become a seed

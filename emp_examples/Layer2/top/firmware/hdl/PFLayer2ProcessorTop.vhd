@@ -91,5 +91,13 @@ begin
     PFChargedObjOut => SeedsSumPt
   );
 
+  TopN : entity Layer2.HighestPtCandidatesInCone
+  port map(
+    clk => clk,
+    SeedsIn => SeedsDelayed,
+    PFChargedObjIn => PFChargedObjAssociated,
+    
+  );
+
   DebuggingOutput <= SeedsSumPt(0);
 end rtl;

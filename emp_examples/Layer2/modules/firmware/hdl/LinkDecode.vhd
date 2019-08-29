@@ -30,20 +30,16 @@ entity LinkDecode is
 port(
   clk : in std_logic;
   LinksIn : in ldata(4 * N_REGION - 1 downto 0) := (others => lword_null);
-  PFChargedObjStream : out PFChargedObj.ArrayTypes.Vector(0 to N_PFChargedObj_PerRegion - 1) := PFChargedObj.ArrayTypes.NullVector(N_PFChargedObj_PerRegion)
+  PFChargedObjStream : out PFChargedObj.ArrayTypes.Vector(0 to N_Layer1Boards * N_PFChargedObj_PerRegion - 1) := PFChargedObj.ArrayTypes.NullVector(N_Layer1Boards * N_PFChargedObj_PerRegion)
 );
 end LinkDecode;
 
 
 architecture behavioral of LinkDecode is
-  --subtype tPFChargedObjInt is PFChargedObj.ArrayTypes.Vector(0 to N_PFChargedObj_PerRegion - 1);
-  --subtype tPFChargedObjInt is ArrayTypes.Vector(0 to N_PFChargedObj_PerRegion - 1);
-  --signal PFChargedObjInt :  tPFChargedObjInt := PFChargedObj.ArrayTypes.NullVector(N_PFChargedObj_PerRegion);
-  --signal PFChargedObjInt :  tPFChargedObjInt := ArrayTypes.NullVector(N_PFChargedObj_PerRegion);
-  signal PFChargedObjInt : PFChargedObj.ArrayTypes.Vector(0 to N_PFChargedObj_PerRegion - 1) := PFChargedObj.ArrayTypes.NullVector(N_PFChargedObj_PerRegion);
+  signal PFChargedObjInt : PFChargedObj.ArrayTypes.Vector(0 to N_Layer1Boards * N_PFChargedObj_PerRegion - 1) := PFChargedObj.ArrayTypes.NullVector(N_Layer1Boards * N_PFChargedObj_PerRegion);
 begin 
  
-  DecodeChargedObjs : for i in 0 to N_PFChargedObj_PerRegion - 1 generate
+  DecodeChargedObjs : for i in 0 to N_Layer1Boards * N_PFChargedObj_PerRegion - 1 generate
     --signal tmp : PFChargedObj.DataType.tData := PFChargedObj.DataType.NullData;
     signal tmp : DataType.tData := DataType.cNull;
   begin
