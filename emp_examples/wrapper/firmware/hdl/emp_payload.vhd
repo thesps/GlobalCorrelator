@@ -9,11 +9,10 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 use work.ipbus.all;
 use work.emp_data_types.all;
-use work.top_decl.all;
+use work.emp_project_decl.all;
 
-use work.emp_data_types.all;
 use work.emp_device_decl.all;
-use work.mp7_ttc_decl.all;
+use work.emp_ttc_decl.all;
 
 use work.pf_data_types.all;
 use work.pf_constants.all;
@@ -48,7 +47,7 @@ architecture rtl of emp_payload is
   signal d_pf : pf_data(N_PF_IP_CORE_IN_CHANS - 1 downto 0);
   signal q_pf : pf_data(N_PF_IP_CORE_OUT_CHANS - 1 downto 0);
   type valid_array is array (natural range <>) of std_logic_vector(N_PF_IP_CORE_IN_CHANS - 1 downto 0);
-  signal valid_pipe : valid_array := (others => (others => '0'));
+  signal valid_pipe : valid_array(0 to PF_ALGO_LATENCY-1) := (others => (others => '0'));
 
 begin
 
@@ -71,7 +70,7 @@ begin
     start_pf <= links_synced(41).valid;
 
     start_pipe_valid :
-    for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 downto 0 generate
+    for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 generate
     begin
         valid_pipe(0)(i) <= links_synced(i).valid;
     end generate;
@@ -80,12 +79,12 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            valid_pipe(1 to PF_IP_LATENCY - 1) <= valid_pipe(0 to PF_IP_LATENCY - 2);
+            valid_pipe(1 to PF_ALGO_LATENCY - 1) <= valid_pipe(0 to PF_ALGO_LATENCY - 2);
         end if;
     end process;
 
     ldata_to_pfdata :
-    for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 downto 0 generate
+    for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 generate
     begin
         d_pf(i) <= links_synced(i).data;
     end generate;
@@ -103,12 +102,12 @@ begin
       );
 
 
-    ldata_to_pfdata :
-    for i in 0 to N_PF_IP_CORE_OUT_CHANS - 1 downto 0 generate
+    pfdata_to_ldata :
+    for i in 0 to N_PF_IP_CORE_OUT_CHANS - 1 generate
     begin
         q(i).data <= q_pf(i);
         q(i).strobe <= '1';
-        q(i).valid <= valid_pipe(PF_IP_LATENCY - 1)(i);
+        q(i).valid <= valid_pipe(PF_ALGO_LATENCY - 1)(i);
     end generate;
 
     bc0 <= '0';

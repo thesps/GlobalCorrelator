@@ -19,8 +19,8 @@ USE IEEE.NUMERIC_STD.ALL;
 USE IEEE.STD_LOGIC_TEXTIO.ALL;
 USE STD.TEXTIO.ALL;
 
-LIBRARY Utilities;
-USE Utilities.Utilities.ALL;
+--LIBRARY Utilities;
+--USE Utilities.Utilities.ALL;
 
 LIBRARY xil_defaultlib;
 USE xil_defaultlib.emp_data_types.all;

@@ -22,7 +22,7 @@ architecture rtl of pf_ip_wrapper is
   
 begin
 
-  pf_algo : entity work.mp7wrapped_pfalgo3_full_0
+  pf_algo : entity work.mp7wrapped_pfalgo3_full
     port map (
       ap_clk => clk,
       ap_rst => rst,
@@ -108,11 +108,11 @@ begin
       output_33_V => output(33),
       output_34_V => output(34),
       output_35_V => output(35),
-      output_36_V => output(36),
-      output_37_V => output(37),
-      output_38_V => output(38),
-      output_39_V => output(39),
-      output_40_V => output(40),
+      --output_36_V => output(36),
+      --output_37_V => output(37),
+      --output_38_V => output(38),
+      --output_39_V => output(39),
+      --output_40_V => output(40),
       output_41_V => output(41)
       );
 
