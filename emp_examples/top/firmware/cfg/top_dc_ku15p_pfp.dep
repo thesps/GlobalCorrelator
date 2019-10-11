@@ -5,4 +5,4 @@ src -c ipbus-firmware:components/ipbus_slaves ipbus_reg_v.vhd ipbus_ctrlreg_v.vh
 src -c ipbus-firmware:components/ipbus_core ipbus_package.vhd ipbus_fabric_sel.vhd
 setup build.tcl
 include -c emp_examples/wrapper emp_pf_wrapper.dep
-include -c emp_examples/PF_IP PF.dep
+include -c emp_examples/PF_IP_II2_360MHz PF.dep

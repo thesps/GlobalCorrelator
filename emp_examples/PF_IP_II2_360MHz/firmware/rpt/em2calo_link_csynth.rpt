@@ -1,0 +1,323 @@
+
+
+================================================================
+== Vivado HLS Report for 'em2calo_link'
+================================================================
+* Date:           Wed Oct  2 15:13:59 2019
+
+* Version:        2018.2 (Build 2258646 on Thu Jun 14 20:25:20 MDT 2018)
+* Project:        l1pfpuppi-ku15p-II2-360MHz
+* Solution:       solution
+* Product family: kintexuplus
+* Target device:  xcku15p-ffva1760-2-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing (ns): 
+    * Summary: 
+    +--------+-------+----------+------------+
+    |  Clock | Target| Estimated| Uncertainty|
+    +--------+-------+----------+------------+
+    |ap_clk  |   2.70|     2.533|        1.50|
+    +--------+-------+----------+------------+
+
++ Latency (clock cycles): 
+    * Summary: 
+    +-----+-----+-----+-----+----------+
+    |  Latency  |  Interval | Pipeline |
+    | min | max | min | max |   Type   |
+    +-----+-----+-----+-----+----------+
+    |   26|   26|    2|    2| function |
+    +-----+-----+-----+-----+----------+
+
+    + Detail: 
+        * Instance: 
+        +---------------------------------+----------------------+-----+-----+-----+-----+----------+
+        |                                 |                      |  Latency  |  Interval | Pipeline |
+        |             Instance            |        Module        | min | max | min | max |   Type   |
+        +---------------------------------+----------------------+-----+-----+-----+-----+----------+
+        |grp_em2calo_drvals_525_s_fu_488  |em2calo_drvals_525_s  |    8|    8|    2|    2| function |
+        |grp_pick_closest_1_fu_612        |pick_closest_1        |   17|   17|    2|    2| function |
+        +---------------------------------+----------------------+-----+-----+-----+-----+----------+
+
+        * Loop: 
+        N/A
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++-----------------+---------+-------+---------+--------+-----+
+|       Name      | BRAM_18K| DSP48E|    FF   |   LUT  | URAM|
++-----------------+---------+-------+---------+--------+-----+
+|DSP              |        -|      -|        -|       -|    -|
+|Expression       |        -|      -|        0|       4|    -|
+|FIFO             |        -|      -|        -|       -|    -|
+|Instance         |        0|    100|    31788|   25799|    -|
+|Memory           |        -|      -|        -|       -|    -|
+|Multiplexer      |        -|      -|        -|      33|    -|
+|Register         |        -|      -|     1017|       -|    -|
++-----------------+---------+-------+---------+--------+-----+
+|Total            |        0|    100|    32805|   25836|    0|
++-----------------+---------+-------+---------+--------+-----+
+|Available        |     1968|   1968|  1045440|  522720|  128|
++-----------------+---------+-------+---------+--------+-----+
+|Utilization (%)  |        0|      5|        3|       4|    0|
++-----------------+---------+-------+---------+--------+-----+
+
++ Detail: 
+    * Instance: 
+    +---------------------------------+----------------------+---------+-------+-------+-------+
+    |             Instance            |        Module        | BRAM_18K| DSP48E|   FF  |  LUT  |
+    +---------------------------------+----------------------+---------+-------+-------+-------+
+    |grp_em2calo_drvals_525_s_fu_488  |em2calo_drvals_525_s  |        0|    100|  21257|  19441|
+    |grp_pick_closest_1_fu_612        |pick_closest_1        |        0|      0|  10531|   6358|
+    +---------------------------------+----------------------+---------+-------+-------+-------+
+    |Total                            |                      |        0|    100|  31788|  25799|
+    +---------------------------------+----------------------+---------+-------+-------+-------+
+
+    * DSP48: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +---------------------------+----------+-------+---+----+------------+------------+
+    |       Variable Name       | Operation| DSP48E| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +---------------------------+----------+-------+---+----+------------+------------+
+    |ap_block_pp0_stage0_11001  |    and   |      0|  0|   2|           1|           1|
+    |ap_enable_pp0              |    xor   |      0|  0|   2|           1|           2|
+    +---------------------------+----------+-------+---+----+------------+------------+
+    |Total                      |          |      0|  0|   4|           2|           3|
+    +---------------------------+----------+-------+---+----+------------+------------+
+
+    * Multiplexer: 
+    +--------------------------+----+-----------+-----+-----------+
+    |           Name           | LUT| Input Size| Bits| Total Bits|
+    +--------------------------+----+-----------+-----+-----------+
+    |ap_NS_fsm                 |  15|          3|    1|          3|
+    |ap_enable_reg_pp0_iter0   |   9|          2|    1|          2|
+    |ap_enable_reg_pp0_iter13  |   9|          2|    1|          2|
+    +--------------------------+----+-----------+-----+-----------+
+    |Total                     |  33|          7|    3|          7|
+    +--------------------------+----+-----------+-----+-----------+
+
+    * Register: 
+    +----------------------------------------+----+----+-----+-----------+
+    |                  Name                  | FF | LUT| Bits| Const Bits|
+    +----------------------------------------+----+----+-----+-----------+
+    |ap_CS_fsm                               |   2|   0|    2|          0|
+    |ap_enable_reg_pp0_iter0_reg             |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter1                 |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter10                |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter11                |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter12                |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter13                |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter2                 |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter3                 |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter4                 |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter5                 |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter6                 |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter7                 |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter8                 |   1|   0|    1|          0|
+    |ap_enable_reg_pp0_iter9                 |   1|   0|    1|          0|
+    |drvals_0_0_V_reg_1166                   |  10|   0|   10|          0|
+    |drvals_0_1_V_reg_1171                   |  10|   0|   10|          0|
+    |drvals_0_2_V_reg_1176                   |  10|   0|   10|          0|
+    |drvals_0_3_V_reg_1181                   |  10|   0|   10|          0|
+    |drvals_0_4_V_reg_1186                   |  10|   0|   10|          0|
+    |drvals_0_5_V_reg_1191                   |  10|   0|   10|          0|
+    |drvals_0_6_V_reg_1196                   |  10|   0|   10|          0|
+    |drvals_0_7_V_reg_1201                   |  10|   0|   10|          0|
+    |drvals_0_8_V_reg_1206                   |  10|   0|   10|          0|
+    |drvals_0_9_V_reg_1211                   |  10|   0|   10|          0|
+    |drvals_1_0_V_reg_1216                   |  10|   0|   10|          0|
+    |drvals_1_1_V_reg_1221                   |  10|   0|   10|          0|
+    |drvals_1_2_V_reg_1226                   |  10|   0|   10|          0|
+    |drvals_1_3_V_reg_1231                   |  10|   0|   10|          0|
+    |drvals_1_4_V_reg_1236                   |  10|   0|   10|          0|
+    |drvals_1_5_V_reg_1241                   |  10|   0|   10|          0|
+    |drvals_1_6_V_reg_1246                   |  10|   0|   10|          0|
+    |drvals_1_7_V_reg_1251                   |  10|   0|   10|          0|
+    |drvals_1_8_V_reg_1256                   |  10|   0|   10|          0|
+    |drvals_1_9_V_reg_1261                   |  10|   0|   10|          0|
+    |drvals_2_0_V_reg_1266                   |  10|   0|   10|          0|
+    |drvals_2_1_V_reg_1271                   |  10|   0|   10|          0|
+    |drvals_2_2_V_reg_1276                   |  10|   0|   10|          0|
+    |drvals_2_3_V_reg_1281                   |  10|   0|   10|          0|
+    |drvals_2_4_V_reg_1286                   |  10|   0|   10|          0|
+    |drvals_2_5_V_reg_1291                   |  10|   0|   10|          0|
+    |drvals_2_6_V_reg_1296                   |  10|   0|   10|          0|
+    |drvals_2_7_V_reg_1301                   |  10|   0|   10|          0|
+    |drvals_2_8_V_reg_1306                   |  10|   0|   10|          0|
+    |drvals_2_9_V_reg_1311                   |  10|   0|   10|          0|
+    |drvals_3_0_V_reg_1316                   |  10|   0|   10|          0|
+    |drvals_3_1_V_reg_1321                   |  10|   0|   10|          0|
+    |drvals_3_2_V_reg_1326                   |  10|   0|   10|          0|
+    |drvals_3_3_V_reg_1331                   |  10|   0|   10|          0|
+    |drvals_3_4_V_reg_1336                   |  10|   0|   10|          0|
+    |drvals_3_5_V_reg_1341                   |  10|   0|   10|          0|
+    |drvals_3_6_V_reg_1346                   |  10|   0|   10|          0|
+    |drvals_3_7_V_reg_1351                   |  10|   0|   10|          0|
+    |drvals_3_8_V_reg_1356                   |  10|   0|   10|          0|
+    |drvals_3_9_V_reg_1361                   |  10|   0|   10|          0|
+    |drvals_4_0_V_reg_1366                   |  10|   0|   10|          0|
+    |drvals_4_1_V_reg_1371                   |  10|   0|   10|          0|
+    |drvals_4_2_V_reg_1376                   |  10|   0|   10|          0|
+    |drvals_4_3_V_reg_1381                   |  10|   0|   10|          0|
+    |drvals_4_4_V_reg_1386                   |  10|   0|   10|          0|
+    |drvals_4_5_V_reg_1391                   |  10|   0|   10|          0|
+    |drvals_4_6_V_reg_1396                   |  10|   0|   10|          0|
+    |drvals_4_7_V_reg_1401                   |  10|   0|   10|          0|
+    |drvals_4_8_V_reg_1406                   |  10|   0|   10|          0|
+    |drvals_4_9_V_reg_1411                   |  10|   0|   10|          0|
+    |drvals_5_0_V_reg_1416                   |  10|   0|   10|          0|
+    |drvals_5_1_V_reg_1421                   |  10|   0|   10|          0|
+    |drvals_5_2_V_reg_1426                   |  10|   0|   10|          0|
+    |drvals_5_3_V_reg_1431                   |  10|   0|   10|          0|
+    |drvals_5_4_V_reg_1436                   |  10|   0|   10|          0|
+    |drvals_5_5_V_reg_1441                   |  10|   0|   10|          0|
+    |drvals_5_6_V_reg_1446                   |  10|   0|   10|          0|
+    |drvals_5_7_V_reg_1451                   |  10|   0|   10|          0|
+    |drvals_5_8_V_reg_1456                   |  10|   0|   10|          0|
+    |drvals_5_9_V_reg_1461                   |  10|   0|   10|          0|
+    |drvals_6_0_V_reg_1466                   |  10|   0|   10|          0|
+    |drvals_6_1_V_reg_1471                   |  10|   0|   10|          0|
+    |drvals_6_2_V_reg_1476                   |  10|   0|   10|          0|
+    |drvals_6_3_V_reg_1481                   |  10|   0|   10|          0|
+    |drvals_6_4_V_reg_1486                   |  10|   0|   10|          0|
+    |drvals_6_5_V_reg_1491                   |  10|   0|   10|          0|
+    |drvals_6_6_V_reg_1496                   |  10|   0|   10|          0|
+    |drvals_6_7_V_reg_1501                   |  10|   0|   10|          0|
+    |drvals_6_8_V_reg_1506                   |  10|   0|   10|          0|
+    |drvals_6_9_V_reg_1511                   |  10|   0|   10|          0|
+    |drvals_7_0_V_reg_1516                   |  10|   0|   10|          0|
+    |drvals_7_1_V_reg_1521                   |  10|   0|   10|          0|
+    |drvals_7_2_V_reg_1526                   |  10|   0|   10|          0|
+    |drvals_7_3_V_reg_1531                   |  10|   0|   10|          0|
+    |drvals_7_4_V_reg_1536                   |  10|   0|   10|          0|
+    |drvals_7_5_V_reg_1541                   |  10|   0|   10|          0|
+    |drvals_7_6_V_reg_1546                   |  10|   0|   10|          0|
+    |drvals_7_7_V_reg_1551                   |  10|   0|   10|          0|
+    |drvals_7_8_V_reg_1556                   |  10|   0|   10|          0|
+    |drvals_7_9_V_reg_1561                   |  10|   0|   10|          0|
+    |drvals_8_0_V_reg_1566                   |  10|   0|   10|          0|
+    |drvals_8_1_V_reg_1571                   |  10|   0|   10|          0|
+    |drvals_8_2_V_reg_1576                   |  10|   0|   10|          0|
+    |drvals_8_3_V_reg_1581                   |  10|   0|   10|          0|
+    |drvals_8_4_V_reg_1586                   |  10|   0|   10|          0|
+    |drvals_8_5_V_reg_1591                   |  10|   0|   10|          0|
+    |drvals_8_6_V_reg_1596                   |  10|   0|   10|          0|
+    |drvals_8_7_V_reg_1601                   |  10|   0|   10|          0|
+    |drvals_8_8_V_reg_1606                   |  10|   0|   10|          0|
+    |drvals_8_9_V_reg_1611                   |  10|   0|   10|          0|
+    |drvals_9_0_V_reg_1616                   |  10|   0|   10|          0|
+    |drvals_9_1_V_reg_1621                   |  10|   0|   10|          0|
+    |drvals_9_2_V_reg_1626                   |  10|   0|   10|          0|
+    |drvals_9_3_V_reg_1631                   |  10|   0|   10|          0|
+    |drvals_9_4_V_reg_1636                   |  10|   0|   10|          0|
+    |drvals_9_5_V_reg_1641                   |  10|   0|   10|          0|
+    |drvals_9_6_V_reg_1646                   |  10|   0|   10|          0|
+    |drvals_9_7_V_reg_1651                   |  10|   0|   10|          0|
+    |drvals_9_8_V_reg_1656                   |  10|   0|   10|          0|
+    |drvals_9_9_V_reg_1661                   |  10|   0|   10|          0|
+    |grp_pick_closest_1_fu_612_ap_start_reg  |   1|   0|    1|          0|
+    +----------------------------------------+----+----+-----+-----------+
+    |Total                                   |1017|   0| 1017|          0|
+    +----------------------------------------+----+----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++----------------------+-----+-----+------------+----------------------+--------------+
+|       RTL Ports      | Dir | Bits|  Protocol  |     Source Object    |    C Type    |
++----------------------+-----+-----+------------+----------------------+--------------+
+|ap_clk                |  in |    1| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_rst                |  in |    1| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_start              |  in |    1| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_done               | out |    1| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_idle               | out |    1| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_ready              | out |    1| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_0           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_1           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_2           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_3           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_4           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_5           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_6           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_7           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_8           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|ap_return_9           | out |   10| ap_ctrl_hs |     em2calo_link     | return value |
+|emcalo_0_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_0_hwPt_V_rea |    scalar    |
+|emcalo_1_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_1_hwPt_V_rea |    scalar    |
+|emcalo_2_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_2_hwPt_V_rea |    scalar    |
+|emcalo_3_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_3_hwPt_V_rea |    scalar    |
+|emcalo_4_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_4_hwPt_V_rea |    scalar    |
+|emcalo_5_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_5_hwPt_V_rea |    scalar    |
+|emcalo_6_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_6_hwPt_V_rea |    scalar    |
+|emcalo_7_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_7_hwPt_V_rea |    scalar    |
+|emcalo_8_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_8_hwPt_V_rea |    scalar    |
+|emcalo_9_hwPt_V_rea   |  in |   16|   ap_none  |  emcalo_9_hwPt_V_rea |    scalar    |
+|emcalo_0_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_0_hwEta_V_re |    scalar    |
+|emcalo_1_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_1_hwEta_V_re |    scalar    |
+|emcalo_2_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_2_hwEta_V_re |    scalar    |
+|emcalo_3_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_3_hwEta_V_re |    scalar    |
+|emcalo_4_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_4_hwEta_V_re |    scalar    |
+|emcalo_5_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_5_hwEta_V_re |    scalar    |
+|emcalo_6_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_6_hwEta_V_re |    scalar    |
+|emcalo_7_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_7_hwEta_V_re |    scalar    |
+|emcalo_8_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_8_hwEta_V_re |    scalar    |
+|emcalo_9_hwEta_V_re   |  in |   10|   ap_none  |  emcalo_9_hwEta_V_re |    scalar    |
+|emcalo_0_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_0_hwPhi_V_re |    scalar    |
+|emcalo_1_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_1_hwPhi_V_re |    scalar    |
+|emcalo_2_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_2_hwPhi_V_re |    scalar    |
+|emcalo_3_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_3_hwPhi_V_re |    scalar    |
+|emcalo_4_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_4_hwPhi_V_re |    scalar    |
+|emcalo_5_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_5_hwPhi_V_re |    scalar    |
+|emcalo_6_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_6_hwPhi_V_re |    scalar    |
+|emcalo_7_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_7_hwPhi_V_re |    scalar    |
+|emcalo_8_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_8_hwPhi_V_re |    scalar    |
+|emcalo_9_hwPhi_V_re   |  in |   10|   ap_none  |  emcalo_9_hwPhi_V_re |    scalar    |
+|hadcalo_0_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_0_hwEta_V_r |    scalar    |
+|hadcalo_1_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_1_hwEta_V_r |    scalar    |
+|hadcalo_2_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_2_hwEta_V_r |    scalar    |
+|hadcalo_3_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_3_hwEta_V_r |    scalar    |
+|hadcalo_4_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_4_hwEta_V_r |    scalar    |
+|hadcalo_5_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_5_hwEta_V_r |    scalar    |
+|hadcalo_6_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_6_hwEta_V_r |    scalar    |
+|hadcalo_7_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_7_hwEta_V_r |    scalar    |
+|hadcalo_8_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_8_hwEta_V_r |    scalar    |
+|hadcalo_9_hwEta_V_r   |  in |   10|   ap_none  |  hadcalo_9_hwEta_V_r |    scalar    |
+|hadcalo_0_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_0_hwPhi_V_r |    scalar    |
+|hadcalo_1_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_1_hwPhi_V_r |    scalar    |
+|hadcalo_2_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_2_hwPhi_V_r |    scalar    |
+|hadcalo_3_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_3_hwPhi_V_r |    scalar    |
+|hadcalo_4_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_4_hwPhi_V_r |    scalar    |
+|hadcalo_5_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_5_hwPhi_V_r |    scalar    |
+|hadcalo_6_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_6_hwPhi_V_r |    scalar    |
+|hadcalo_7_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_7_hwPhi_V_r |    scalar    |
+|hadcalo_8_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_8_hwPhi_V_r |    scalar    |
+|hadcalo_9_hwPhi_V_r   |  in |   10|   ap_none  |  hadcalo_9_hwPhi_V_r |    scalar    |
+|hadcalo_0_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_0_hwEmPt_V_s |    scalar    |
+|hadcalo_1_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_1_hwEmPt_V_s |    scalar    |
+|hadcalo_2_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_2_hwEmPt_V_s |    scalar    |
+|hadcalo_3_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_3_hwEmPt_V_s |    scalar    |
+|hadcalo_4_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_4_hwEmPt_V_s |    scalar    |
+|hadcalo_5_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_5_hwEmPt_V_s |    scalar    |
+|hadcalo_6_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_6_hwEmPt_V_s |    scalar    |
+|hadcalo_7_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_7_hwEmPt_V_s |    scalar    |
+|hadcalo_8_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_8_hwEmPt_V_s |    scalar    |
+|hadcalo_9_hwEmPt_V_s  |  in |   16|   ap_none  | hadcalo_9_hwEmPt_V_s |    scalar    |
++----------------------+-----+-----+------------+----------------------+--------------+
+

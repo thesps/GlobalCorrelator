@@ -1,0 +1,298 @@
+
+
+================================================================
+== Vivado HLS Report for 'mp7wrapped_pfalgo3_full'
+================================================================
+* Date:           Wed Oct  2 15:16:27 2019
+
+* Version:        2018.2 (Build 2258646 on Thu Jun 14 20:25:20 MDT 2018)
+* Project:        l1pfpuppi-ku15p-II2-360MHz
+* Solution:       solution
+* Product family: kintexuplus
+* Target device:  xcku15p-ffva1760-2-e
+
+
+================================================================
+== Performance Estimates
+================================================================
++ Timing (ns): 
+    * Summary: 
+    +--------+-------+----------+------------+
+    |  Clock | Target| Estimated| Uncertainty|
+    +--------+-------+----------+------------+
+    |ap_clk  |   2.70|     2.533|        1.50|
+    +--------+-------+----------+------------+
+
++ Latency (clock cycles): 
+    * Summary: 
+    +-----+-----+-----+-----+----------+
+    |  Latency  |  Interval | Pipeline |
+    | min | max | min | max |   Type   |
+    +-----+-----+-----+-----+----------+
+    |  166|  166|    2|    2| function |
+    +-----+-----+-----+-----+----------+
+
+    + Detail: 
+        * Instance: 
+        +--------------------------------------+----------------------+-----+-----+-----+-----+----------+
+        |                                      |                      |  Latency  |  Interval | Pipeline |
+        |               Instance               |        Module        | min | max | min | max |   Type   |
+        +--------------------------------------+----------------------+-----+-----+-----+-----+----------+
+        |grp_pfalgo3_full_fu_691               |pfalgo3_full          |  166|  166|    2|    2| function |
+        |call_ret_mp7wrapped_unpack_in_fu_877  |mp7wrapped_unpack_in  |    0|    0|    1|    1| function |
+        +--------------------------------------+----------------------+-----+-----+-----+-----+----------+
+
+        * Loop: 
+        N/A
+
+
+
+================================================================
+== Utilization Estimates
+================================================================
+* Summary: 
++-----------------+---------+-------+---------+--------+-----+
+|       Name      | BRAM_18K| DSP48E|    FF   |   LUT  | URAM|
++-----------------+---------+-------+---------+--------+-----+
+|DSP              |        -|      -|        -|       -|    -|
+|Expression       |        -|      -|        0|       4|    -|
+|FIFO             |        -|      -|        -|       -|    -|
+|Instance         |        4|    592|   296558|  232849|    -|
+|Memory           |        -|      -|        -|       -|    -|
+|Multiplexer      |        -|      -|        -|      33|    -|
+|Register         |        0|      -|      160|     110|    -|
++-----------------+---------+-------+---------+--------+-----+
+|Total            |        4|    592|   296718|  232996|    0|
++-----------------+---------+-------+---------+--------+-----+
+|Available        |     1968|   1968|  1045440|  522720|  128|
++-----------------+---------+-------+---------+--------+-----+
+|Utilization (%)  |    ~0   |     30|       28|      44|    0|
++-----------------+---------+-------+---------+--------+-----+
+
++ Detail: 
+    * Instance: 
+    +--------------------------------------+----------------------+---------+-------+--------+--------+
+    |               Instance               |        Module        | BRAM_18K| DSP48E|   FF   |   LUT  |
+    +--------------------------------------+----------------------+---------+-------+--------+--------+
+    |call_ret_mp7wrapped_unpack_in_fu_877  |mp7wrapped_unpack_in  |        0|      0|       0|       0|
+    |grp_pfalgo3_full_fu_691               |pfalgo3_full          |        4|    592|  296558|  232849|
+    +--------------------------------------+----------------------+---------+-------+--------+--------+
+    |Total                                 |                      |        4|    592|  296558|  232849|
+    +--------------------------------------+----------------------+---------+-------+--------+--------+
+
+    * DSP48: 
+    N/A
+
+    * Memory: 
+    N/A
+
+    * FIFO: 
+    N/A
+
+    * Expression: 
+    +---------------------------+----------+-------+---+----+------------+------------+
+    |       Variable Name       | Operation| DSP48E| FF| LUT| Bitwidth P0| Bitwidth P1|
+    +---------------------------+----------+-------+---+----+------------+------------+
+    |ap_block_pp0_stage0_01001  |    and   |      0|  0|   2|           1|           1|
+    |ap_enable_pp0              |    xor   |      0|  0|   2|           1|           2|
+    +---------------------------+----------+-------+---+----+------------+------------+
+    |Total                      |          |      0|  0|   4|           2|           3|
+    +---------------------------+----------+-------+---+----+------------+------------+
+
+    * Multiplexer: 
+    +--------------------------+----+-----------+-----+-----------+
+    |           Name           | LUT| Input Size| Bits| Total Bits|
+    +--------------------------+----+-----------+-----+-----------+
+    |ap_NS_fsm                 |  15|          3|    1|          3|
+    |ap_enable_reg_pp0_iter0   |   9|          2|    1|          2|
+    |ap_enable_reg_pp0_iter83  |   9|          2|    1|          2|
+    +--------------------------+----+-----------+-----+-----------+
+    |Total                     |  33|          7|    3|          7|
+    +--------------------------+----+-----------+-----+-----------+
+
+    * Register: 
+    +-----------------------------+----+-----+-----+-----------+
+    |             Name            | FF | LUT | Bits| Const Bits|
+    +-----------------------------+----+-----+-----+-----------+
+    |ap_CS_fsm                    |   2|    0|    2|          0|
+    |ap_enable_reg_pp0_iter0_reg  |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter1      |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter10     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter11     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter12     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter13     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter14     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter15     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter16     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter17     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter18     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter19     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter2      |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter20     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter21     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter22     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter23     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter24     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter25     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter26     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter27     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter28     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter29     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter3      |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter30     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter31     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter32     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter33     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter34     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter35     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter36     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter37     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter38     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter39     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter4      |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter40     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter41     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter42     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter43     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter44     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter45     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter46     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter47     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter48     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter49     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter5      |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter50     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter51     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter52     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter53     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter54     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter55     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter56     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter57     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter58     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter59     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter6      |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter60     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter61     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter62     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter63     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter64     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter65     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter66     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter67     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter68     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter69     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter7      |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter70     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter71     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter72     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter73     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter74     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter75     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter76     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter77     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter78     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter79     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter8      |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter80     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter81     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter82     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter83     |   1|    0|    1|          0|
+    |ap_enable_reg_pp0_iter9      |   1|    0|    1|          0|
+    |z0_V_reg_3147                |  10|    0|   10|          0|
+    |z0_V_reg_3147                |  64|  110|   10|          0|
+    +-----------------------------+----+-----+-----+-----------+
+    |Total                        | 160|  110|  106|          0|
+    +-----------------------------+----+-----+-----+-----------+
+
+
+
+================================================================
+== Interface
+================================================================
+* Summary: 
++-------------+-----+-----+------------+-------------------------+--------------+
+|  RTL Ports  | Dir | Bits|  Protocol  |      Source Object      |    C Type    |
++-------------+-----+-----+------------+-------------------------+--------------+
+|ap_clk       |  in |    1| ap_ctrl_hs | mp7wrapped_pfalgo3_full | return value |
+|ap_rst       |  in |    1| ap_ctrl_hs | mp7wrapped_pfalgo3_full | return value |
+|ap_start     |  in |    1| ap_ctrl_hs | mp7wrapped_pfalgo3_full | return value |
+|ap_done      | out |    1| ap_ctrl_hs | mp7wrapped_pfalgo3_full | return value |
+|ap_idle      | out |    1| ap_ctrl_hs | mp7wrapped_pfalgo3_full | return value |
+|ap_ready     | out |    1| ap_ctrl_hs | mp7wrapped_pfalgo3_full | return value |
+|input_0_V    |  in |   64|   ap_none  |        input_0_V        |    pointer   |
+|input_1_V    |  in |   64|   ap_none  |        input_1_V        |    pointer   |
+|input_2_V    |  in |   64|   ap_none  |        input_2_V        |    pointer   |
+|input_3_V    |  in |   64|   ap_none  |        input_3_V        |    pointer   |
+|input_4_V    |  in |   64|   ap_none  |        input_4_V        |    pointer   |
+|input_5_V    |  in |   64|   ap_none  |        input_5_V        |    pointer   |
+|input_6_V    |  in |   64|   ap_none  |        input_6_V        |    pointer   |
+|input_7_V    |  in |   64|   ap_none  |        input_7_V        |    pointer   |
+|input_8_V    |  in |   64|   ap_none  |        input_8_V        |    pointer   |
+|input_9_V    |  in |   64|   ap_none  |        input_9_V        |    pointer   |
+|input_10_V   |  in |   64|   ap_none  |        input_10_V       |    pointer   |
+|input_11_V   |  in |   64|   ap_none  |        input_11_V       |    pointer   |
+|input_12_V   |  in |   64|   ap_none  |        input_12_V       |    pointer   |
+|input_13_V   |  in |   64|   ap_none  |        input_13_V       |    pointer   |
+|input_14_V   |  in |   64|   ap_none  |        input_14_V       |    pointer   |
+|input_15_V   |  in |   64|   ap_none  |        input_15_V       |    pointer   |
+|input_16_V   |  in |   64|   ap_none  |        input_16_V       |    pointer   |
+|input_17_V   |  in |   64|   ap_none  |        input_17_V       |    pointer   |
+|input_18_V   |  in |   64|   ap_none  |        input_18_V       |    pointer   |
+|input_19_V   |  in |   64|   ap_none  |        input_19_V       |    pointer   |
+|input_20_V   |  in |   64|   ap_none  |        input_20_V       |    pointer   |
+|input_21_V   |  in |   64|   ap_none  |        input_21_V       |    pointer   |
+|input_22_V   |  in |   64|   ap_none  |        input_22_V       |    pointer   |
+|input_23_V   |  in |   64|   ap_none  |        input_23_V       |    pointer   |
+|input_24_V   |  in |   64|   ap_none  |        input_24_V       |    pointer   |
+|input_25_V   |  in |   64|   ap_none  |        input_25_V       |    pointer   |
+|input_26_V   |  in |   64|   ap_none  |        input_26_V       |    pointer   |
+|input_27_V   |  in |   64|   ap_none  |        input_27_V       |    pointer   |
+|input_28_V   |  in |   64|   ap_none  |        input_28_V       |    pointer   |
+|input_29_V   |  in |   64|   ap_none  |        input_29_V       |    pointer   |
+|input_30_V   |  in |   64|   ap_none  |        input_30_V       |    pointer   |
+|input_31_V   |  in |   64|   ap_none  |        input_31_V       |    pointer   |
+|input_32_V   |  in |   64|   ap_none  |        input_32_V       |    pointer   |
+|input_33_V   |  in |   64|   ap_none  |        input_33_V       |    pointer   |
+|input_34_V   |  in |   64|   ap_none  |        input_34_V       |    pointer   |
+|input_35_V   |  in |   64|   ap_none  |        input_35_V       |    pointer   |
+|input_41_V   |  in |   64|   ap_none  |        input_41_V       |    pointer   |
+|output_0_V   | out |   64|   ap_none  |        output_0_V       |    pointer   |
+|output_1_V   | out |   64|   ap_none  |        output_1_V       |    pointer   |
+|output_2_V   | out |   64|   ap_none  |        output_2_V       |    pointer   |
+|output_3_V   | out |   64|   ap_none  |        output_3_V       |    pointer   |
+|output_4_V   | out |   64|   ap_none  |        output_4_V       |    pointer   |
+|output_5_V   | out |   64|   ap_none  |        output_5_V       |    pointer   |
+|output_6_V   | out |   64|   ap_none  |        output_6_V       |    pointer   |
+|output_7_V   | out |   64|   ap_none  |        output_7_V       |    pointer   |
+|output_8_V   | out |   64|   ap_none  |        output_8_V       |    pointer   |
+|output_9_V   | out |   64|   ap_none  |        output_9_V       |    pointer   |
+|output_10_V  | out |   64|   ap_none  |       output_10_V       |    pointer   |
+|output_11_V  | out |   64|   ap_none  |       output_11_V       |    pointer   |
+|output_12_V  | out |   64|   ap_none  |       output_12_V       |    pointer   |
+|output_13_V  | out |   64|   ap_none  |       output_13_V       |    pointer   |
+|output_14_V  | out |   64|   ap_none  |       output_14_V       |    pointer   |
+|output_15_V  | out |   64|   ap_none  |       output_15_V       |    pointer   |
+|output_16_V  | out |   64|   ap_none  |       output_16_V       |    pointer   |
+|output_17_V  | out |   64|   ap_none  |       output_17_V       |    pointer   |
+|output_18_V  | out |   64|   ap_none  |       output_18_V       |    pointer   |
+|output_19_V  | out |   64|   ap_none  |       output_19_V       |    pointer   |
+|output_20_V  | out |   64|   ap_none  |       output_20_V       |    pointer   |
+|output_21_V  | out |   64|   ap_none  |       output_21_V       |    pointer   |
+|output_22_V  | out |   64|   ap_none  |       output_22_V       |    pointer   |
+|output_23_V  | out |   64|   ap_none  |       output_23_V       |    pointer   |
+|output_24_V  | out |   64|   ap_none  |       output_24_V       |    pointer   |
+|output_25_V  | out |   64|   ap_none  |       output_25_V       |    pointer   |
+|output_26_V  | out |   64|   ap_none  |       output_26_V       |    pointer   |
+|output_27_V  | out |   64|   ap_none  |       output_27_V       |    pointer   |
+|output_28_V  | out |   64|   ap_none  |       output_28_V       |    pointer   |
+|output_29_V  | out |   64|   ap_none  |       output_29_V       |    pointer   |
+|output_30_V  | out |   64|   ap_none  |       output_30_V       |    pointer   |
+|output_31_V  | out |   64|   ap_none  |       output_31_V       |    pointer   |
+|output_32_V  | out |   64|   ap_none  |       output_32_V       |    pointer   |
+|output_33_V  | out |   64|   ap_none  |       output_33_V       |    pointer   |
+|output_34_V  | out |   64|   ap_none  |       output_34_V       |    pointer   |
+|output_35_V  | out |   64|   ap_none  |       output_35_V       |    pointer   |
+|output_41_V  | out |   64|   ap_none  |       output_41_V       |    pointer   |
++-------------+-----+-----+------------+-------------------------+--------------+
+
