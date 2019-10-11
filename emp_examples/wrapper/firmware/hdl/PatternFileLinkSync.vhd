@@ -119,4 +119,15 @@ begin
   linksOut(i) <= realLinksDelayed(i);
 end generate; 
 
+unusedLinks:
+for i in 0 to 4 * N_REGION - 1 generate
+  signal inReal : boolean := i >= realLinkMin and i <= realLinkMax;
+  signal inBuff : boolean := i >= bufferLinkMin and i <= bufferLinkMax;
+begin
+  onlyUnusedLinks:
+  if not inReal and not inBuff generate
+    linksOut(i) <= lword_null;
+  end generate;
+end generate;
+
 end behavioral;

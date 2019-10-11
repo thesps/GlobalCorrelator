@@ -19,11 +19,17 @@ USE IEEE.NUMERIC_STD.ALL;
 USE IEEE.STD_LOGIC_TEXTIO.ALL;
 USE STD.TEXTIO.ALL;
 
---LIBRARY Utilities;
---USE Utilities.Utilities.ALL;
+LIBRARY Utilities;
+USE Utilities.Utilities.ALL;
 
-LIBRARY xil_defaultlib;
-USE xil_defaultlib.emp_data_types.all;
+-- synthesis translate_off
+library Interfaces;
+use Interfaces.mp7_data_types.all;
+-- synthesis translate_on
+-- synthesis read_comments_as_HDL on
+--library xil_defaultlib;
+--use xil_defaultlib.emp_data_types.all;
+-- synthesis read_comments_as_HDL off
 -- -------------------------------------------------------------------------
 
 -- -------------------------------------------------------------------------
@@ -32,9 +38,11 @@ PACKAGE DataType IS
 
   TYPE tData IS RECORD
   data : lword;
+  DataValid : boolean;
+  FrameValid : boolean;
 END RECORD;
 
- CONSTANT cNull : tData := (data => lword_null);
+ CONSTANT cNull : tData := (data => lword_null, DataValid => False, FrameValid => False);
 -- -------------------------------------------------------------------------       
 
   FUNCTION ToStdLogicVector( aData     : tData ) RETURN STD_LOGIC_VECTOR;
@@ -73,6 +81,8 @@ PACKAGE BODY DataType IS
     lRet.data.valid := aStdLogicVector(LWORD_WIDTH);
     lRet.data.start := aStdLogicVector(LWORD_WIDTH + 1);
     lRet.data.strobe := aStdLogicVector(LWORD_WIDTH + 2);
+    lRet.DataValid := to_boolean(aStdLogicVector(LWORD_WIDTH));
+    lRet.FrameValid := to_boolean(aStdLogicVector(LWORD_WIDTH));
     RETURN lRet;
   END FUNCTION;
 
@@ -100,6 +110,8 @@ PACKAGE BODY DataType IS
     VARIABLE d : tData := cNull;
   BEGIN
     d.data := l;
+    d.DataValid := to_boolean(l.valid);
+    d.FrameValid := to_boolean(l.valid);
     RETURN d;
   END from_lword;
 

@@ -116,5 +116,7 @@ begin
       output_41_V => output(41)
       );
 
+      output(40 downto 36) <= (others => (others => '0'));
+
 end rtl;
               

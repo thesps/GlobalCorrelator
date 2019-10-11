@@ -36,4 +36,4 @@ vcom -64 -2008 -work xil_defaultlib \
 "../wrapper/firmware/hdl/PatternFileLinkSync.vhd" \
 "../wrapper/firmware/hdl/PF_top.vhd" \
 "./firmware/hdl/DummyData.vhd" \
-"./firmware/hdl/TestBench.vhd" \
+"./firmware/hdl/TestBench.vhd" 

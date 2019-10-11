@@ -63,6 +63,15 @@ begin
     linksOut => links_synced
    );
 
+    tie_unused :
+    for i in 0 to 4 * N_REGION -1 generate
+    begin
+        tie_unused_only: if i > 35 and i /= 41 generate
+            links_synced(i) <= lword_null;
+        end generate;
+    end generate;
+   
+
     -- Drive the IP core valid from the syncrhonised link (vertex)
     start_pf <= links_synced(41).valid;
 
@@ -80,10 +89,18 @@ begin
         end if;
     end process;
 
+
     ldata_to_pfdata :
     for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 generate
     begin
-        d_pf(i) <= links_synced(i).data;
+        used:
+        if i < 36 or i = 41 generate
+            d_pf(i) <= links_synced(i).data;
+        end generate used;
+        unused:
+        if i > 35 and i /= 41 generate
+            d_pf(i) <= (others => '0');
+        end generate unused;
     end generate;
 
     pf_algo : entity work.pf_ip_wrapper
@@ -102,11 +119,23 @@ begin
     pfdata_to_ldata :
     for i in 0 to N_PF_IP_CORE_OUT_CHANS - 1 generate
     begin
-        q(i).data <= q_pf(i);
-        q(i).strobe <= '1';
-        q(i).valid <= valid_pipe(PF_ALGO_LATENCY - 1)(i);
-        debug_q(i) <= Link.DataType.from_lword(q(i));
+        used:
+        if i < 36 or i = 41 generate
+            q(i).data <= q_pf(i);
+            q(i).strobe <= '1';
+            q(i).valid <= valid_pipe(PF_ALGO_LATENCY - 1)(i);
+            q(i).start <= '0';
+            debug_q(i) <= Link.DataType.from_lword(q(i));
+        end generate;
+        unused:
+        if i >= 36 and i /= 41 generate
+            q(i) <= lword_null;
+            debug_q(i) <= Link.DataType.cNull;
+        end generate;
     end generate;
+
+    -- tie the unused links
+    q(4 * N_REGION -1 downto N_PF_IP_CORE_OUT_CHANS) <= (others => lword_null);
 
     DebugInstance : entity Link.Debug
     generic map("LinksOut")
