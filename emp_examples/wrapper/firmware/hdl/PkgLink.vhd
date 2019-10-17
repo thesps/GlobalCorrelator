@@ -22,14 +22,8 @@ USE STD.TEXTIO.ALL;
 LIBRARY Utilities;
 USE Utilities.Utilities.ALL;
 
--- synthesis translate_off
-library Interfaces;
-use Interfaces.mp7_data_types.all;
--- synthesis translate_on
--- synthesis read_comments_as_HDL on
---library xil_defaultlib;
---use xil_defaultlib.emp_data_types.all;
--- synthesis read_comments_as_HDL off
+library xil_defaultlib;
+use xil_defaultlib.emp_data_types.all;
 -- -------------------------------------------------------------------------
 
 -- -------------------------------------------------------------------------

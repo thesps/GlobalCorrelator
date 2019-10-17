@@ -11,7 +11,7 @@ use work.emp_device_types.all;
 -------------------------------------------------------------------------------
 package emp_project_decl is
 
-  constant PAYLOAD_REV         : std_logic_vector(31 downto 0) := X"51090000";
+  constant PAYLOAD_REV         : std_logic_vector(31 downto 0) := X"51090004";
 
   -- Number of LHC bunches 
   constant LHC_BUNCH_COUNT    : integer             := 3564;

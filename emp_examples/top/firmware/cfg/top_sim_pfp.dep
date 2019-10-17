@@ -1,0 +1,23 @@
+@device_family = "KintexUltraScale"
+@device_name = "xcku15p"
+@device_package = "ffva1760"
+@device_speed = "-2"
+
+include -c emp-fwk-v0.3.0:boards/testbench
+
+include -c emp_examples/wrapper emp_pf_wrapper_sim.dep
+include -c emp_examples/PF_IP_II2_360MHz PF.dep
+
+src -c ipbus-firmware:components/ipbus_slaves ipbus_reg_v.vhd ipbus_ctrlreg_v.vhd ipbus_reg_types.vhd
+src -c ipbus-firmware:components/ipbus_core ipbus_package.vhd ipbus_trans_decl.vhd
+
+src -c emp-fwk-v0.3.0:components/ttc emp_ttc_decl.vhd
+src dc_ku15p_decl.vhd 
+src -c emp-fwk-v0.3.0:components/framework emp_device_types.vhd
+src -c emp-fwk-v0.3.0:boards/testbench emp_device_decl.vhd
+src -c emp-fwk-v0.3.0:components/framework emp_framework_decl.vhd
+src tb_decl.vhd 
+
+src -c emp-fwk-v0.3.0:components/datapath emp_data_types.vhd
+src -c mp7:components/mp7_datapath mp7_data_types.vhd
+

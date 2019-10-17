@@ -53,6 +53,14 @@ begin
 
    ipb_out <= IPB_RBUS_NULL;
 
+   algo : entity work.PF_top
+   port map(
+      clk => clk_p,
+      d => d,
+      q => q
+   );
+
+   
    link_sync : entity work.PatternFileLinkSync
    generic map(
     realLinkMin => 41,

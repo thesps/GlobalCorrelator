@@ -3,21 +3,15 @@ use ieee.STD_LOGIC_1164.all;
 use ieee.STD_LOGIC_MISC.all;
 use ieee.NUMERIC_STD.all;
 
--- synthesis translate_off
-library Interfaces;
-use Interfaces.mp7_data_types.all;
--- synthesis translate_on
--- synthesis read_comments_as_HDL on
---library xil_defaultlib;
---use xil_defaultlib.emp_data_types.all;
--- synthesis read_comments_as_HDL off
+use work.emp_data_types.all;
 
 library Link;
 use Link.DataType;
 use Link.ArrayTypes;
 
-library xil_defaultlib;
-use xil_defaultlib.emp_device_decl.all;
+--library xil_defaultlib;
+--use xil_defaultlib.emp_device_decl.all;
+use work.emp_device_decl.all;
 -- -------------------------------------------------------------------------
 
 
@@ -42,6 +36,7 @@ end PatternFileLinkSync;
 architecture behavioral OF PatternFileLinkSync IS
 
   signal realLinksDelayed : ldata(realLinkMax downto realLinkMin) := (others => lword_null);
+  signal realLinksDelayed1 : ldata(realLinkMax downto realLinkMin) := (others => lword_null);
   signal linksInT : Link.ArrayTypes.Vector(N_REGION * 4 - 1 downto 0) := Link.ArrayTypes.NullVector(N_REGION * 4);
   signal linksOutT : Link.ArrayTypes.Vector(N_REGION * 4 - 1 downto 0) := Link.ArrayTypes.NullVector(N_REGION * 4);
 
@@ -60,6 +55,7 @@ begin
   begin
     if rising_edge(clk) then
       realLinksDelayed(i) <= linksIn(i);
+      realLinksDelayed1(i) <= realLinksDelayed(i);
     end if;
   end process;
 end generate;
@@ -106,23 +102,33 @@ begin
     WriteEnable => linksIn(i).valid = '1'
   );
  
-  -- One cycle read, the valid comes from the pipelined link
-  linksOut(i).data <= Link.DataType.to_lword(linksOutT(i)).data;
-  linksOut(i).start <= Link.DataType.to_lword(linksOutT(i)).start;
-  linksOut(i).strobe <= Link.DataType.to_lword(linksOutT(i)).strobe;
-  linksOut(i).valid <= realLinksDelayed(iRealLink).valid;
+  process(clk)
+  begin
+  if rising_edge(clk) then
+    if realLinksDelayed(iRealLink).valid = '1' then
+      -- One cycle read, the valid comes from the pipelined link
+      linksOut(i).data <= Link.DataType.to_lword(linksOutT(i)).data;
+      linksOut(i).start <= Link.DataType.to_lword(linksOutT(i)).start;
+      linksOut(i).strobe <= Link.DataType.to_lword(linksOutT(i)).strobe;
+      linksOut(i).valid <= realLinksDelayed(iRealLink).valid;
+    else
+      linksOut(i) <= lword_null;  
+  end if;
+  end if;
+  end process;
+
 end generate;
 
 realLinkO:
 for i in realLinkMin to realLinkMax generate
 begin
-  linksOut(i) <= realLinksDelayed(i);
+  linksOut(i) <= realLinksDelayed1(i);
 end generate; 
 
 unusedLinks:
 for i in 0 to 4 * N_REGION - 1 generate
-  signal inReal : boolean := i >= realLinkMin and i <= realLinkMax;
-  signal inBuff : boolean := i >= bufferLinkMin and i <= bufferLinkMax;
+  constant inReal : boolean := i >= realLinkMin and i <= realLinkMax;
+  constant inBuff : boolean := i >= bufferLinkMin and i <= bufferLinkMax;
 begin
   onlyUnusedLinks:
   if not inReal and not inBuff generate

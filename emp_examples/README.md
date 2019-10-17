@@ -2,7 +2,10 @@ This branch is for development of a version of PF & PUPPI running on a KU15P FPG
 The firmware expects the track, calo, etc inputs to the PF&PUPPI IP to be written into link buffers first, after which the vertex is sent from the second board.
 
 ##### Step 1: Install ipbb
-Using v0.5.2 (with bugfix/vivado-libs)
+Using github.com/ipbus/ipbb master at commit 31da1f3 (just after tag v0.5.2)
+For simulation only, github.com/thesps/ipbb branch xil\_defaultlib is required.
+The full support needed for the use of VHDL libraries in this project is not currently in an ipbb tag.
+The subset for synthesis ought to be in v0.5.3.
 
 ##### Step 2: emp-fwk and other repos:
 Using:

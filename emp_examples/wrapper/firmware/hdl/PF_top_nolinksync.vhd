@@ -149,10 +149,8 @@ begin
     -- tie the unused links
     q(4 * N_REGION -1 downto N_PF_IP_CORE_OUT_CHANS) <= (others => lword_null);
 
-    -- synthesis translate_off
     DebugInstance : entity Link.Debug
     generic map("LinksOut")
     port map(clk, debug_q);
-    -- synthesis translate_on
 
 end rtl;

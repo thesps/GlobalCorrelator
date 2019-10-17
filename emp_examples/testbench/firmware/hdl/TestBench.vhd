@@ -29,7 +29,9 @@ USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
 LIBRARY Interfaces;
-USE Interfaces.mp7_data_types.ALL;
+USE Interfaces.mp7_data_types;
+
+use work.emp_data_types;
 
 LIBRARY Utilities;
 USE Utilities.debugging.ALL;
@@ -49,8 +51,10 @@ ARCHITECTURE rtl OF top IS
   SIGNAL clk                : STD_LOGIC            := '1';
 
 -- LINK SIGNALS
-  SIGNAL linksIn , linksInA : ldata( 71 DOWNTO 0 ) := ( OTHERS => LWORD_NULL );
-  SIGNAL linksOut           : ldata( 71 DOWNTO 0 ) := ( OTHERS => LWORD_NULL );
+  SIGNAL linksIn , linksInA : Interfaces.mp7_data_types.ldata( 71 DOWNTO 0 ) := ( OTHERS => LWORD_NULL );
+  SIGNAL linksOut           : Interfaces.mp7_data_types.ldata( 71 DOWNTO 0 ) := ( OTHERS => LWORD_NULL );
+  SIGNAL linksInEMP         : emp_data_types.ldata(71 downto 0) := (others => lword_null);
+  SIGNAL linksOutEMP        : emp_data_types.ldata(71 downto 0) := (others => lword_null);
 
 -- SELECT THE STIMULUS
 -- CONSTANT Stimulus        : STRING               := "Dummy";
@@ -82,28 +86,36 @@ BEGIN
       );
 
 -- Hack to make the frames fixed length - should probably be added as an option into the file reader
-        /* PROCESS( clk )
-      BEGIN
-        IF( RISING_EDGE( clk ) ) THEN
-          LinksIn <= ( OTHERS => LWORD_NULL );
-          IF( ( SimulationClockCounter - 1 ) MOD cPacketLength ) < cPacketLength-6 THEN
-            FOR i IN 0 TO 71 LOOP
-              LinksIn( i ) .data  <= linksInA( i ) .data;
-              LinksIn( i ) .valid <= '1';
-            END LOOP;
-          END IF;
-        END IF;
-      END PROCESS ; */
+    -- PROCESS( clk )
+    --  BEGIN
+    --    IF( RISING_EDGE( clk ) ) THEN
+    --      LinksIn <= ( OTHERS => LWORD_NULL );
+    --      IF( ( SimulationClockCounter - 1 ) MOD cPacketLength ) < cPacketLength-6 THEN
+    --        FOR i IN 0 TO 71 LOOP
+    --          LinksIn( i ) .data  <= linksInA( i ) .data;
+    --          LinksIn( i ) .valid <= '1';
+    --        END LOOP;
+    --      END IF;
+    --    END IF;
+    --  END PROCESS ; 
     END GENERATE;
 -- -------------------------------------------------------------------------
+
+  Convert : entity work.RUFL_to_EMP
+  port map(
+    linksInRUFL => linksIn,
+    linksInEMP => linksInEMP,
+    linksOutRUFL => linksOut,
+    linksOutEMP => linksOutEMP
+  );
 
 -- -------------------------------------------------------------------------
 -- THE ALGORITHMS UNDER TEST
   AlgoInstance : ENTITY work.PF_Top
   PORT MAP(
     clk      => clk ,
-    d  => linksIn ,
-    q => linksOut
+    d  => linksInEMP ,
+    q => linksOutEMP
   );
 -- -------------------------------------------------------------------------
 

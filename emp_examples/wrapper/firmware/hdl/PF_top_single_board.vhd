@@ -45,32 +45,8 @@ begin
 
    clk_p <= clk;
 
-   link_sync : entity work.PatternFileLinkSync
-   generic map(
-    realLinkMin => 41,
-    realLinkMax => 41,
-    bufferLinkMin => 0,
-    bufferLinkMax => 35
-   )
-   port map(
-    clk => clk_p,
-    linksIn => d,
-    linksOut => links_synced
-   );
-
-    tie_unused :
-    for i in 0 to 4 * N_REGION -1 generate
-    begin
-        tie_unused_only: if i > 35 and i /= 41 generate
-            links_synced(i) <= lword_null;
-        end generate;
-    end generate;
-   
-    start_pipe_valid :
-    for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 generate
-    begin
-        valid_pipe(0)(i) <= links_synced(i).valid;
-    end generate;
+    -- No link synchronisation
+    links_synced <= d;
 
     pipe_valid :
     process(clk)
