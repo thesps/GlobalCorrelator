@@ -37,6 +37,7 @@ architecture behavioral OF PatternFileLinkSync IS
 
   signal realLinksDelayed : ldata(realLinkMax downto realLinkMin) := (others => lword_null);
   signal realLinksDelayed1 : ldata(realLinkMax downto realLinkMin) := (others => lword_null);
+  signal realLinksDelayed2 : ldata(realLinkMax downto realLinkMin) := (others => lword_null);
   signal linksInT : Link.ArrayTypes.Vector(N_REGION * 4 - 1 downto 0) := Link.ArrayTypes.NullVector(N_REGION * 4);
   signal linksOutT : Link.ArrayTypes.Vector(N_REGION * 4 - 1 downto 0) := Link.ArrayTypes.NullVector(N_REGION * 4);
 
@@ -56,6 +57,7 @@ begin
     if rising_edge(clk) then
       realLinksDelayed(i) <= linksIn(i);
       realLinksDelayed1(i) <= realLinksDelayed(i);
+      realLinksDelayed2(i) <= realLinksDelayed1(i);
     end if;
   end process;
 end generate;
@@ -110,7 +112,7 @@ begin
       linksOut(i).data <= Link.DataType.to_lword(linksOutT(i)).data;
       linksOut(i).start <= Link.DataType.to_lword(linksOutT(i)).start;
       linksOut(i).strobe <= Link.DataType.to_lword(linksOutT(i)).strobe;
-      linksOut(i).valid <= realLinksDelayed(iRealLink).valid;
+      linksOut(i).valid <= realLinksDelayed1(iRealLink).valid;
     else
       linksOut(i) <= lword_null;  
   end if;
@@ -122,7 +124,7 @@ end generate;
 realLinkO:
 for i in realLinkMin to realLinkMax generate
 begin
-  linksOut(i) <= realLinksDelayed1(i);
+  linksOut(i) <= realLinksDelayed2(i);
 end generate; 
 
 unusedLinks:

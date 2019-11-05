@@ -11,7 +11,7 @@ use work.emp_device_types.all;
 -------------------------------------------------------------------------------
 package emp_project_decl is
 
-  constant PAYLOAD_REV         : std_logic_vector(31 downto 0) := X"51090004";
+  constant PAYLOAD_REV         : std_logic_vector(31 downto 0) := X"5109000B";
 
   -- Number of LHC bunches 
   constant LHC_BUNCH_COUNT    : integer             := 3564;
@@ -21,7 +21,7 @@ package emp_project_decl is
   -- Clock setup
   constant CLOCK_COMMON_RATIO : integer             := 36;
   constant CLOCK_RATIO        : integer             := 9;
-  constant CLOCK_AUX_RATIO    : clock_ratio_array_t := (2, 4, 9);
+  constant CLOCK_AUX_RATIO    : clock_ratio_array_t := (2, 4, 6);
    
   -- Only used by nullalgo   
   constant PAYLOAD_LATENCY    : integer             := 5;

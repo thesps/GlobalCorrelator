@@ -16,6 +16,7 @@ use work.emp_ttc_decl.all;
 
 use work.pf_data_types.all;
 use work.pf_constants.all;
+use work.pf_ip_constants.all;
 
 entity emp_payload is
 	port(
@@ -40,28 +41,34 @@ end emp_payload;
 
 architecture rtl of emp_payload is
 
-  signal links_synced : ldata(4 * N_REGION - 1 downto 0);
-  signal rst_loc_reg : std_logic_vector(N_REGION - 1 downto 0);       
-  constant N_FRAMES_USED : natural := 1;
-  signal start_pf : std_logic;
-  signal d_pf : pf_data(N_PF_IP_CORE_IN_CHANS - 1 downto 0);
-  signal q_pf : pf_data(N_PF_IP_CORE_OUT_CHANS - 1 downto 0);
-  type valid_array is array (natural range <>) of std_logic_vector(N_PF_IP_CORE_IN_CHANS - 1 downto 0);
-  signal valid_pipe : valid_array(0 to PF_ALGO_LATENCY-1) := (others => (others => '0'));
+    signal qInt : ldata(4 * N_REGION - 1 downto 0) := (others => lword_null);
 
 begin
 
    ipb_out <= IPB_RBUS_NULL;
 
    algo : entity work.PF_top
+   generic map( 
+      algoAt240 => False,
+      linkSync => False,
+      magicReset => True
+   )
    port map(
-      clk => clk_p,
+      clk360 => clk_p,
+      clk240 => clk_payload(0),
       d => d,
-      q => q
+      q => qInt
    );
 
     bc0 <= '0';
     gpio <= (others => '0');
     gpio_en <= (others => '0');
+
+    LinksOut : entity work.JFLinkMap
+    port map(
+        clk => clk_p,
+        d => qInt,
+        q => q
+    );
 
 end rtl;

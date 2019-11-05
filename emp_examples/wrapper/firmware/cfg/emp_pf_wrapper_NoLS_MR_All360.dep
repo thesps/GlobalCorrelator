@@ -1,5 +1,6 @@
-src --vhdl2008  emp_payload_slim.vhd
+src --vhdl2008  emp_payload_NoLS_MR_All360.vhd
 src --vhdl2008  PF_top.vhd
+src --vhdl2008  JFLinkMap.vhd
 src --vhdl2008  LinkCDC.vhd
 src --vhdl2008  PatternFileLinkSync.vhd
 src --vhdl2008  pf_ip_wrapper_42.vhd

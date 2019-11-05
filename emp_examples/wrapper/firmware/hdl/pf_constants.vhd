@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 
 package pf_constants is
 
-  constant PF_ALGO_LATENCY : natural := 168;  -- Algorithm latency in ticks
+  --constant PF_ALGO_LATENCY : natural := 262;  -- Algorithm latency in ticks
   --constant MAX_PF_IP_CORES : natural := 6;
   constant N_PF_IP_CORES : natural := 1;  -- Up to 6
   constant N_PF_IP_CORE_IN_CHANS : natural := 42;

@@ -1,8 +1,8 @@
-include -c emp-fwk-v0.3.0:boards/serenity/dc_ku15p/ dc_ku15p.dep
+include -c emp-fwk-v0.3.1:boards/serenity/dc_ku15p/ dc_ku15p_sm1_v2.dep
 src dc_ku15p_decl.vhd 
 src -c mp7:components/mp7_datapath mp7_data_types.vhd
 src -c ipbus-firmware:components/ipbus_slaves ipbus_reg_v.vhd ipbus_ctrlreg_v.vhd ipbus_reg_types.vhd
 src -c ipbus-firmware:components/ipbus_core ipbus_package.vhd ipbus_fabric_sel.vhd
 setup build.tcl
-include -c emp_examples/wrapper emp_pf_wrapper.dep
+include -c emp_examples/wrapper emp_pf_wrapper_NoLS_MR_All360.dep
 include -c emp_examples/PF_IP_II2_360MHz PF.dep

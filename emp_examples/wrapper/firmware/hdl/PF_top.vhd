@@ -11,22 +11,31 @@ use work.emp_data_types.all;
 
 use work.pf_data_types.all;
 use work.pf_constants.all;
+use work.pf_ip_constants.all;
 
 use work.emp_device_decl.all;
 
 library Link;
 
 entity PF_top is
-	port(
-		clk: in std_logic; -- ipbus signals
-		d: in ldata(4 * N_REGION - 1 downto 0); -- data in
-		q: out ldata(4 * N_REGION - 1 downto 0) -- data out
-	);
+    generic(
+        constant algoAt240 : boolean := False;
+        constant linkSync : boolean := False;
+        constant magicReset : boolean := False
+    );
+    port(
+	clk360: in std_logic; -- ipbus signals
+        clk240 : in std_logic;
+	d: in ldata(4 * N_REGION - 1 downto 0); -- data in
+	q: out ldata(4 * N_REGION - 1 downto 0) -- data out
+    );
 end PF_top;
 
 architecture rtl of PF_top is
 
   signal links_synced : ldata(4 * N_REGION - 1 downto 0);
+  signal links_slow : ldata(4 * N_REGION - 1 downto 0);
+  signal q_slow : ldata(4 * N_REGION - 1 downto 0);
   constant N_FRAMES_USED : natural := 1;
   signal start_pf : std_logic := '0';
   signal rst_pf : std_logic := '1';
@@ -36,6 +45,7 @@ architecture rtl of PF_top is
   signal q_pf : pf_data(N_PF_IP_CORE_OUT_CHANS - 1 downto 0);
   type valid_array is array (natural range <>) of std_logic_vector(N_PF_IP_CORE_IN_CHANS - 1 downto 0);
   signal valid_pipe : valid_array(0 to PF_ALGO_LATENCY-1) := (others => (others => '0'));
+  signal clk_l : std_logic := '0';
   signal clk_p : std_logic := '0';
 
   -- Debug
@@ -43,20 +53,36 @@ architecture rtl of PF_top is
 
 begin
 
-   clk_p <= clk;
+   GClks0:
+   if algoAt240 generate
+     clk_l <= clk360;
+     clk_p <= clk240;
+   end generate;
+   GClks1:
+   if not algoAt240 generate
+    clk_l <= clk360;
+    clk_p <= clk360;
+   end generate;
 
-   link_sync : entity work.PatternFileLinkSync
-   generic map(
-    realLinkMin => 41,
-    realLinkMax => 41,
-    bufferLinkMin => 0,
-    bufferLinkMax => 35
-   )
-   port map(
-    clk => clk_p,
-    linksIn => d,
-    linksOut => links_synced
-   );
+    LS0:
+    if linkSync generate
+        link_sync : entity work.PatternFileLinkSync
+        generic map(
+         realLinkMin => 41,
+         realLinkMax => 41,
+         bufferLinkMin => 0,
+         bufferLinkMax => 35
+        )
+        port map(
+         clk => clk_l,
+         linksIn => d,
+         linksOut => links_synced
+        );
+    end generate;
+    LS1:
+    if not linkSync generate
+        links_synced <= d;
+    end generate;
 
     tie_unused :
     for i in 0 to 4 * N_REGION -1 generate
@@ -65,24 +91,39 @@ begin
             links_synced(i) <= lword_null;
         end generate;
     end generate;
+
+    CDC0:
+    if algoAt240 generate
+    CDC : entity work.LinkCDC
+    port map(
+      clk_in => clk_l,
+      clk_out => clk_p,
+      d_in => links_synced,
+      d_out => links_slow
+    );
+    end generate;
+    CDC1:
+    if not algoAt240 generate
+        links_slow <= links_synced;
+    end generate;
    
     start_pipe_valid :
     for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 generate
     begin
-        valid_pipe(0)(i) <= links_synced(i).valid;
+        valid_pipe(0)(i) <= links_slow(i).valid;
     end generate;
 
     pipe_valid :
-    process(clk)
+    process(clk_p)
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk_p) then
             valid_pipe(1 to PF_ALGO_LATENCY - 1) <= valid_pipe(0 to PF_ALGO_LATENCY - 2);
         end if;
     end process;
 
-    process(clk)
+    process(clk_p)
     begin
-    if rising_edge(clk) then
+    if rising_edge(clk_p) then
         if valid_pipe(0)(0) = '1' and rst_pf = '1' then
             rst_pf <= '0';
         else
@@ -98,7 +139,7 @@ begin
     begin
         used:
         if i < 36 or i = 41 generate
-            d_pf(i) <= links_synced(i).data;
+            d_pf(i) <= links_slow(i).data;
         end generate used;
         unused:
         if i > 35 and i /= 41 generate
@@ -107,9 +148,9 @@ begin
     end generate;
 
     pipe_d:
-    process(clk)
+    process(clk_p)
     begin
-        if rising_edge(clk) then
+        if rising_edge(clk_p) then
             d_pf0 <= d_pf;
             d_pf1 <= d_pf0;
         end if;
@@ -128,31 +169,81 @@ begin
       );
 
 
+    MR0:
+    if magicReset generate
     pfdata_to_ldata :
     for i in 0 to N_PF_IP_CORE_OUT_CHANS - 1 generate
     begin
         used:
         if i < 36 or i = 41 generate
-            q(i).data <= q_pf(i);
-            q(i).strobe <= '1';
-            q(i).valid <= valid_pipe(PF_ALGO_LATENCY - 1)(i);
-            q(i).start <= '0';
+            process(clk_p) 
+            begin
+                if rising_edge(clk_p) then
+                    -- 'magic reset'
+                    if valid_pipe(PF_ALGO_LATENCY - 2)(i) = '1' and valid_pipe(PF_ALGO_LATENCY - 1)(i) = '0' then
+                        q_slow(i).data <= X"51091AA40951309E";
+                        q_slow(i).strobe <= '1';
+                        q_slow(i).valid <= '1';
+                        q_slow(i).start <= '0';
+                        debug_q(i).data <= (data => X"51091AA40951309E", strobe => '1', valid => '1', start => '0');
+                        debug_q(i).DataValid <= True;
+                        debug_q(i).FrameValid <= True;
+                    else
+                        q_slow(i).data <= q_pf(i);
+                        q_slow(i).strobe <= '1';
+                        q_slow(i).valid <= valid_pipe(PF_ALGO_LATENCY - 1)(i);
+                        q_slow(i).start <= '0';
+                        debug_q(i) <= Link.DataType.from_lword(q(i));
+                    end if;
+                end if;
+            end process;
+        end generate;
+        unused:
+        if i >= 36 and i /= 41 generate
+            q_slow(i) <= lword_null;
+            debug_q(i) <= Link.DataType.cNull;
+        end generate;
+    end generate;
+    end generate;
+
+    MR1:
+    if not magicReset generate
+    pfdata_to_ldata :
+    for i in 0 to N_PF_IP_CORE_OUT_CHANS - 1 generate
+    begin
+        used:
+        if i < 36 or i = 41 generate
+            q_slow(i).data <= q_pf(i);
+            q_slow(i).strobe <= '1';
+            q_slow(i).valid <= valid_pipe(PF_ALGO_LATENCY - 1)(i);
+            q_slow(i).start <= '0';
             debug_q(i) <= Link.DataType.from_lword(q(i));
         end generate;
         unused:
         if i >= 36 and i /= 41 generate
-            q(i) <= lword_null;
+            q_slow(i) <= lword_null;
             debug_q(i) <= Link.DataType.cNull;
         end generate;
     end generate;
-
+    end generate;
     -- tie the unused links
-    q(4 * N_REGION -1 downto N_PF_IP_CORE_OUT_CHANS) <= (others => lword_null);
+    q_slow(4 * N_REGION -1 downto N_PF_IP_CORE_OUT_CHANS) <= (others => lword_null);
+
+    CDCO0:
+    if algoAt240 generate
+        -- Synchronise the links to the output clock
+        CDC_O : entity work.LinkCDC
+        port map(clk_p, clk_l, q_slow, q);
+    end generate;
+    CDCO1:
+    if not algoAt240 generate
+        q <= q_slow;
+    end generate;
 
     -- synthesis translate_off
     DebugInstance : entity Link.Debug
     generic map("LinksOut")
-    port map(clk, debug_q);
+    port map(clk_p, debug_q);
     -- synthesis translate_on
 
 end rtl;

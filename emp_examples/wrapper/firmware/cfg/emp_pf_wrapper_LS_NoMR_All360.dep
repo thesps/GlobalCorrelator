@@ -1,4 +1,4 @@
-src --vhdl2008  emp_payload_slim.vhd
+src --vhdl2008  emp_payload_LS_NoMR_All360.vhd
 src --vhdl2008  PF_top.vhd
 src --vhdl2008  LinkCDC.vhd
 src --vhdl2008  PatternFileLinkSync.vhd

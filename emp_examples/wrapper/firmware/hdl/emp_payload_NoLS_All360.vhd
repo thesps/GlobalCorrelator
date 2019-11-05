@@ -16,6 +16,7 @@ use work.emp_ttc_decl.all;
 
 use work.pf_data_types.all;
 use work.pf_constants.all;
+use work.pf_ip_constants.all;
 
 entity emp_payload is
 	port(
@@ -54,69 +55,17 @@ begin
    ipb_out <= IPB_RBUS_NULL;
 
    algo : entity work.PF_top
+   generic map( 
+      algoAt240 => False,
+      linkSync => False,
+      magicReset => False
+   )
    port map(
-      clk => clk_p,
+      clk360 => clk_p,
+      clk240 => clk_payload(0),
       d => d,
       q => q
    );
-
-   
-   link_sync : entity work.PatternFileLinkSync
-   generic map(
-    realLinkMin => 41,
-    realLinkMax => 41,
-    bufferLinkMin => 0,
-    bufferLinkMax => 35
-   )
-   port map(
-    clk => clk_p,
-    linksIn => d,
-    linksOut => links_synced
-   );
-
-    -- Drive the IP core valid from the syncrhonised link (vertex)
-    start_pf <= links_synced(41).valid;
-
-    start_pipe_valid :
-    for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 generate
-    begin
-        valid_pipe(0)(i) <= links_synced(i).valid;
-    end generate;
-
-    pipe_valid :
-    process(clk)
-    begin
-        if rising_edge(clk) then
-            valid_pipe(1 to PF_ALGO_LATENCY - 1) <= valid_pipe(0 to PF_ALGO_LATENCY - 2);
-        end if;
-    end process;
-
-    ldata_to_pfdata :
-    for i in 0 to N_PF_IP_CORE_IN_CHANS - 1 generate
-    begin
-        d_pf(i) <= links_synced(i).data;
-    end generate;
-
-    pf_algo : entity work.pf_ip_wrapper
-      PORT MAP (
-        clk    => clk_p,
-        rst    => '0',
-        start  => start_pf,
-        input  => d_pf,
-        done   => open,
-        idle   => open,
-        ready  => open,
-        output => q_pf
-      );
-
-
-    pfdata_to_ldata :
-    for i in 0 to N_PF_IP_CORE_OUT_CHANS - 1 generate
-    begin
-        q(i).data <= q_pf(i);
-        q(i).strobe <= '1';
-        q(i).valid <= valid_pipe(PF_ALGO_LATENCY - 1)(i);
-    end generate;
 
     bc0 <= '0';
     gpio <= (others => '0');
