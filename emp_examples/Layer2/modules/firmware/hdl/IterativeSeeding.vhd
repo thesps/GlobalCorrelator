@@ -21,9 +21,10 @@ entity IterativeSeeding is
 port(
   clk : in std_logic;
   PFChargedObjIn : in PFCHargedObj.ArrayTypes.Vector(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVector(N_Region_Groups);
-  -- PFChargedObjBuffer : in PFChargedObj.ArrayTypes.Matrix(0 to N_Region_Groups - 1)(0 to N_Parts_Per_Region_Group - 1); -- Region-streams in groups
   Seeds : out PFChargedObj.ArrayTypes.VectorPipe(0 to 7)(0 to N_Seeds - 1) := PFChargedObj.ArrayTypes.NullVectorPipe(8, N_Seeds);
-  DebugSeed : out PFChargedObj.DataType.tData := PFChargedObj.DataType.cNull;
+  CurrentSeed : out PFChargedObj.DataType.tData := PFChargedObj.DataType.cNull;
+  PFChargedObjOut : out PFChargedObj.DataType.Vector(0 to N_Region_Groups - 1) := PFChargedObj.ArrayTypes.NullVector(N_Region_Groups);
+  InConeOut : out std_logic_vector(0 to N_Region_Groups - 1) := (others => '0');
   NewSeedOut : out std_logic := '0'
 );
 end IterativeSeeding;
@@ -85,6 +86,8 @@ begin
     end if;
 end process;
 
+-- 'External' write address
+-- ie the address used when new data is arriving
 WriteExt:
 process(clk)
 begin
@@ -103,10 +106,8 @@ begin
   end if;
 end process;
 
--- TODO only works for 4 region groups
 -- Find the maximum Pt object from the front of the grouped-regions
 PairReduceIn <= ObjRead;
-
 PR : entity PFChargedObj.PairReduceMax
 port map(clk, PairReduceIn, PairReduceOut);
 
@@ -120,10 +121,10 @@ begin
       CurrentGlobalSeed <= PairReduceOut(0);
     end if;
     if newSeedPipe(pairReduceLatency + 1) then
-      DebugSeed <= PairReduceOut(0);
+      CurrentSeed <= PairReduceOut(0);
       NewSeedOut <= '1';
     else
-      DebugSeed <= PFChargedObj.DataType.cNull;
+      CurrentSeed <= PFChargedObj.DataType.cNull;
       NewSeedOut <= '0';
     end if;
   end if;
@@ -260,6 +261,7 @@ begin
   end process;
 end generate;
           
+-- Perform the actual writing back
 WriteGen:
 for i in 0 to N_Region_Groups - 1 generate
 begin
@@ -281,6 +283,13 @@ begin
     inConePipe(1 to inConePipe'length - 1) <= inConePipe(0 to inConePipe'length - 2);
   end if;
 end process;
+
+OutGen:
+for i in 0 to N_Region_Groups - 1 generate
+begin
+  InConeOut(i) <= to_std_logic(inCone(i));
+  PFChargedObjOut(i) <= ObjReadPipe(inConeLatency + 1);
+end generate;
 
 PipeObjRead : entity PFChargedObj.DataPipe
 port map(clk, ObjRead, ObjReadPipe);

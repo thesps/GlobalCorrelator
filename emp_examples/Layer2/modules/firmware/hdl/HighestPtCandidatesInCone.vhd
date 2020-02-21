@@ -13,18 +13,18 @@ library PFChargedObj;
 use PFChargedObj.DataType;
 use PFChargedObj.ArrayTypes;
 
-entity SumCandidatesAroundSeed is
+entity HighestPtCandidatesInCone is
 port(
   clk : in std_logic;
   SeedsIn : in PFChargedObj.ArrayTypes.VectorPipe;
   PFChargedObjIn : in PFChargedObj.ArrayTypes.VectorPipe;
   PFChargedObjOut : out PFChargedObj.ArrayTypes.VectorPipe
 );
-end SumCandidatesAroundSeed;
+end HighestPtCandidatesInCone;
 
-architecture behavioral of SumCandidatesAroundSeed is
+architecture behavioral of HighestPtCandidatesInCone is
   signal PFChargedObjOutInt : PFChargedObj.ArrayTypes.Vector(0 to N_PF_Regions - 1) := PFChargedObj.ArrayTypes.NullVector(N_PF_Regions);
-  constant SeedPipeLength : integer : 6;
+  constant SeedPipeLength : integer := 6;
 begin
 
 RegionLoop:
@@ -75,8 +75,8 @@ begin
 
     -- For each neighbour, pick out the TAU_nHighestPt particles
     SortNeighbours : entity PFChargedObj.StreamSort 
-    generic map( size <= TAU_nHighestPt );
-    port map(clk, rstSort, candidatesCopyDelayed(j), PtSortedCandidatesNeighbours(j));
+    generic map( TAU_nHighestPt )
+    port map(clk, to_boolean(rstSort), candidatesCopy(j), PtSortedCandidatesNeighbours(j));
 
   end generate;
 end generate;

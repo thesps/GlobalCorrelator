@@ -41,7 +41,7 @@ package DataType is
   function SumPt(x, y : tData) return tData;
   function "<" (left, right : tData) return boolean;
   function ">" (left, right : tData) return boolean;
-
+  function "+" (left, right : tData) return tData;
 end DataType;
 
 package body DataType is
@@ -154,5 +154,10 @@ package body DataType is
       end if;
       return ret;
   end ">";
+ 
+  function "+" (left, right : tData) return tData is
+  begin
+    return SumPt(left, right);
+  end "+";
 
 end DataType;
