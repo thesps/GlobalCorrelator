@@ -154,6 +154,9 @@ begin
                 --elsif not X2((i mod 4) / 4)(i mod 2).DataValid then
                 else
                     bRouted(i) <= cNull;
+                    if X2((i mod 16) / 4)(i mod 4).FrameValid then
+                        bRouted(i).FrameValid <= True;
+                    end if;
                 end if;
             end if;
         end process;
@@ -173,6 +176,9 @@ begin
                         Y(i) <=  bRouted(i);
                     else
                         Y(i) <= cNull;
+                        if aPipe(RouterLatency-1)(i).FrameValid then
+                            Y(i).FrameValid <= True;
+                        end if;
                     end if;
                 end if;
             end process;
@@ -187,6 +193,9 @@ begin
                         Y(i) <= bRouted(i);
                     else
                         Y(i) <= cNull;
+                        if bRouted(i).FrameValid then
+                            Y(i).FrameValid <= True;
+                        end if;
                     end if;
                 end if;
             end process;

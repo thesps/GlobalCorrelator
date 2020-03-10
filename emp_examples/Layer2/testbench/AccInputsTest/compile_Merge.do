@@ -24,5 +24,7 @@ vcom -64 -2008 -work Simple ../../modules/firmware/hdl/RouterMerge16to32.vhd
 vcom -64 -2008 -work Simple ../../modules/firmware/hdl/RouterMerge32to64.vhd
 vcom -64 -2008 -work Simple ../../modules/firmware/hdl/RouterMerge32and64to64.vhd
 vcom -64 -2008 -work Simple ../../modules/firmware/hdl/RouterMerge6x16to64.vhd
+vcom -64 -2008 -work Simple ../../modules/firmware/hdl/RouterAccumulate64to128.vhd
+vcom -64 -2008 -work Simple ../../modules/firmware/hdl/RouterMergeAccumulateInputs.vhd
 
 vcom -64 -2008 -work xil_defaultlib Testbench_merge.vhd

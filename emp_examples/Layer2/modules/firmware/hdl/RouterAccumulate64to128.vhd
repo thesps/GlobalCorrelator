@@ -58,7 +58,6 @@ architecture rtl of AccumulateInputs is
 
 begin
 
-
     NMProc:
     process(clk)
     begin
@@ -74,8 +73,8 @@ begin
         if rising_edge(clk) then
             -- Try in the same cycle
             -- Increment the base address
-            -- Reset
-            if not d(0).DataValid then
+            -- Reset on new event
+            if not d(0).FrameValid then
                 N <= 0;
             -- M should lag N by one cycle
             else
@@ -155,9 +154,15 @@ begin
         process(clk)
         begin
             if rising_edge(clk) then
-                if XA2((i mod 64) / 8)(i mod 8).x = i and X2((i mod 64) / 8)(i mod 8).DataValid then
-                    Y128(i) <= X2((i mod 8) / 8)(i mod 8);
-                elsif not X2((i mod 8) / 8)(i mod 8).FrameValid then
+                if X2((i mod 64) / 8)(i mod 8).FrameValid then
+                    if XA2((i mod 64) / 8)(i mod 8).x = i and X2((i mod 64) / 8)(i mod 8).DataValid then
+                        Y128(i) <= X2((i mod 64) / 8)(i mod 8);
+                    else
+                        --Y128(i) <= cNull;
+                        Y128(i).FrameValid <= True;
+                    end if;
+                elsif not X2((i mod 64) / 8)(i mod 8).FrameValid then
+                    -- new event reset
                     Y128(i) <= cNull;
                 end if;
             end if;

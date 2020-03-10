@@ -15,7 +15,7 @@ end testbench;
 
 architecture behavioral of testbench is
   constant nIn  : integer := 16;
-  constant nOut : integer := 64;
+  constant nOut : integer := 128;
   signal d : Vector(0 to nIn - 1) := NullVector(nIn);
   signal dM : Matrix(0 to 5)(0 to nIn - 1) := NullMatrix(6, nIn);
   signal q : Vector(0 to nOut - 1) := NullVector(nOut);
@@ -68,7 +68,10 @@ begin
 --  end generate;
 
 
-  uut : entity Simple.MergeArrays
+  --uut : entity Simple.MergeArrays
+  --port map(clk, dM, q);
+
+  uut : entity Simple.MergeAccumulateInputRegions
   port map(clk, dM, q);
 
 end behavioral;

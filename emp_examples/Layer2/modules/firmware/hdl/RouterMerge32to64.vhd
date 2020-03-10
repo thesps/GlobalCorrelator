@@ -206,6 +206,9 @@ begin
                     bRouted(i) <= bFlat(YMap(i mod 32).x);
                 else
                     bRouted(i) <= cNull;
+                    if bFlat(YMap(i mod 32).x).FrameValid then
+                        bRouted(i).FrameValid <= True;
+                    end if;
                 end if;
             end if;
         end process;
@@ -225,6 +228,9 @@ begin
                         Y(i) <=  bRouted(i);
                     else
                         Y(i) <= cNull;
+                        if aPipe(RouterLatency-1)(i).FrameValid then
+                            Y(i).FrameValid <= True;
+                        end if;
                     end if;
                 end if;
             end process;
@@ -239,6 +245,9 @@ begin
                         Y(i) <= bRouted(i);
                     else
                         Y(i) <= cNull;
+                        if bRouted(i).FrameValid then
+                            Y(i).FrameValid <= True;
+                        end if;
                     end if;
                 end if;
             end process;
