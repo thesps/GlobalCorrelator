@@ -20,7 +20,7 @@ end Merge32and64to64;
 
 architecture rtl of Merge32and64to64 is
 
-    constant RouterLatency : integer := 5; -- a guess for now
+    constant RouterLatency : integer := 4; -- a guess for now
     signal aPipe : VectorPipe(0 to RouterLatency - 1)(0 to 63) := NulLVectorPipe(RouterLatency, 64);
     signal aPiped : Vector(0 to 63) := NullVector(64);
 
@@ -50,8 +50,45 @@ architecture rtl of Merge32and64to64 is
     signal XLA2 : Int.ArrayTypes.Matrix(0 to 3)(0 to 7) := Int.ArrayTypes.NullMatrix(4,8);
 
     -- Final route arrays
+    signal bFlat  : Vector(0 to 31) := NullVector(32);
+    signal bAFlat : Int.ArrayTypes.Vector(0 to 31) := Int.ArrayTypes.NullVector(32);
     signal bRouted  : Vector(0 to 63) := NullVector(64);
     signal Y : Vector(0 to 63) := NullVector(64);
+    
+    -- Final route mapping
+    constant YMap : Int.ArrayTypes.Vector(0 to 31) := (
+                                                     (0,true,true),
+                                                     (5,true,true),
+                                                     (2,true,true),
+                                                     (7,true,true),
+                                                     (8,true,true),
+                                                     (13,true,true),
+                                                     (10,true,true),
+                                                     (15,true,true),
+                                                     (16,true,true),
+                                                     (21,true,true),
+                                                     (18,true,true),
+                                                     (23,true,true),
+                                                     (24,true,true),
+                                                     (29,true,true),
+                                                     (26,true,true),
+                                                     (31,true,true),
+                                                     (4,true,true),
+                                                     (1,true,true),
+                                                     (6,true,true),
+                                                     (3,true,true),
+                                                     (12,true,true),
+                                                     (9,true,true),
+                                                     (14,true,true),
+                                                     (11,true,true),
+                                                     (20,true,true),
+                                                     (17,true,true),
+                                                     (22,true,true),
+                                                     (19,true,true),
+                                                     (28,true,true),
+                                                     (25,true,true),
+                                                     (30,true,true),
+                                                     (27,true,true));
 
     -- N is the current base address to route to
     -- M is the max
@@ -97,12 +134,8 @@ begin
             signal ki1 : Int.DataType.tData := (0, True, True);
             signal ki2 : Int.DataType.tData := (0, True, True);
             -- index calculation for second router layer
-            constant ij : integer := 4 * i + j;
-            constant ai : integer := ij / 4;
-            constant bi : integer := ij mod 4;
-            constant ab : integer := 4 * bi + ai;
-            constant aj : integer := ab / 8;
-            constant bj : integer := ab mod 8;
+            constant aj : integer := j mod 4;
+            constant bj : integer := i + 4 * (j / 4);
         begin
             --AddrInProc:
             --process(clk)
@@ -158,15 +191,21 @@ begin
     end generate;
 
     -- Fan out the 32 to 64
+    bFlatGen:
+    for i in 0 to 31 generate
+    begin
+        bFlat(i) <= X2(i / 8)(i mod 8);
+        bAFlat(i) <= XA2(i / 8)(i mod 8);
+    end generate;
+
     bRoute:
     for i in 0 to 63 generate
         bRouteProc:
         process(clk)
         begin
             if rising_edge(clk) then
-                if XA2(i / 16)(i mod 8).x = i and X2(i / 16)(i mod 8).DataValid then
-                    bRouted(i) <= X2(i / 16)(i mod 8); 
-                --elsif not X2(i / 16)(i mod 8).DataValid then
+                if bAFlat(YMap(i mod 32).x).x = i and bFlat(YMap(i mod 32).x).DataValid then
+                    bRouted(i) <= bFlat(YMap(i mod 32).x);
                 else
                     bRouted(i) <= cNull;
                 end if;

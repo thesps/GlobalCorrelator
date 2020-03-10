@@ -36,33 +36,36 @@ begin
     end if;
   end process;
 
+  GenLoop:
+  for im in 0 to 5 generate
   GenInputs:
   process(clk)
   begin
     if rising_edge(clk) then
       if testCounter > startFrame and testCounter < (nFrames + startFrame) then
-        for i in 0 to testCounter - startFrame loop
-          d(i).pt <= to_unsigned(testCounter - startFrame, 64);
-          d(i).FrameValid <= True;
-          d(i).DataValid <= True;
+        for i in 0 to testCounter - startFrame - 1 loop
+          dM(im)(i).pt <= to_unsigned(testCounter - startFrame + iM * 16, 64);
+          dM(im)(i).FrameValid <= True;
+          dM(im)(i).DataValid <= True;
         end loop;
-        for i in testCounter - startFrame + 1 to nIn - 1 loop
-          d(i).pt <= (others => '0');
-          d(i).FrameValid <= True;
-          d(i).DataValid <= False;
+        for i in testCounter - startFrame to nIn - 1 loop
+          dM(im)(i).pt <= (others => '0');
+          dM(im)(i).FrameValid <= True;
+          dM(im)(i).DataValid <= False;
         end loop;        
       else
         for i in 0 to nIn - 1 loop
-          d(i) <= cNull;
+          dM(im)(i) <= cNull;
         end loop;
       end if;
     end if;
   end process;
-  
-  GD:
-  for i in 0 to 5 generate 
-    dM(i) <= d;
   end generate;
+  
+--  GD:
+--  for i in 0 to 5 generate 
+--    dM(i) <= d;
+--  end generate;
 
 
   uut : entity Simple.MergeArrays

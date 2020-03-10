@@ -10,14 +10,10 @@ use Int.DataType;
 use Int.ArrayTypes;
 
 entity AccumulateInputs is
-generic(
-  constant nIn : integer := 16;
-  constant nOut : integer := 64
-);
 port(
   clk : in std_logic := '0';
-  d : in Vector(0 to nIn - 1) := NullVector(nIn);
-  q : out Vector(0 to nOut - 1) := NullVector(nOut)
+  d : in Vector(0 to 64 - 1) := NullVector(64);
+  q : out Vector(0 to 128 - 1) := NullVector(128)
 );
 end AccumulateInputs;
 
@@ -56,8 +52,8 @@ architecture rtl of AccumulateInputs is
     -- M is the max
     --signal N : Int.DataType.tData := Int.DataType.cNull;
     --signal M : Int.DataType.tData := Int.DataType.cNull;
-    signal N : integer range 0 to nOut := 0;
-    signal M : integer range 0 to nOut := 0;
+    signal N : integer range 0 to 127 := 0;
+    signal M : integer range 0 to 127 := 0;
     
 
 begin

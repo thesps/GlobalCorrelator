@@ -1,4 +1,4 @@
-set RUFL "/vols/cms/ss5310/FW/work/src/HGC-firmware/projects/Common/firmware/hdl/ReuseableElements"
+set RUFL "/home/sioni/Work/p2fwk-work/src/HGC-firmware/projects/Common/firmware/hdl/ReuseableElements"
 
 add_files ./PkgSimple.vhd
 add_files $RUFL/PkgArrayTypes.vhd

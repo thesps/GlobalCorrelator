@@ -10,7 +10,7 @@ entity top is
 port(
   clk : in std_logic := '0';
   d : in Matrix(0 to 5)(0 to 15) := NullMatrix(6, 16);
-  q : out Vector(0 to 63) := NullVector(64)
+  q : out Vector(0 to 127) := NullVector(128)
 );
 end top;
 

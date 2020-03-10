@@ -20,7 +20,7 @@ end Merge16to32;
 
 architecture rtl of Merge16to32 is
 
-    constant RouterLatency : integer := 5; -- a guess for now
+    constant RouterLatency : integer := 4; -- a guess for now
     signal aPipe : VectorPipe(0 to RouterLatency - 1)(0 to 16 - 1) := NulLVectorPipe(RouterLatency, 16);
 
     -- Layer input arrays
@@ -149,8 +149,8 @@ begin
         process(clk)
         begin
             if rising_edge(clk) then
-                if XA2((i mod 4) / 4)(i mod 4).x = i and X2((i mod 4) / 4)(i mod 4).DataValid then
-                    bRouted(i) <= X2((i mod 4) / 4)(i mod 4); 
+                if XA2((i mod 16) / 4)(i mod 4).x = i and X2((i mod 16) / 4)(i mod 4).DataValid then
+                    bRouted(i) <= X2((i mod 16) / 4)(i mod 4); 
                 --elsif not X2((i mod 4) / 4)(i mod 2).DataValid then
                 else
                     bRouted(i) <= cNull;

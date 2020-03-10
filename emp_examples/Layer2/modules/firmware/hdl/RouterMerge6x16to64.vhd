@@ -17,7 +17,7 @@ port(
 end MergeArrays;
 
 architecture behavioral of MergeArrays is
-    constant latency_l1 : integer := 6; -- The latency of the 2nd merge layer for pipelining
+    constant latency_l1 : integer := 5; -- The latency of the 2nd merge layer for pipelining
 
     -- Output of first merge layer
     signal d0 : Matrix(0 to 2)(0 to 31) := NullMatrix(3,32);
