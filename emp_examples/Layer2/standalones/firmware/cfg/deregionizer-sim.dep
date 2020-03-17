@@ -1,0 +1,15 @@
+include -c emp-fwk:boards/testbench
+src --vhdl2008 deregionizer_payload.vhd
+src --vhdl2008 -c emp_examples/Layer2/IO -l IO PairReduceMax.vhd
+include -c emp_examples/Layer2/deregionizer deregionizer.dep
+
+src --vhdl2008 -c HGC-firmware:projects/Common -l Utilities ReuseableElements/PkgUtilities.vhd
+src --vhdl2008 -c HGC-firmware:projects/Common -l Utilities ReuseableElements/PkgDebug.vhd
+
+#src -c emp-fwk:projects/examples/vcu118 vcu118_decl_full.vhd
+
+src -c emp-fwk:projects/examples/testbench emp_project_decl.vhd
+src -c emp-fwk:projects/examples/testbench tb_decl.vhd
+src -c emp-fwk:components/ttc emp_ttc_decl.vhd
+include -c emp-fwk:boards/testbench packages.dep
+

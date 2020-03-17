@@ -1,13 +1,15 @@
+src --vhdl2008 -l IO MergeAccumulateInputs.vhd
+src --vhdl2008 -l IO Merge6x16to64.vhd
 src --vhdl2008 -l IO Accumulate16to64.vhd
 src --vhdl2008 -l IO Accumulate64to128.vhd
 src --vhdl2008 -l IO Merge16to32.vhd
 src --vhdl2008 -l IO Merge32and64to64.vhd
 src --vhdl2008 -l IO Merge32to64.vhd
-src --vhdl2008 -l IO Merge6x16to64.vhd
-src --vhdl2008 -l IO MergeAccumulateInputs.vhd
 src --vhdl2008 -l IO UniqueRouting.vhd
-src --vhdl2008 -c emp_examples/Layer2/IO -l IO PkgArrayTypes.vhd
+
 src --vhdl2008 -c emp_examples/Layer2/IO -l IO DataPipe.vhd
+src --vhdl2008 -c emp_examples/Layer2/IO -l IO PkgArrayTypes.vhd
 src --vhdl2008 -c emp_examples/Layer2/components -l IO PkgIO.vhd
-src --vhdl2008 -c emp_examples/Layer2/components -l Int PkgInt.vhd
 src --vhdl2008 -c emp_examples/Layer2/Int -l Int PkgArrayTypes.vhd
+src --vhdl2008 -c emp_examples/Layer2/components -l Int PkgInt.vhd
+
