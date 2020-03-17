@@ -10,17 +10,15 @@ config_6x16 = {'regions' : (6, 6),
 def random_pattern_file(filehandle, region_config):
     c = region_config
     # print header
-    filehandle.write('Board TEST')
-    line = 'Quad/Chan :            '
+    filehandle.write('Board TEST\n')
+    line = ' Quad/Chan :'
     for i in range(c['regions'][1] * c['particles_per_region']):
-        line += 'q' + '%02d' % int(i // 4) + 'c' + str(i % 4)
-        line += '            '
+        line += '        q{:02d}c{}      '.format(int(i/4), int(i%4))
     line += '\n'
     filehandle.write(line)
-    line = 'Link :            '
+    line = 'Link :'
     for i in range(c['regions'][1] * c['particles_per_region']):
-        line += '%03d' % i
-        line += '            '
+        line += '       {:02d}          '.format(i)
     line += '\n'
     filehandle.write(line)
 

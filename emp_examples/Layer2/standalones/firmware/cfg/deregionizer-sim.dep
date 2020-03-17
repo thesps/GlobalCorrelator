@@ -6,10 +6,11 @@ include -c emp_examples/Layer2/deregionizer deregionizer.dep
 src --vhdl2008 -c HGC-firmware:projects/Common -l Utilities ReuseableElements/PkgUtilities.vhd
 src --vhdl2008 -c HGC-firmware:projects/Common -l Utilities ReuseableElements/PkgDebug.vhd
 
-#src -c emp-fwk:projects/examples/vcu118 vcu118_decl_full.vhd
-
+src -c emp-fwk:components/ttc emp_ttc_decl.vhd
+src -c emp-fwk:boards/testbench emp_device_decl.vhd
+src -c ipbus-firmware:components/ipbus_core ipbus_package.vhd
+include -c emp-fwk:components/testbench
 src -c emp-fwk:projects/examples/testbench emp_project_decl.vhd
 src -c emp-fwk:projects/examples/testbench tb_decl.vhd
-src -c emp-fwk:components/ttc emp_ttc_decl.vhd
 include -c emp-fwk:boards/testbench packages.dep
 
