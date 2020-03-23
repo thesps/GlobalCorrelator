@@ -18,7 +18,8 @@ end MergeAccumulateInputRegions;
 
 architecture rtl of MergeAccumulateInputRegions is
 
-    signal RegionsMerged : Vector(0 to 63) := NullVector(64);
+    signal RegionsMerged      : Vector(0 to 63) := NullVector(64);
+    signal RegionsMergedPiped : VectorPipe(0 to 4)(0 to 63) := NullVectorPipe(5, 64);
 
     attribute keep_hierarchy : string;
     attribute keep_hierarchy of Merge : label is "yes";
@@ -29,8 +30,11 @@ begin
     Merge : entity work.MergeArrays
     port map(clk, RegionStreams, RegionsMerged);
 
+    Pipe : entity work.DataPipe
+    port map(clk, RegionsMerged, RegionsMergedPiped);
+
     Accumulate : entity work.AccumulateInputs
-    port map(clk, RegionsMerged, EventParticles);
+    port map(clk, RegionsMergedPiped(4), EventParticles);
 
 end rtl;
 

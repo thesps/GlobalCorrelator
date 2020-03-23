@@ -50,38 +50,46 @@ architecture rtl of AccumulateInputs is
 
     -- N is the current base address to route to
     -- M is the max
-    --signal N : Int.DataType.tData := Int.DataType.cNull;
-    --signal M : Int.DataType.tData := Int.DataType.cNull;
-    signal N : integer range 0 to 127 := 0;
-    signal M : integer range 0 to 127 := 0;
+    -- Use a vector with duplicated logic for each element to ease signal fanout
+    signal N : Int.ArrayTypes.Vector(0 to 7) := Int.ArrayTypes.NullVector(8);
+    signal M : Int.ArrayTypes.Vector(0 to 7) := Int.ArrayTypes.NullVector(8);
+    --signal N : integer range 0 to 127 := 0;
+    --signal M : integer range 0 to 127 := 0;
     
 
 begin
 
-    NMProc:
-    process(clk)
-    begin
-        --if rising_edge(clk) then
-        -- Find the first invalid input to increment the base address
-        for i in 0 to 63 loop
-            if not d(i).DataValid then
-                M <= i;
-                exit;
+    NMGen:
+    for i in 0 to 7 generate
+        NMProc:
+        process(clk)
+        begin
+            --if rising_edge(clk) then
+            -- Find the first invalid input to increment the base address
+            for j in 0 to 63 loop
+                if not d(j).DataValid then
+                    M(i).x <= j;
+                    exit;
+                end if;
+            end loop;
+            --end if;
+            if rising_edge(clk) then
+                -- Try in the same cycle
+                -- Increment the base address
+                -- Reset on new event
+                if not d(8*i).FrameValid then
+                    N(i).x <= 0;
+                -- M should lag N by one cycle
+                else
+                    if N(i).x + M(i).x >= 127 then
+                        N(i).x <= 127;
+                    else
+                        N(i).x <= N(i).x + M(i).x;
+                    end if;
+                end if;
             end if;
-        end loop;
-        --end if;
-        if rising_edge(clk) then
-            -- Try in the same cycle
-            -- Increment the base address
-            -- Reset on new event
-            if not d(0).FrameValid then
-                N <= 0;
-            -- M should lag N by one cycle
-            else
-                N <= N + M;
-            end if;
-        end if;
-    end process;
+        end process;
+    end generate;
     
     -- Compute an address for every input
     -- Also clock the input into the next array to keep sync with addr
@@ -96,30 +104,31 @@ begin
             signal ki1 : Int.DataType.tData := (0, True, True);
             signal ki2 : Int.DataType.tData := (0, True, True);
         begin
-            --AddrInProc:
-            --process(clk)
-            --begin
-            k0 <= N + 8 * i + j;
-            --k1 <= k0 mod 4;
-            --k2 <= (XA1(i)(j).x mod 16) / 4;
-            -- Slice the lowest 2 bits. Aka x % 4
-            k1 <= to_integer(to_unsigned(k0, 7)(2 downto 0));
-            -- Slice the next 2 bits. Aka (x % 16) // 4
-            k2 <= to_integer(to_unsigned(XA1(i)(j).x, 7)(5 downto 3));
+            k0 <= (N(i).x + 8 * i + j) mod 128;
             ki0.x <= k0;
+            -- Slice the lowest 3 bits. Aka x % 8
+            k1 <= to_integer(to_unsigned(k0, 7)(2 downto 0));
             ki1.x <= k1;
-            ki2.x <= k2;
             X0(i)(j) <= d(8*i + j);
             XA0(i)(j) <= ki0; 
             XLA0(i)(j) <= ki1;
-            XLA1(i)(j) <= ki2; 
-            --end process;
+            -- Slice the next 3 bits. Aka x // 8
+            k2 <= to_integer(to_unsigned(YA0(j)(i).x, 7)(5 downto 3));
+            ki2.x <= k2;
 
-            -- Inter layer connections
-            X1(i)(j) <= Y0(j)(i);
-            XA1(i)(j) <= YA0(j)(i);
-            X2(i)(j) <= Y1(j)(i);
-            XA2(i)(j) <= YA1(j)(i);
+            RouteProc:
+            process(clk)
+            begin
+                if rising_edge(clk) then
+                    XLA1(i)(j) <= ki2; 
+                    -- Inter layer connections
+                    X1(i)(j) <= Y0(j)(i);
+                    XA1(i)(j) <= YA0(j)(i);
+                    X2(i)(j) <= Y1(j)(i);
+                    XA2(i)(j) <= YA1(j)(i);
+                end if;
+            end process;
+
         end generate;
 
         -- First route layer

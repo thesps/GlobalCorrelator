@@ -41,36 +41,40 @@ end emp_payload;
 
 architecture rtl of emp_payload is
 	
-    signal dVIO  : IO.ArrayTypes.Vector(0 to 6 * 16 - 1) := IO.ArrayTypes.NullVector(6 * 16);
-    signal dIO   : IO.ArrayTypes.Matrix(0 to 5)(0 to 15) := IO.ArrayTypes.NullMatrix(6, 16);
-    signal qIO   : IO.ArrayTypes.Vector(0 to 127)        := IO.ArrayTypes.NullVector(128);
-    signal qMax  : IO.ArrayTypes.Vector(0 to 0)          := IO.ArrayTypes.NullVector(1);
+    --signal dVIO  : IO.ArrayTypes.Vector(0 to 6 * 16 - 1) := IO.ArrayTypes.NullVector(6 * 16);
+    signal dIO   : IO.ArrayTypes.Matrix(0 to 5)(0 to 15)      := IO.ArrayTypes.NullMatrix(6, 16);
+    signal qIO   : IO.ArrayTypes.Vector(0 to 127)             := IO.ArrayTypes.NullVector(128);
+    signal qIOP  : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 127) := IO.ArrayTypes.NullVectorPipe(5, 128);
+    signal qMax  : IO.ArrayTypes.Vector(0 to 0)               := IO.ArrayTypes.NullVector(1);
+    signal qMaxP : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 0)   := IO.ArrayTypes.NullVectorPipe(5, 1);
 
 begin
 
-    InputCast:
-    for i in 0 to 6 * 16 - 1 generate
-        dVIO(i).data       <= d(i).data;
-        dVIO(i).DataValid  <= true when d(i).data(63) = '1' else false; -- Use the top bit
-        dVIO(i).FrameValid <= true when d(i).valid = '1' else false;
-    end generate;
-
-    InputGroup:
-    for i in 0 to 5 generate
-        InputGroupInner:
-        for j in 0 to 15 generate
-            dIO(i)(j) <= dVIO(16 * i + j);
-        end generate;
-    end generate;
+    LinkMap : entity work.link_map
+    port map(clk_p, d, dIO);
 
     Merge : entity IO.MergeAccumulateInputRegions
-    port map(clk, dIO, qIO);
+    port map(clk_p, dIO, qIO);
+
+    MergeOutPipe : entity IO.DataPipe
+    port map(clk_p, qIO, qIOP);
 
     Reduce : entity IO.PairReduceMax
-    port map(clk, qIO, qMax);
+    port map(clk_p, qIOP(4), qMax);
 
-    q(0).data <= qMax(0).data;
-    q(0).valid <= qMax(0).data(63);
+    OutPipe : entity IO.DataPipe
+    port map(clk_p, qMax, qMaxP);
+
+    q(0).data <= qMaxP(4)(0).data;
+    q(0).valid <= qMaxP(4)(0).data(63);
+    q(0).strobe <= '1';
+    q(0).start <= '0';
+
+    qUnused:
+    for i in 1 to 4 * N_REGION - 1 generate
+        q(i) <= lword_null;
+    end generate;
+
 
 	ipb_out <= IPB_RBUS_NULL;
 	bc0 <= '0';

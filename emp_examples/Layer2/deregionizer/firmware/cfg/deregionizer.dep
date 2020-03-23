@@ -12,3 +12,4 @@ src --vhdl2008 -c emp_examples/Layer2/components -l IO PkgIO.vhd
 src --vhdl2008 -c emp_examples/Layer2/Int -l Int PkgArrayTypes.vhd
 src --vhdl2008 -c emp_examples/Layer2/components -l Int PkgInt.vhd
 
+src --cd ../ucf slrs.tcl
