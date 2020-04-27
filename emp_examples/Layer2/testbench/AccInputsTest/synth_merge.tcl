@@ -9,6 +9,7 @@ add_files ../../modules/firmware/hdl/RouterMerge32to64.vhd
 add_files ../../modules/firmware/hdl/RouterMerge32and64to64.vhd
 add_files ../../modules/firmware/hdl/RouterMerge6x16to64.vhd
 add_files ../../modules/firmware/hdl/RouterAccumulate64to128.vhd
+add_files ../../modules/firmware/hdl/RouterMergeAccumulateInputs.vhd
 add_files ../../modules/firmware/hdl/UniqueRouting.vhd
 
 set_property library Simple [get_files -regexp {.*.vhd}]
