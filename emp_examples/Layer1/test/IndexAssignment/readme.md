@@ -15,3 +15,5 @@ RuflCore/ # from https://gitlab.cern.ch/rufl/RuflCore/ @ commit 95cff0d1
 
 ## Steps
 Compile the Modelsim simulation library with `mkdir libs && bash msim_compile.sh`
+Create a test input file with randomised values `python generate_input.py`
+Run the simulation with `vsim -do msim_run.tcl`

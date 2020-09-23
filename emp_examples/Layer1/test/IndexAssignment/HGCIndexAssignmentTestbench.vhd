@@ -5,6 +5,9 @@ library HGCRouter;
 use HGCRouter.DataType.all;
 use HGCRouter.ArrayTypes.all;
 
+library Utilities;
+use Utilities.Debugging.all;
+
 use work.Constants.all;
 
 entity testbench is
@@ -16,6 +19,15 @@ architecture rtl of testbench is
     signal clk : std_logic := '0';
 begin
     clk <= not clk after 2.5 ns;
+
+    -- Global sim counter
+    SimCounter:
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            SimulationClockCounter <= SimulationClockCounter + 1;
+        end if;
+    end process;
 
     Input : entity work.SimulationInput
     port map(clk, X(0));

@@ -74,7 +74,7 @@ begin
         begin
             if rising_edge(clk) then
                 -- Inter event reset
-                if not DataIn(0)(0).FrameValid then
+                if not DataIdxFound(0).FrameValid then
                     regionBase(i) <= (0, false, false);
                 else
                     regionBase(i) <= (regionBase(i).x + regionIncrement(i).x, true, false);
@@ -83,17 +83,20 @@ begin
         end process;
     end generate;
 
-    -- Pipes
-    Pipe0 : entity work.DataPipe port map(clk, DataIdxFound, DataIdxFoundPipe);
-    Pipe1 : entity work.DataPipe port map(clk, DataOutV, DataOut);
-
     -- Output
     GenOut:
     for i in 0 to N_LINKS_HGC_TOTAL - 1 generate
     begin
-        DataOutV(i) <= DataIdxFoundPipe(1)(i);
+        DataOutV(i).data <= DataIdxFoundPipe(1)(i).data;
+        DataOutV(i).DataValid <= DataIdxFoundPipe(1)(i).DataValid;
+        DataOutV(i).FrameValid <= DataIdxFoundPipe(1)(i).FrameValid;
         DataOutV(i).addr <= to_unsigned(address(i).x, DataOutV(i).addr'length);
+        DataOutV(i).iInRegion <= address(i).x; 
     end generate;
+
+    -- Pipes
+    Pipe0 : entity work.DataPipe port map(clk, DataIdxFound, DataIdxFoundPipe);
+    Pipe1 : entity work.DataPipe port map(clk, DataOutV, DataOut);
 
     -- Debugging
     Debug0 : entity Int.Debug generic map("regionBase") port map(clk, regionBase);

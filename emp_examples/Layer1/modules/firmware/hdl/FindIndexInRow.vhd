@@ -59,10 +59,12 @@ begin
             Proc:
             process(clk)
             begin
-                if DataIn(j).iRegion = i then
-                    linkInRegion(i)(j) <= (1, true, true);
-                else
-                    linkInRegion(i)(j) <= (0, false, false);
+                if rising_edge(clk) then
+                    if DataIn(j).DataValid and DataIn(j).iRegion = i then
+                        linkInRegion(i)(j) <= (1, true, true);
+                    else
+                        linkInRegion(i)(j) <= (0, true, true);
+                    end if;
                 end if;
             end process;
         end generate;
@@ -75,10 +77,11 @@ begin
     begin
         Proc:
         process(clk)
-            variable idx : Int.DataType.tData := (0, false, false);
+            variable idx : Int.DataType.tData := (0, true, true);
             variable region : Int.ArrayTypes.Vector(0 TO N_LINKS-1) := Int.ArrayTypes.NullVector(N_LINKS);
         begin
             if rising_edge(clk) then
+                idx := (0, DataInPipe(1)(i).DataValid, DataInPipe(1)(i).FrameValid);
                 region := linkInRegion(DataInPipe(1)(i).iRegion);
                 FindIndexInRow:
                 for j in 0 to i-1 loop
@@ -95,10 +98,11 @@ begin
     begin
         Proc:
         process(clk)
-            variable regInc : Int.DataType.tData := (0, true, false);
+            variable regInc : Int.DataType.tData := (0, true, true);
         begin
             if rising_edge(clk) then
-                for j in 0 to N_REGIONS - 1 loop
+                regInc := (0, true, true);
+                for j in 0 to N_LINKS - 1 loop
                     regInc.x := regInc.x + linkInRegion(i)(j).x;
                 end loop;
             end if;

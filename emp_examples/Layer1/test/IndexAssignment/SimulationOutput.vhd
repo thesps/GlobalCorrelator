@@ -38,7 +38,7 @@ architecture rtl of SimulationOutput is
 begin
 -- pragma synthesis_off
   process(clk)
-    file f     : text open read_mode is FilePath & FileName;
+    file f     : text open write_mode is FilePath & FileName;
     variable s : line;
   begin
   if rising_edge(clk) then
