@@ -29,7 +29,57 @@ class LinkData:
     def __repr__(self):
         return 'LinkData(' + str(self) + ')'
 
+    def __eq__(self, other):
+        eq = True
+        eq = eq and self.data == other.data
+        eq = eq and self.addr == other.addr
+        eq = eq and self.dataValid == other.dataValid
+        eq = eq and self.frameValid == other.frameValid
+        eq = eq and self.iRegion == other.iRegion
+        return eq
+
+def algo_ref(data2d):
+    '''
+    A reference implementation of the index assignment module.
+    Input data "data2d" should be a 2D array of LinkData.
+    The first dimension is treated as the "time" axis, and the second the "link" axis.
+    The array is modified in place, with the address added to each element.
+    '''
+    # extract just the region field
+    regions = np.array(list(map(lambda x : x.iRegion, data2d.flatten()))).reshape(data2d.shape)
+    dv = np.array(list(map(lambda x : x.dataValid, data2d.flatten()))).reshape(data2d.shape)
+    base = np.zeros(n_regions_pf, dtype='int')
+
+    #for reg_row, dv_row in zip(regions, dv):
+    for i in range(len(data2d)):
+        reg_row, dv_row, data_row = regions[i], dv[i], data2d[i]
+        # For each index i, count the instances of row[i] to the left
+        indexInRow = np.array([sum(reg_row[:i] == reg_row[i]) for i in range(n_links_hgc_total)])
+        # Put the index for invalid data to 0
+        indexInRow[~dv_row] = 0
+
+        for i, data in enumerate(data_row):
+            data.addr = indexInRow[i] + base[reg_row[i]]
+        # Count the instances of each region (valid data only)
+        c, u = np.unique(reg_row[dv_row], return_counts=True)
+        # Increment the region base counter
+        base[c] += u
+    return data2d
+
+def valid_frames(data2d):
+    '''
+    Slice the rows from data2d where all links have frameValid=True
+    '''
+    frameValid = np.array(list(map(lambda x : x.frameValid, data2d.flatten()))).reshape(data2d.shape).all(axis=1)
+    return data2d[frameValid]
+
 def parse_file(f):
+    '''
+    Parse the Simulation input or output file "f".
+    Returns a 2D array of LinkData.
+    The first dimension is treated as the "time" axis, and the second the "link" axis.
+    '''
+    f = open(f, 'r')
     x = []
     lines = f.readlines()
     for line in lines:
@@ -37,7 +87,7 @@ def parse_file(f):
         data = line.split(';')
         xi = [LinkData(string=di) for di in data]
         x.append(xi)
-    return x
+    return np.array(x)
 
 def write_line(f, x):
     f.write(';'.join([str(xi) for xi in x]) + '\n')
@@ -81,4 +131,4 @@ def test_simple(f):
 
 if __name__ == '__main__':
     f = open('SimulationInput.txt', 'w')
-    test_simple(f)
+    test_rand(f)

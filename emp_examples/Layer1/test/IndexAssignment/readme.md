@@ -21,7 +21,13 @@ Run the simulation with `vsim -do msim_run.tcl`. As written, this command will o
 Parse the output with Python:
 ```
 import util
-f = open('SimulationOutput.txt')
-data = util.parse_file(f)
+data = util.parse_file('SimulationOutput.txt')
 ```
 You can then analyse and check the performance of the module.
+For a quick test of test success:
+```
+d_sim = util.valid_frames(util.parse_file('SimulationOutput.txt'))
+d_ref = util.valid_frames(util.algo_ref(util.parse_file('SimulationInput.txt')))
+print((d_ref == d_sim).all())
+```
+This check will return true only if each field of `LinkData` at each element of the two arrays - one from Modelsim and the other from the Python reference - match.
