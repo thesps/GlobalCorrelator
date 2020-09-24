@@ -90,6 +90,7 @@ begin
         DataOutV(i).data <= DataIdxFoundPipe(1)(i).data;
         DataOutV(i).DataValid <= DataIdxFoundPipe(1)(i).DataValid;
         DataOutV(i).FrameValid <= DataIdxFoundPipe(1)(i).FrameValid;
+        DataOutV(i).iRegion <= DataIdxFoundPipe(1)(i).iRegion;
         DataOutV(i).addr <= to_unsigned(address(i).x, DataOutV(i).addr'length);
         DataOutV(i).iInRegion <= address(i).x; 
     end generate;

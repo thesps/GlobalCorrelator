@@ -116,8 +116,9 @@ begin
     Pipe1 : entity Int.DataPipe
     port map(clk, regIncInt, regIncIntPipe);
 
+    -- Connect internal signals to outputs
     IndexOut <= indexInRow;
-    RegionIncrement <= regIncIntPipe(2);
+    RegionIncrement <= regIncIntPipe(0);
     DataOut <= DataInPipe(moduleLatency);
 
     -- Flatten the matrix to write to file

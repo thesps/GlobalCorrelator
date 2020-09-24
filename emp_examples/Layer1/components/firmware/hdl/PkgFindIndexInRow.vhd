@@ -5,6 +5,6 @@ use ieee.numeric_std.all;
 -- Define constants related to the package
 package PkgFindIndexInRow is
 
-    constant moduleLatency : integer := 3;
+    constant moduleLatency : integer := 2;
 
 end PkgFindIndexInRow;
