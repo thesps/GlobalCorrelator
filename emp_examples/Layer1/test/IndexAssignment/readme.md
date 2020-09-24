@@ -14,6 +14,14 @@ RuflCore/ # from https://gitlab.cern.ch/rufl/RuflCore/ @ commit 95cff0d1
 ```
 
 ## Steps
-Compile the Modelsim simulation library with `mkdir libs && bash msim_compile.sh`
-Create a test input file with randomised values `python generate_input.py`
-Run the simulation with `vsim -do msim_run.tcl`
+Setup and compile the Modelsim simulation library with `mkdir libs testfiles && bash msim_compile.sh`
+Create a test input file with randomised values: `python util.py`
+Run the simulation with `vsim -do msim_run.tcl`. As written, this command will open the Modelsim GUI. To execute without opening the window, do instead `vsim -c -do msim_run.tcl`, then type `quit` when the simulation finishes. By default several debugging files will be written to the directory `testfiles/` and the module output will be written to a file `SimulationOutput.txt` 
+
+Parse the output with Python:
+```
+import util
+f = open('SimulationOutput.txt')
+data = util.parse_file(f)
+```
+You can then analyse and check the performance of the module.

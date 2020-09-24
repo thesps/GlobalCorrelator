@@ -7,7 +7,7 @@ use std.textio.all;
 package DataType is
 
   type tData is record
-    x : integer range 0 to 128;
+    x : integer range 0 to 512; --128;
     DataValid : boolean;
     FrameValid : boolean;
   end record;
