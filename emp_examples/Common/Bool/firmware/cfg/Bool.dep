@@ -1,0 +1,4 @@
+src --vhdl2008 -l Bool Debugger.vhd
+src --vhdl2008 -l Bool DataPipe.vhd
+src --vhdl2008 -l Bool PkgArrayTypes.vhd
+src --vhdl2008 -l Bool PkgBool.vhd

@@ -9,5 +9,4 @@ src --vhdl2008 -l IO UniqueRouting.vhd
 src --vhdl2008 -c emp_examples/Layer2/IO -l IO DataPipe.vhd
 src --vhdl2008 -c emp_examples/Layer2/IO -l IO PkgArrayTypes.vhd
 src --vhdl2008 -c emp_examples/Layer2/components -l IO PkgIO.vhd
-src --vhdl2008 -c emp_examples/Layer2/Int -l Int PkgArrayTypes.vhd
-src --vhdl2008 -c emp_examples/Layer2/components -l Int PkgInt.vhd
+include -c emp_examples/Common/Int Int.dep

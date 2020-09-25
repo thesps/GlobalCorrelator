@@ -48,15 +48,20 @@ def algo_ref(data2d):
     # extract just the region field
     regions = np.array(list(map(lambda x : x.iRegion, data2d.flatten()))).reshape(data2d.shape)
     dv = np.array(list(map(lambda x : x.dataValid, data2d.flatten()))).reshape(data2d.shape)
+    fv = np.array(list(map(lambda x : x.frameValid, data2d.flatten()))).reshape(data2d.shape)
     base = np.zeros(n_regions_pf, dtype='int')
 
     #for reg_row, dv_row in zip(regions, dv):
     for i in range(len(data2d)):
-        reg_row, dv_row, data_row = regions[i], dv[i], data2d[i]
+        reg_row, dv_row, fv_row, data_row = regions[i], dv[i], fv[i], data2d[i]
         # For each index i, count the instances of row[i] to the left
         indexInRow = np.array([sum(reg_row[:i] == reg_row[i]) for i in range(n_links_hgc_total)])
         # Put the index for invalid data to 0
         indexInRow[~dv_row] = 0
+
+        # Reset the region base address between events
+        if ~fv_row.all():
+            base = np.zeros(n_regions_pf, dtype='int')
 
         for i, data in enumerate(data_row):
             data.addr = indexInRow[i] + base[reg_row[i]]
@@ -102,6 +107,16 @@ def test_rand(f):
     # start with some rows of 0 data
     empty_rows(f, 4)
     # Now do 4 rows of random data
+    for i in range(4):
+        x = [LinkData(dataValid=True, frameValid=True) for j in range(n_links_hgc_total)]
+        for j in range(n_links_hgc_total):
+            x[j].data = ii
+            ii += 1
+            x[j].iRegion = random.randint(0, n_regions_pf-1)
+        write_line(f, x)
+
+    empty_rows(f, 4)
+
     for i in range(4):
         x = [LinkData(dataValid=True, frameValid=True) for j in range(n_links_hgc_total)]
         for j in range(n_links_hgc_total):

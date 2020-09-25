@@ -6,6 +6,9 @@ RE=$RUFL/firmware/hdl/ReuseableElements
 MODULES=../../modules/firmware/hdl
 COMPONENTS=../../components/firmware/hdl
 L2COMPONENTS=../../../Layer2/components/firmware/hdl
+COMMON=../../../Common
+INT=$COMMON/Int/firmware/hdl
+BOOL=$COMMON/Bool/firmware/hdl
 
 vlib libs/HGCRouter
 vmap HGCRouter libs/HGCRouter
@@ -25,13 +28,13 @@ vmap Bool libs/Bool
 vcom -2008 -work Utilities $RE/PkgUtilities.vhd
 vcom -2008 -work Utilities $RE/PkgDebug.vhd
 
-vcom -2008 -work Int $L2COMPONENTS/PkgInt.vhd
-vcom -2008 -work Int $RE/PkgArrayTypes.vhd
-vcom -2008 -work Int $RE/DataPipe.vhd
-vcom -2008 -work Int $RE/Debugger.vhd
+vcom -2008 -work Int $INT/PkgInt.vhd
+vcom -2008 -work Int $INT/PkgArrayTypes.vhd
+vcom -2008 -work Int $INT/DataPipe.vhd
+vcom -2008 -work Int $INT/Debugger.vhd
 
-vcom -2008 -work Bool $L2COMPONENTS/PkgBool.vhd
-vcom -2008 -work Bool $RE/PkgArrayTypes.vhd
+vcom -2008 -work Bool $BOOL/PkgBool.vhd
+vcom -2008 -work Bool $BOOL/PkgArrayTypes.vhd
 
 vcom -2008 -work xil_defaultlib $COMPONENTS/PkgConstants.vhd
 
