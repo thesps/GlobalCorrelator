@@ -19,12 +19,13 @@ package DataType is
     ------------------------------------------------------------------------------------
     iRegion : integer;
     iInRegion : integer;
+    SortKey : integer;
   end record;
  
   attribute size : natural;
   attribute size of tData : type is 72;  
 
-  constant cNull : tData := ((others => '0'), (others => '0'), false, false, 0, 0);
+  constant cNull : tData := ((others => '0'), (others => '0'), false, false, 0, 0, 0);
 
   function ToStdLogicVector(x : tData) return std_logic_vector;
   function ToDataType(x : std_logic_vector) return tData;
@@ -43,12 +44,11 @@ package body DataType is
     variable l : integer := 0;
     variable y : std_logic_vector(tData'size - 1 downto 0) := (others => '0');
   begin
-    y(h downto l) := std_logic_vector(x.data);
-    h := h + x.data'length;
-    l := l + x.data'length;
-    y(h downto l) := std_logic_vector(x.addr);
-    y(y'high-2) := to_std_logic(x.DataValid);
-    y(y'high-1) := to_std_logic(x.FrameValid);
+    y(63 downto 0) := std_logic_vector(x.data);
+    y(69 downto 64) := std_logic_vector(x.addr);
+    --y(69 downto 64) := std_logic_vector(to_unsigned(x.SortKey, 6));
+    y(70) := to_std_logic(x.DataValid);
+    y(71) := to_std_logic(x.FrameValid);
     return y;
   end function;
 
@@ -57,12 +57,11 @@ package body DataType is
     variable h : integer := y.data'high;
     variable l : integer := 0;
   begin
-    y.data := std_logic_vector(x(h downto l));
-    h := h + y.data'length;
-    l := l + y.data'length;
-    y.addr := unsigned(x(h downto l));
-    y.DataValid := to_boolean(x(x'high-2));
-    y.FrameValid := to_boolean(x(x'low-1));
+    y.data := std_logic_vector(x(63 downto 0));
+    y.addr := unsigned(x(69 downto 64));
+    --y.SortKey := to_integer(unsigned(x(69 downto 64)));
+    y.DataValid := to_boolean(x(70));
+    y.FrameValid := to_boolean(x(71));
     return y;
   end function;
 
