@@ -89,7 +89,7 @@ begin
 
     ConnectOutput:
     for i in 0 to 23 generate
-        Q(i) <= layer1_out(i / 8)(i mod 8);
+        Q(i) <= layer1_out(i mod 4)(i / 4);
     end generate;
 
     Debug0 : entity work.Debug generic map("RouterD") port map(clk, D);
