@@ -1,0 +1,4 @@
+include -c emp-fwk:boards/vcu118 vcu118.dep
+src my_first_decl.vhd 
+src my_first_payload.vhd
+src ../hls/add_hls/solution/syn/vhdl/add_hls.vhd

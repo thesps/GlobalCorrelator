@@ -1,0 +1,11 @@
+include -c emp-fwk:boards/testbench
+src my_first_payload.vhd
+src ../hls/add_hls/solution/syn/vhdl/add_hls.vhd
+
+src -c emp-fwk:components/datapath emp_data_types.vhd
+src -c ipbus-firmware:components/ipbus_core ipbus_package.vhd
+src -c emp-fwk:components/ttc emp_ttc_decl.vhd
+
+src -c emp-fwk:projects/examples/testbench emp_project_decl.vhd
+src -c emp-fwk:projects/examples/testbench tb_decl.vhd
+include -c emp-fwk:boards/testbench packages.dep
