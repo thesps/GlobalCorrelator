@@ -1,0 +1,26 @@
+src --vhdl2008 emp_payload.vhd
+src --vhdl2008 IO.vhd
+src --vhdl2008 -c emp_examples/Layer1/components PkgConstants.vhd
+
+src --vhdl2008 -c emp_examples/Layer1/components -l HGCRouter PkgHGCAbstractRouter.vhd
+src --vhdl2008 -c emp_examples/Layer1/components -l HGCRouter PkgFindIndexInRow.vhd
+src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter FindIndexInRow.vhd
+src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter IndexInRegionAssignment.vhd
+src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter Router.vhd
+src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter RegionBuffer.vhd
+src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter RegionBuffers.vhd
+
+src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/DistributionServer.vhd
+src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/DataRam.vhd
+src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/Debugger.vhd
+src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/DataPipe.vhd
+src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/PkgArrayTypes.vhd
+
+src --vhdl2008 -c RuflCore: -l Utilities ReuseableElements/PkgDebug.vhd
+src --vhdl2008 -c RuflCore: -l Utilities ReuseableElements/PkgUtilities.vhd
+
+include -c emp_examples/Common/Bool Bool.dep
+include -c emp_examples/Common/Int Int.dep
+include -c emp-fwk:boards/vcu118 vcu118.dep
+src -c emp-fwk:projects/examples/vcu118 vcu118_decl_full.vhd
+setup -f vhdl2008.tcl
