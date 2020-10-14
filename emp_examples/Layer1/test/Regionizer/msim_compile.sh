@@ -42,7 +42,7 @@ vcom -2008 -work HGCRouter $COMPONENTS/PkgHGCAbstractRouter.vhd
 vcom -2008 -work HGCRouter $RE/PkgArrayTypes.vhd
 vcom -2008 -work HGCRouter $RE/DataPipe.vhd
 vcom -2008 -work HGCRouter $RE/DataRam.vhd
-vcom -2008 -work HGCRouter $RE/DistributionServer.vhd
+vcom -2008 -work HGCRouter $MODULES/DistributionServer.vhd
 vcom -2008 -work HGCRouter $RE/Debugger.vhd
 vcom -2008 -work HGCRouter $MODULES/RegionBuffer.vhd
 vcom -2008 -work HGCRouter $MODULES/RegionBuffers.vhd

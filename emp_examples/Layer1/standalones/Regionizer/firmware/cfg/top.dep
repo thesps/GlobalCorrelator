@@ -10,7 +10,7 @@ src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter Router.vhd
 src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter RegionBuffer.vhd
 src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter RegionBuffers.vhd
 
-src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/DistributionServer.vhd
+src --vhdl2008 -c emp_examples/Layer1/modules -l HGCRouter DistributionServer.vhd
 src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/DataRam.vhd
 src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/Debugger.vhd
 src --vhdl2008 -c RuflCore: -l HGCRouter ReuseableElements/DataPipe.vhd

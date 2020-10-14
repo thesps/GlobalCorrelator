@@ -50,7 +50,8 @@ begin
     -- The Layer 0 routing
     RouteLayer0:
     for i in 0 to 5 generate
-        Node : entity work.DistributionServer port map(clk, layer0_in(i), layer0_out(i));
+        Node : entity work.DistributionServer generic map(3) port map(clk, layer0_in(i), layer0_out(i));
+        --Node : entity work.DistributionServer port map(clk, layer0_in(i), layer0_out(i));
     end generate;
 
     -- Connect the output of Layer 0 to input of Layer 1
@@ -78,7 +79,8 @@ begin
     -- The Layer 1 routing
     RouteLayer1:
     for i in 0 to 3 generate
-        Node : entity work.DistributionServer port map (clk, layer1_in(i), layer1_out(i));
+        Node : entity work.DistributionServer generic map(3) port map (clk, layer1_in(i), layer1_out(i));
+        --Node : entity work.DistributionServer port map (clk, layer1_in(i), layer1_out(i));
     end generate;
 
     ConnectOutput:
