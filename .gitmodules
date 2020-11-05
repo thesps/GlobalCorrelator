@@ -1,0 +1,4 @@
+[submodule "l1pf_hls"]
+	path = l1pf_hls
+	url = git@github.com:gpetruc/GlobalCorrelator_HLS.git
+	branch = for-emp-l1pf-demo
