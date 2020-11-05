@@ -33,8 +33,6 @@ Resource usage (emp framework, payload)
 
 #### `regionizer_stream`: stream outputs instead of just muxing them
 
-NOTE: the EMP wrapper for this is still missing
-
 This differs from `regionizer_mux` in only one simple aspect:  for each region, instead of outputing the sorted list of 30/20/4 tracks/calo/muons and keeping them constant for 6 clocks, it will stream the objects in those 6 clocks.
 So, the output is 5 tracks, 4 calo, 1 muon per clock cycle.
  * At the 1st clock cycle of a region it will output: tracks 0, 6, 12, 18, 24; calo 0, 6, 12, 18; muon 0
