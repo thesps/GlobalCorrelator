@@ -3,6 +3,8 @@ if [[ "$1" == "" ]]; then
     echo "Usage: $0 project";
     exit 1;
 fi;
+PROJECT=$1;
+shift
 
 if [ -f buildToolSetup.sh ] ; then
     source buildToolSetup.sh
@@ -38,7 +40,6 @@ else
 fi
 
 
-PROJECT=regionizer_mux
 if test -f algo-work/src/demonstrator_firmware/firmware/cfg/${PROJECT}_top.dep; then
     echo "Will create a project for $PROJECT";
 else

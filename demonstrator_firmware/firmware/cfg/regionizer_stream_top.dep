@@ -1,0 +1,8 @@
+# project-specific
+include -c multififo_regionizer:vhdl regionizer.dep 
+src -c multififo_regionizer:vhdl emp_payload_regionizer_mux_stream.vhd
+# generic
+addrtab -c emp-fwk:components/payload emp_payload.xml
+src -c emp-fwk:components/payload ../ucf/emp_simple_payload.tcl
+include -c emp-fwk:boards/vcu118
+src emp_project_decl.vhd
