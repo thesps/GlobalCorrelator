@@ -13,7 +13,7 @@ This uses the [git submodule](https://git-scm.com/docs/gitsubmodules) feature to
 ## Implemented Projects
 
 
-### regionizer-only designs
+### Regionizer-only designs
 
 For all designs, PF runs with 9 phi regions with 0.25 rad overlap
 
@@ -26,7 +26,7 @@ This is the simplest full regionizer algorithm
    * the muon system sends muons globally with 2 muons / clock, in global coordinates
    * the regionizer waits for 54 clocks to read all inputs, then outputs the sorted list of the best 30 tracks, 20 calo and muons for each region, sending out all objects of the region in parallel and keeping them stable for 6 clocks before moving on with the next region.
 
-Resource usage (emp framework, payload)
+Resource usage (emp framework, payload):
 |   Total LUTs  |   Logic LUTs  |   LUTRAMs   |    SRLs    |      FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
 |---------------|---------------|-------------|------------|---------------|-------------|-------------|----------|--------------|
 |  52083(4.41%) |  52083(4.41%) |    0(0.00%) |   0(0.00%) | 110634(4.68%) |  132(6.11%) |    0(0.00%) | 0(0.00%) |     0(0.00%) |
@@ -39,4 +39,23 @@ So, the output is 5 tracks, 4 calo, 1 muon per clock cycle.
  * At the 2nd clock cycle it will output: tracks 1, 7, 13, 19, 25; calo 1, 7, 13, 19; muon 1
  * At the 3rd clock cycle it will output: tracks 2, 8, 14, 20, 26; calo 2, 8, 14 plus one null calo; muon 2
  * At the 6th and last clock cycle it will output: tracks 5, 11, 17, 23, 29; calo 5, 11, 17 plus one null; a null muon
+
+Resource usage (emp framework, payload):
+|   Total LUTs  |   Logic LUTs  |   LUTRAMs   |    SRLs    |      FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
+|---------------|---------------|-------------|------------|---------------|-------------|-------------|----------|--------------|
+|  53698(4.54%) |  53698(4.54%) |    0(0.00%) |   0(0.00%) | 105002(4.44%) |  132(6.11%) |    0(0.00%) | 0(0.00%) |     0(0.00%) |
+
+### Layer-1 designs
+
+#### `regionizer_mux_pf`: `regionizer_mux` + PF@360
+
+This setup runs the mux regionizer + the PF at 360 MHz with II=6 (same clock as the regionizer)
+ * the EMP input pattern files can be generated with `l1pf_hls/multififo_regionizer/run_hls_csim_pf_puppi.tcl`
+ * the IP core for PF can be build with `l1pf_hls/run_hls_pfalgo2hgc_2p5ns_II6.tcl`
+
+A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `mux-pf` as argument.
+
+TODO:
+ * Implementation in the EMP framework still pending, and anyway for the moment we don't expect it to meet timing (the PF IP core alone already fails timing)
+ * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core, so it may break if anything changes in the synthesis. It was tested only in Vivado 2018.3.
 
