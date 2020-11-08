@@ -48,8 +48,15 @@ linpuppiNoCrop.vhd
 packed_linpuppiNoCrop.vhd
 "
 
+PUPPICHS_FILES="
+linpuppi_fromPV.vhd
+linpuppi_chs.vhd
+packed_linpuppi_chs.vhd
+"
+
 PF_DIR="../l1pf_hls/proj_pfHGCal_VCU118_2.5ns_II6/solution/impl/vhdl"
-PUPPI_DIR="../l1pf_hls/proj_pfHGCal_VCU118_2.5ns_II6/solution/impl/vhdl"
+PUPPI_DIR="../l1pf_hls/puppi/proj_linpuppi_HGCal_VCU118_2.5ns_II6/solution/impl/vhdl"
+PUPPICHS_DIR="../l1pf_hls/puppi/proj_linpuppi_HGCal_VCU118_2.5ns_II6_chs/solution/impl/vhdl"
 
 REG_VHDL="../l1pf_hls/multififo_regionizer/vhdl/firmware/hdl"
 REG_VHDLTB="../l1pf_hls/multififo_regionizer/vhdl/firmware/testbench"
@@ -60,7 +67,6 @@ HLS_CSIM="../l1pf_hls/multififo_regionizer/project_csim_pf_puppi"
 VHDLS=""
 if [[ "$1" == "mux-pf" ]]; then
     for F in ${PF_FILES}; do VHDLS="${VHDLS} ${PF_DIR}/$F"; done
-    #for F in ${PUPPI_FILES}; do VHDLS="${VHDLS} ${PUPPI_DIR}/$F"; done
 
     VHDLS="${VHDLS} ${REG_VHDL}/regionizer_data.vhd ${REG_VHDL}/rolling_fifo.vhd ${REG_VHDL}/fifo_merge2.vhd ${REG_VHDL}/fifo_merge2_full.vhd ${REG_VHDL}/fifo_merge3.vhd ${REG_VHDL}/stream_sort.vhd ${REG_VHDL}/region_mux.vhd"
     VHDLS="${VHDLS} ${REG_VHDL}/tk_router_element.vhd ${REG_VHDL}/tk_router.vhd ${REG_VHDL}/tk_regionizer.vhd "
@@ -70,20 +76,20 @@ if [[ "$1" == "mux-pf" ]]; then
     VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
     VHDLS="${VHDLS} ${DEMO_VHDL}/regionizer_mux_pf.vhd "
     VHDLS="${VHDLS} regionizer_mux_pf_tb.vhd"
-if [[ "$1" == "mux-pf-puppi" ]]; then
-    for F in ${PF_FILES}; do VHDLS="${VHDLS} ${PF_DIR}/$F"; done
-    #for F in ${PUPPI_FILES}; do VHDLS="${VHDLS} ${PUPPI_DIR}/$F"; done
+elif [[ "$1" == "mux-pf-puppi" ]]; then
+    #for F in ${PF_FILES}; do VHDLS="${VHDLS} ${PF_DIR}/$F"; done
+    for F in ${PUPPI_FILES}; do VHDLS="${VHDLS} ${PUPPI_DIR}/$F"; done
+    for F in ${PUPPICHS_FILES}; do VHDLS="${VHDLS} ${PUPPICHS_DIR}/$F"; done
 
     VHDLS="${VHDLS} ${REG_VHDL}/regionizer_data.vhd ${REG_VHDL}/rolling_fifo.vhd ${REG_VHDL}/fifo_merge2.vhd ${REG_VHDL}/fifo_merge2_full.vhd ${REG_VHDL}/fifo_merge3.vhd ${REG_VHDL}/stream_sort.vhd ${REG_VHDL}/region_mux.vhd"
     VHDLS="${VHDLS} ${REG_VHDL}/tk_router_element.vhd ${REG_VHDL}/tk_router.vhd ${REG_VHDL}/tk_regionizer.vhd "
     VHDLS="${VHDLS} ${REG_VHDL}/calo_router.vhd ${REG_VHDL}/calo_regionizer.vhd "
     VHDLS="${VHDLS} ${REG_VHDL}/mu_router.vhd ${REG_VHDL}/mu_regionizer.vhd "
     VHDLS="${VHDLS} ${REG_VHDL}/full_regionizer_mux.vhd"
-    VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
+    VHDLS="${VHDLS} ${DEMO_VHDL}/bram_delay.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/regionizer_mux_pf_puppi.vhd "
+    VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
     VHDLS="${VHDLS} regionizer_mux_pf_puppi_tb.vhd"
-fi
-
 fi
 
 
@@ -98,7 +104,7 @@ else
 fi;
 
 # cleanup
-rm -r xsim* xelab* webtalk* xvhdl* test.wdb 2> /dev/null || true;
+#rm -r xsim* xelab* webtalk* xvhdl* test.wdb 2> /dev/null || true;
 
 echo " ## Compiling VHDL files: $VHDLS";
 for V in $VHDLS; do

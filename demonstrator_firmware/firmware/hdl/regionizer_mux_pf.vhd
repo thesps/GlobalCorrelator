@@ -276,9 +276,6 @@ begin
     pf2out: process(clk)
     begin
         if rising_edge(clk) then
-            pf_in(NCALOSORTED-1 downto 0) <= calo_out;
-            pf_in(NCALOSORTED+NTKSORTED-1 downto NCALOSORTED) <= tk_out;
-            pf_in(NCALOSORTED+NTKSORTED+NMUSORTED-1 downto NCALOSORTED+NTKSORTED) <= mu_out;
             if rst = '1' then
                 pf_out   <= (others => (others => '0'));
                 pf_valid <= '0';
