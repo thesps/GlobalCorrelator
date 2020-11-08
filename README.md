@@ -59,3 +59,17 @@ TODO:
  * Implementation in the EMP framework still pending, and anyway for the moment we don't expect it to meet timing (the PF IP core alone already fails timing)
  * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core, so it may break if anything changes in the synthesis. It was tested only in Vivado 2018.3.
 
+
+#### `regionizer_mux_pf_puppi`: `regionizer_mux` + PF@360 + Puppi@360
+
+This setup runs the mux regionizer + the PF at 360 MHz with II=6 (same clock as the regionizer)
+ * the EMP input pattern files can be generated with `l1pf_hls/multififo_regionizer/run_hls_csim_pf_puppi.tcl`
+ * the IP core for PF can be build with `l1pf_hls/run_hls_pfalgo2hgc_2p5ns_II6.tcl` and `l1pf_hls/puppi/run_hls_linpuppi_hgcal_2p5ns_II6.tcl` (the  latter should be run twice, to build both the puppi and the CHS)
+
+A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `mux-pf-puppi` as argument.
+
+TODO:
+ * Implementation in the EMP framework still pending, and anyway for the moment we don't expect it to meet timing (the PF IP core alone already fails timing)
+ * The design is somewhat wasteful in terms of resources for delaying the tracks & PV for puppi: it's using one BRAM36 for each track while in principle one could just use NTRACKS / II BRAMs, and uses a full BRAM36 for the PV Z where a BRAM18 would have been sufficient
+ * The TCL to build the Puppi IP core could be modified to build both IP cores at once
+ * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core, so it may break if anything changes in the synthesis. It was tested only in Vivado 2018.3.
