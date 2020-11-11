@@ -15,47 +15,47 @@ entity regionizer_mux_stream_cdc_pf_puppi is
             --ap_ready : OUT STD_LOGIC;
             links_in : IN w64s(NTKSECTORS*NTKFIBERS + NCALOSECTORS*NCALOFIBERS + NMUFIBERS downto 0);
             valid_in : IN STD_LOGIC_VECTOR(NTKSECTORS*NTKFIBERS + NCALOSECTORS*NCALOFIBERS + NMUFIBERS downto 0);
+            -- 360 MHz clock regionizer 
             regionizer_out   : OUT w64s(NTKSORTED + NCALOSORTED + NMUSORTED - 1 downto 0);
-            regionizer_warm  : OUT STD_LOGIC;
-            regionizer_good  : OUT STD_LOGIC;
-
-            tk_out_240   : OUT w64s(NTKSTREAM-1 downto 0);
-            tk_all_240   : OUT w64s(NTKSORTED-1 downto 0);
-            tk_done_240  : OUT STD_LOGIC;
-            tk_empty_240 : OUT STD_LOGIC;
-
-            pf_in_240    : OUT w64s(NTKSORTED + NCALOSORTED + NMUSORTED - 1 downto 0);
-            pf_out_240   : OUT w64s(NTKSORTED + NCALOSORTED + NMUSORTED - 1 downto 0);
+            regionizer_done  : OUT STD_LOGIC; -- '1' for 1 clock at start of event
+            regionizer_valid : OUT STD_LOGIC; -- '1' for valid output, '0' for null
+            -- 360 MHz clock PF output
+            pf_out   : OUT w64s(NPFTOT-1 downto 0);
+            pf_start : OUT STD_LOGIC;
+            pf_read  : OUT STD_LOGIC;
+            pf_done  : OUT STD_LOGIC;
+            pf_valid : OUT STD_LOGIC;
+            pf_empty : OUT STD_LOGIC_VECTOR(NPFSTREAM-1 downto 0);
+            -- 360 MHz clock Puppi output
+            puppi_out   : OUT w64s(NPUPPI-1 downto 0);
+            puppi_start : OUT STD_LOGIC;
+            puppi_read  : OUT STD_LOGIC;
+            puppi_done  : OUT STD_LOGIC;
+            puppi_valid : OUT STD_LOGIC;
+            puppi_empty : OUT STD_LOGIC_VECTOR(NTKSTREAM+NCALOSTREAM-1 downto 0);
+            -- debug 240 MHz clock PF info
+            pf_in_240    : OUT w64s(NPFTOT-1 downto 0);
+            pf_out_240   : OUT w64s(NPFTOT-1 downto 0);
             pf_start_240 : OUT STD_LOGIC;
             pf_done_240  : OUT STD_LOGIC;
+            pf_valid_240 : OUT STD_LOGIC;
             pf_ready_240 : OUT STD_LOGIC;
             pf_idle_240  : OUT STD_LOGIC;
-            pf_out_360   : OUT w64s(NTKSORTED + NCALOSORTED + NMUSORTED - 1 downto 0);
-            pf_start_360 : OUT STD_LOGIC;
-            pf_read_360  : OUT STD_LOGIC;
-            pf_done_360  : OUT STD_LOGIC;
-            pf_empty_360 : OUT STD_LOGIC;
-           --puppi_out   : OUT w64s(NTKSORTED+NCALOSORTED - 1 downto 0);
-           --puppi_done  : OUT STD_LOGIC;
-           --puppi_valid : OUT STD_LOGIC;
-            d_puppich_in  : OUT w64s(NTKSORTED downto 0);
-            puppich_out   : OUT w64s(NTKSORTED - 1 downto 0);
-            puppich_start : OUT STD_LOGIC;
-            puppich_done  : OUT STD_LOGIC;
-            puppich_valid : OUT STD_LOGIC;
-            puppich_ready : OUT STD_LOGIC;
-            puppich_idle  : OUT STD_LOGIC;
-            d_puppine_in  : OUT w64s(NTKSORTED+NCALOSORTED downto 0);
-            puppine_out   : OUT w64s(NCALOSORTED - 1 downto 0);
-            puppine_start : OUT STD_LOGIC;
-            puppine_done  : OUT STD_LOGIC;
-            puppine_valid : OUT STD_LOGIC;
-            puppine_ready : OUT STD_LOGIC;
-            puppine_idle  : OUT STD_LOGIC;
-            puppi_out_360   : OUT w64s(NTKSORTED+NCALOSORTED-1 downto 0);
-            puppi_start_360 : OUT STD_LOGIC;
-            puppi_read_360  : OUT STD_LOGIC;
-            puppi_done_360  : OUT STD_LOGIC
+            -- debug 240 MHz clock PF info
+            puppich_in_240    : OUT w64s(NTKSORTED  downto 0);
+            puppich_out_240   : OUT w64s(NTKSORTED-1 downto 0);
+            puppich_start_240 : OUT STD_LOGIC;
+            puppich_done_240  : OUT STD_LOGIC;
+            puppich_valid_240 : OUT STD_LOGIC;
+            puppich_ready_240 : OUT STD_LOGIC;
+            puppich_idle_240  : OUT STD_LOGIC;
+            puppine_in_240    : OUT w64s(NTKSORTED+NCALOSORTED downto 0);
+            puppine_out_240   : OUT w64s(NCALOSORTED - 1 downto 0);
+            puppine_start_240 : OUT STD_LOGIC;
+            puppine_done_240  : OUT STD_LOGIC;
+            puppine_valid_240 : OUT STD_LOGIC;
+            puppine_ready_240 : OUT STD_LOGIC;
+            puppine_idle_240  : OUT STD_LOGIC
     );
 
 --  Port ( );
@@ -64,6 +64,7 @@ end regionizer_mux_stream_cdc_pf_puppi;
 architecture Behavioral of regionizer_mux_stream_cdc_pf_puppi is
     constant PV_LINK  : natural := NTKSECTORS*NTKFIBERS + NCALOSECTORS*NCALOFIBERS + NMUFIBERS;
     constant NREGIONIZER_OUT : natural := NTKSORTED + NCALOSORTED + NMUSORTED;
+    constant NPUPPI   : natural := NTKSORTED+NCALOSORTED;
 
     constant NCLK_WRITE360 : natural := NPFREGIONS * PFII240;
     constant NCLK_WAIT360  : natural := NPFREGIONS * (PFII-PFII240);
@@ -92,37 +93,43 @@ architecture Behavioral of regionizer_mux_stream_cdc_pf_puppi is
     signal alltk_240_done, allcalo_240_done, allmu_240_done, empty240not : std_logic := '0'; 
 
     signal pf_in    : w64s(NPFTOT-1 downto 0) := (others => (others => '0'));
-    signal pf_out_i : w64s(NPFTOT-1 downto 0) := (others => (others => '0'));
-    signal pf_start_i, pf_done_i, pf_idle_i, pf_ready_i : std_logic := '0';
+    signal pf_out_i, pf_out240, pf_out360 : w64s(NPFTOT-1 downto 0) := (others => (others => '0'));
+    signal pf_start_i, pf_done240, pf_valid240, pf_write240, pf_done_i, pf_idle_i, pf_ready_i : std_logic := '0';
 
     signal pf_stream, pf_stream360 : w64s(NPFSTREAM-1 downto 0) := (others => (others => '0'));
-    signal pf_read360 : std_logic := '0';
-    signal pf_write240, pf_read360_start : std_logic_vector(63 downto 0) := (others => '0');
+    signal pf_read360, pf_done360, pf_decode360_warmup, pf_decode360_start : std_logic := '0';
+    signal pf_empty360 : std_logic_vector(NPFSTREAM-1 downto 0) := (others => '0');
+    signal pf_read360_start : std_logic_vector(63 downto 0) := (others => '0');
     signal tk_delay_out: w64s(NTKSORTED-1 downto 0) := (others => (others => '0'));
+    signal pf_read360_count : natural range 0 to PFII-1;
     
     signal puppi_start_i : std_logic := '0';
     
     signal puppich_in    : w64s(NTKSORTED downto 0) := (others => (others => '0'));
+    signal puppich_out   : w64s(NTKSORTED-1 downto 0) := (others => (others => '0'));
     signal puppich_out_i : w64s(NTKSORTED-1 downto 0) := (others => (others => '0'));
-    signal puppich_done_i, puppich_idle_i, puppich_ready_i : std_logic := '0';
+    signal puppich_done_i, puppich_idle_i, puppich_ready_i, puppich_valid, puppich_done, puppich_write : std_logic := '0';
     
     signal puppine_in    : w64s(NTKSORTED+NCALOSORTED downto 0) := (others => (others => '0'));
     signal puppine_out_i : w64s(NCALOSORTED-1 downto 0) := (others => (others => '0'));
-    signal puppine_done_i, puppine_idle_i, puppine_ready_i : std_logic := '0';
+    signal puppine_out   : w64s(NCALOSORTED-1 downto 0) := (others => (others => '0'));
+    signal puppine_done_i, puppine_idle_i, puppine_ready_i, puppine_valid, puppine_done, puppine_write : std_logic := '0';
 
     signal puppich_stream, puppich_stream360 : w64s(NTKSTREAM-1 downto 0)  := (others => (others => '0'));
     signal puppine_stream, puppine_stream360 : w64s(NCALOSTREAM-1 downto 0)  := (others => (others => '0'));
-    signal puppi_read360 : std_logic := '0';
+    signal puppi_read360, puppi_done360, puppi_decode360_warmup, puppi_decode360_start : std_logic := '0';
     signal puppich_write240, puppine_write240, puppi_read360_start : std_logic_vector(63 downto 0) := (others => '0');
+    signal puppi_read360_count : natural range 0 to PFII-1;
 
---
---signal puppi_out_i : w64s(NTKSORTED+NCALOSORTED-1 downto 0) := (others => (others => '0'));
---signal puppi_done_i, puppi_valid_i : std_logic := '0';
---
+    signal puppi_out360 : w64s(NTKSORTED+NCALOSORTED-1 downto 0) := (others => (others => '0'));
+
+    constant PV_INITIAL_DELAY : natural := 10; -- extra delay because FIFOs don't become writable immediately after rst goes down. 
+                                               -- not sure how much, but 6 is too little and 10 is ok
     signal pv_input_was_valid : std_logic := '0';
-    signal vtx_write360 : std_logic := '0'; 
+    signal vtx_write360 : std_logic_vector(PV_INITIAL_DELAY downto 0) := (others => '0'); 
     signal vtx_read240  : std_logic_vector(63 downto 0) := (others => '0'); 
-    signal vtx360, vtx240 : word64 := (others => '0'); 
+    signal vtx360 : w64s(PV_INITIAL_DELAY downto 0) := (others => (others => '0')); 
+    signal vtx240 : word64 := (others => '0'); 
     signal vtx_count360 : natural range 0 to NCLK_WRITE360-1 := 0;
 begin
     
@@ -157,21 +164,23 @@ begin
             -- for these we put some reset logic
             if rst = '1' then
                 pv_input_was_valid <= '0';
-                vtx_write360 <= '0';
+                vtx_write360(0) <= '0';
             else
                 pv_input_was_valid <= valid_in(PV_LINK);
                 if valid_in(PV_LINK) = '1' and pv_input_was_valid = '0' then
-                    vtx360 <= links_in(PV_LINK);
+                    vtx360(0) <= links_in(PV_LINK);
                     vtx_count360 <= 0;
-                    vtx_write360 <= '1';
+                    vtx_write360(0) <= '1';
                 else
                     if vtx_count360 = NCLK_WRITE360-1 then
-                        vtx_write360 <= '0';
+                        vtx_write360(0) <= '0';
                     else
                         vtx_count360 <= vtx_count360 + 1;
                     end if;
                 end if;
             end if;
+            vtx_write360(PV_INITIAL_DELAY downto 1) <= vtx_write360(PV_INITIAL_DELAY-1downto 0);
+            vtx360(PV_INITIAL_DELAY downto 1) <= vtx360(PV_INITIAL_DELAY-1downto 0);
         end if;
     end process input_link_pv;
 
@@ -226,12 +235,6 @@ begin
                  mu_out     => mu_out,
                  newevent_out => newevent_out
              );
-    -- expected output order is tracks, calo, muons, so we re-arrange pf-in
-    regionizer_out(NTKSTREAM-1 downto 0) <= tk_in240;
-    regionizer_out(NTKSTREAM+NCALOSTREAM-1 downto NTKSTREAM) <= calo_in240;
-    regionizer_out(NTKSTREAM+NCALOSTREAM+NMUSTREAM-1 downto NCALOSTREAM+NTKSTREAM) <= mu_in240;
-    regionizer_good <= regionizer_out_write;
-    regionizer_warm <= regionizer_out_warmup;
 
     regio2cdc: process(clk)
     begin
@@ -239,15 +242,18 @@ begin
             if rst = '1' then
                 regionizer_out_warmup <= '0';
                 regionizer_out_write  <= '0';
+                regionizer_done <= '0';
             else
                 if newevent_out = '1' then
                     -- if warmed up, start streaming out. otherwise, just warm up
                     if regionizer_out_warmup = '1' then
                         regionizer_count      <= 0;
                         regionizer_out_write  <= '1';
+                        regionizer_done <= '1';
                     else
                         regionizer_out_warmup <= '1'; 
                         regionizer_out_write  <= '0';
+                        regionizer_done <= '0';
                     end if;
                 else
                     -- write out for NCLK_WRITE360 clocks, then stop
@@ -260,6 +266,7 @@ begin
                             regionizer_out_write  <= '1';
                         end if;
                     end if;
+                    regionizer_done <= '0';
                 end if;
             end if;
             tk_in240   <= tk_out;
@@ -267,6 +274,12 @@ begin
             mu_in240   <= mu_out;
         end if;
     end process regio2cdc;
+
+    -- expected output order is tracks, calo, muons, so we re-arrange pf-in
+    regionizer_out(NTKSTREAM-1 downto 0) <= tk_in240;
+    regionizer_out(NTKSTREAM+NCALOSTREAM-1 downto NTKSTREAM) <= calo_in240;
+    regionizer_out(NTKSTREAM+NCALOSTREAM+NMUSTREAM-1 downto NCALOSTREAM+NTKSTREAM) <= mu_in240;
+    regionizer_valid <= regionizer_out_write;
 
     gen_cdc_tk: for i in 0 to NTKSTREAM-1 generate
         tk_cdc: entity work.cdc_bram_fifo
@@ -324,11 +337,6 @@ begin
                              data_out  => allmu_240,
                              valid_out => open,
                              ap_done   => allmu_240_done);
-
-    tk_out_240 <= tk_out240;
-    tk_all_240 <= alltk_240;
-    tk_done_240 <= alltk_240_done;
-    tk_empty_240 <= empty240not; --tk_empty240(0);
 
     all2pf : process(clk240)
         begin
@@ -458,25 +466,36 @@ begin
                  output_52_V => pf_out_i(52),
                  output_53_V => pf_out_i(53)
             );
-        pf_out_240(NPFTOT-1 downto 0) <= pf_out_i;
         pf_in_240 <= pf_in;
         pf_start_240 <= pf_start_i;
         pf_idle_240 <= pf_idle_i;
         pf_ready_240 <= pf_ready_i;
-        pf_done_240 <= pf_done_i;
 
-     pf_write240_delay_start: entity work.bram_delay -- FIXME wasteful BRAM36 for a single bit
-     generic map(DELAY => LATENCY_PF + 2) 
-           port map(clk => clk240, rst => rst240, 
-                    d(0) => pf_start_i,
-                    d(63 downto 1) => (others => '0'), 
-                    q => pf_write240);    
+     pf2402out: process(clk240)
+     begin
+         if rising_edge(clk240) then
+             if rst240 = '1' then
+                 pf_out240   <= (others => (others => '0'));
+                 pf_valid240 <= '0';
+             else
+                 if pf_done_i = '1' then
+                     pf_valid240 <= '1';
+                     pf_out240   <= pf_out_i;
+                 end if;
+             end if;
+             pf_done240  <= pf_done_i;
+             pf_write240 <= pf_valid240; -- delay by 1 bit
+         end if;
+     end process pf2402out;
+     pf_done_240  <= pf_done240;
+     pf_valid_240 <= pf_valid240;
+     pf_out_240   <= pf_out240;
 
      pf2cdc : entity work.parallel2serial
                 generic map(NITEMS  => NPFTOT, NSTREAM => NPFSTREAM)
                 port map( ap_clk => clk240,
-                          roll   => pf_done_i,
-                          data_in  => pf_out_i,
+                          roll   => pf_done240,
+                          data_in  => pf_out240,
                           valid_in => (others => '1'),
                           data_out  => pf_stream,
                           valid_out => open,
@@ -487,9 +506,9 @@ begin
                     port map(clk_in => clk240, clk_out => clk, rst_in => rst240,
                      data_in  => pf_stream(i),
                      data_out => pf_stream360(i),
-                     wr_en    => pf_write240(0),
+                     wr_en    => pf_write240,
                      rd_en    => pf_read360,
-                     empty    => pf_empty_360);
+                     empty    => pf_empty(i));
      end generate gen_pf_cdc;
 
      pf_read360_delay_start: entity work.bram_delay -- FIXME wasteful BRAM36 for a single bit
@@ -497,28 +516,68 @@ begin
                                                     --                     + 2*6 for the two CDC 
                                                     --                     + 4 for serial to parallel
                                                     -- in 360 MHz domain, wait for regionizer +
-     generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + 4 + 12 + 3)*3)/2 + 5) -- FIXME overconservative, to be tuned
+     generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + 4 + 12 + 3)*3)/2 + 10) -- FIXME overconservative, to be tuned
            port map(clk => clk, rst => rst, 
                     d(0) => regionizer_out_warmup,
                     d(63 downto 1) => (others => '0'), 
                     q => pf_read360_start);
 
+     pf_reader: process(clk)
+     begin
+         if rising_edge(clk) then
+             if rst = '1' then
+                 pf_decode360_start <= '0';
+                 pf_read360 <= '0';
+             elsif pf_read360_start(0) = '1' then
+                 if pf_decode360_warmup = '0' then
+                     pf_decode360_warmup <= '1';
+                     pf_read360 <= '1';
+                     pf_read360_count <= 0;
+                 else
+                     if pf_read360_count = PFII240-1 then
+                         pf_read360_count <= pf_read360_count + 1;
+                         pf_read360    <= '0';
+                     elsif pf_read360_count = PFII-1 then
+                         pf_read360_count <= 0;
+                         pf_read360    <= '1';
+                     else 
+                         pf_read360_count <= pf_read360_count + 1;
+                     end if;
+                 end if;
+             end if;
+             pf_decode360_start <= pf_decode360_warmup;
+         end if;
+     end process pf_reader;
+
      pf_unpack: entity work.serial2parallel
-                    generic map(NITEMS => NPFTOT, NSTREAM => NPFSTREAM, NREAD => PFII240, NWAIT => 2)
+                    generic map(NITEMS => NPFTOT, NSTREAM => NPFSTREAM, NREAD => PFII240, NWAIT => PFII-PFII240)
                     port map(ap_clk   => clk,
-                             ap_start => pf_read360_start(0),
+                             ap_start => pf_decode360_start, --pf_read360_start(0),
                              data_in  => pf_stream360,
                              valid_in => (others => '1'),
-                             data_out  => pf_out_360,
+                             data_out  => pf_out360,
                              valid_out => open,
-                             ap_done   => pf_done_360,
-                             rden_out  => pf_read360
+                             ap_done   => pf_done360
                              );
-        pf_start_360 <= pf_read360_start(0);
-        pf_read_360 <= pf_read360;
+    pf2out: process(clk)
+    begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                pf_out <= (others => (others => '0'));
+                pf_valid <= '0';
+            elsif pf_done360 = '1' then
+                pf_out <= pf_out360;
+                pf_valid <= '1';
+            end if;
+            pf_done <= pf_done360;
+        end if;
+    end process pf2out;
+
+    pf_start <= pf_read360_start(0);
+    pf_read  <= pf_read360;
 
     vtx_read_delay : entity work.bram_delay
-        generic map(DELAY => LATENCY_PF)
+        generic map(DELAY => LATENCY_PF-1)
         port map(clk => clk240, 
                  rst => rst240, 
                  d(0)           => pf_start_i,
@@ -527,9 +586,9 @@ begin
 
     vtx_delay_cdc: entity work.cdc_bram_fifo
             port map(clk_in => clk, clk_out => clk240, rst_in => rst,
-                     data_in  => vtx360,
+                     data_in  => vtx360(PV_INITIAL_DELAY),
                      data_out => vtx240,
-                     wr_en    => vtx_write360,
+                     wr_en    => vtx_write360(PV_INITIAL_DELAY),
                      rd_en    => vtx_read240(0));
  
     gen_tk_delay: for i in 0 to NTKSORTED-1 generate
@@ -550,10 +609,10 @@ begin
                  puppich_in <= (others => (others => '0'));
                  puppine_in <= (others => (others => '0'));
              else
+                 puppich_in(0)                  <= vtx240;  
                  if pf_done_i = '1' then
                      puppi_start_i <= '1';
                      puppich_in(NTKSORTED downto 1) <= pf_out_i(NTKSORTED-1 downto 0);
-                     puppich_in(0)                  <= vtx240;  
                      puppine_in(NTKSORTED-1 downto 0) <= tk_delay_out; 
                      puppine_in(NTKSORTED)            <= vtx240; 
                      puppine_in(NTKSORTED+NCALOSORTED downto NTKSORTED+1) <= pf_out_i(NTKSORTED+NCALOSORTED-1 downto NTKSORTED);
@@ -631,10 +690,10 @@ begin
                   output_28_V => puppich_out_i(28),
                   output_29_V => puppich_out_i(29)
              );
-         puppich_start <= puppi_start_i;
-         puppich_idle <= puppich_idle_i;
-         puppich_ready <= puppich_ready_i;
-         d_puppich_in <= puppich_in;
+         puppich_start_240 <= puppi_start_i;
+         puppich_idle_240 <= puppich_idle_i;
+         puppich_ready_240 <= puppich_ready_i;
+         puppich_in_240 <= puppich_in;
    
      puppiblock : entity work.packed_linpuppiNoCrop
          port map(ap_clk => clk240, 
@@ -715,11 +774,12 @@ begin
                   output_18_V => puppine_out_i(18),
                   output_19_V => puppine_out_i(19)
              );
-         puppine_start <= puppi_start_i;
-         puppine_idle <= puppine_idle_i;
-         puppine_ready <= puppine_ready_i;
-         d_puppine_in <= puppine_in;
+         puppine_start_240 <= puppi_start_i;
+         puppine_idle_240 <= puppine_idle_i;
+         puppine_ready_240 <= puppine_ready_i;
+         puppine_in_240 <= puppine_in;
    
+  
      puppich2out: process(clk240)
      begin
          if rising_edge(clk240) then
@@ -733,8 +793,12 @@ begin
                  end if;
              end if;
              puppich_done <= puppich_done_i;
+             puppich_write <= puppich_valid;
          end if;
      end process puppich2out;
+     puppich_out_240   <= puppich_out;
+     puppich_done_240  <= puppich_done;
+     puppich_valid_240 <= puppich_valid;
   
      puppine2out: process(clk240)
      begin
@@ -749,21 +813,18 @@ begin
                  end if;
              end if;
              puppine_done <= puppine_done_i;
+             puppine_write <= puppine_valid;
          end if;
      end process puppine2out;
-
-     puppich_write240_delay_start: entity work.bram_delay 
-     generic map(DELAY => LATENCY_PUPPICH + 2) 
-           port map(clk => clk240, rst => rst240, 
-                    d(0) => puppi_start_i,
-                    d(63 downto 1) => (others => '0'), 
-                    q => puppich_write240);    
+     puppine_out_240   <= puppine_out;
+     puppine_done_240  <= puppine_done;
+     puppine_valid_240 <= puppine_valid;
 
      puppich2cdc : entity work.parallel2serial
                 generic map(NITEMS  => NTKSORTED, NSTREAM => NTKSTREAM)
                 port map( ap_clk => clk240,
-                          roll   => puppich_done_i,
-                          data_in  => puppich_out_i,
+                          roll   => puppich_done,
+                          data_in  => puppich_out,
                           valid_in => (others => '1'),
                           data_out  => puppich_stream,
                           valid_out => open,
@@ -774,23 +835,16 @@ begin
                     port map(clk_in => clk240, clk_out => clk, rst_in => rst240,
                      data_in  => puppich_stream(i),
                      data_out => puppich_stream360(i),
-                     wr_en    => puppich_write240(0),
+                     wr_en    => puppich_write,
                      rd_en    => puppi_read360,
-                     empty    => open);
+                     empty    => puppi_empty(i));
      end generate gen_puppich_cdc;
-
-     puppine_write240_delay_start: entity work.bram_delay 
-     generic map(DELAY => LATENCY_PUPPINE + 2) 
-           port map(clk => clk240, rst => rst240, 
-                    d(0) => puppi_start_i,
-                    d(63 downto 1) => (others => '0'), 
-                    q => puppine_write240);    
 
      puppine2cdc : entity work.parallel2serial
                 generic map(NITEMS  => NCALOSORTED, NSTREAM => NCALOSTREAM)
                 port map( ap_clk => clk240,
-                          roll   => puppine_done_i,
-                          data_in  => puppine_out_i,
+                          roll   => puppine_done,
+                          data_in  => puppine_out,
                           valid_in => (others => '1'),
                           data_out  => puppine_stream,
                           valid_out => open,
@@ -801,69 +855,79 @@ begin
                     port map(clk_in => clk240, clk_out => clk, rst_in => rst240,
                      data_in  => puppine_stream(i),
                      data_out => puppine_stream360(i),
-                     wr_en    => puppine_write240(0),
+                     wr_en    => puppine_write,
                      rd_en    => puppi_read360,
-                     empty    => open);
+                     empty    => puppi_empty(i+NTKSTREAM));
      end generate gen_puppine_cdc;
 
      puppi_read360_delay_start: entity work.bram_delay -- FIXME wasteful BRAM36 for a single bit
-     generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + LATENCY_PUPPINE + 4 + 12 + 3)*3)/2 + 5) -- FIXME overconservative, to be tuned
+     generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + LATENCY_PUPPINE + 4 + 12 + 3)*3)/2 + 10) -- FIXME overconservative, to be tuned
            port map(clk => clk, rst => rst, 
                     d(0) => regionizer_out_warmup,
                     d(63 downto 1) => (others => '0'), 
                     q => puppi_read360_start);
 
+     puppi_reader: process(clk)
+     begin
+         if rising_edge(clk) then
+             if rst = '1' then
+                 puppi_decode360_start <= '0';
+                 puppi_read360 <= '0';
+             elsif puppi_read360_start(0) = '1' then
+                 if puppi_decode360_warmup = '0' then
+                     puppi_decode360_warmup <= '1';
+                     puppi_read360 <= '1';
+                     puppi_read360_count <= 0;
+                 else
+                     if puppi_read360_count = PFII240-1 then
+                         puppi_read360_count <= puppi_read360_count + 1;
+                         puppi_read360    <= '0';
+                     elsif puppi_read360_count = PFII-1 then
+                         puppi_read360_count <= 0;
+                         puppi_read360    <= '1';
+                     else 
+                         puppi_read360_count <= puppi_read360_count + 1;
+                     end if;
+                 end if;
+             end if;
+             puppi_decode360_start <= puppi_decode360_warmup;
+         end if;
+     end process puppi_reader;
+
+
      puppich_unpack: entity work.serial2parallel
-                    generic map(NITEMS => NTKSORTED, NSTREAM => NTKSTREAM, NREAD => PFII240, NWAIT => 2)
+                    generic map(NITEMS => NTKSORTED, NSTREAM => NTKSTREAM, NREAD => PFII240, NWAIT => PFII-PFII240)
                     port map(ap_clk   => clk,
-                             ap_start => puppi_read360_start(0),
+                             ap_start => puppi_decode360_start,
                              data_in  => puppich_stream360,
                              valid_in => (others => '1'),
-                             data_out  => puppi_out_360(NTKSORTED-1 downto 0),
+                             data_out  => puppi_out360(NTKSORTED-1 downto 0),
                              valid_out => open,
-                             ap_done   => puppi_done_360,
-                             rden_out  => puppi_read360
-                             );
+                             ap_done   => puppi_done360);
      puppine_unpack: entity work.serial2parallel
-                    generic map(NITEMS => NCALOSORTED, NSTREAM => NCALOSTREAM, NREAD => PFII240, NWAIT => 2)
+                    generic map(NITEMS => NCALOSORTED, NSTREAM => NCALOSTREAM, NREAD => PFII240, NWAIT => PFII-PFII240)
                     port map(ap_clk   => clk,
-                             ap_start => puppi_read360_start(0),
+                             ap_start => puppi_decode360_start,
                              data_in  => puppine_stream360,
                              valid_in => (others => '1'),
-                             data_out  => puppi_out_360(NCALOSORTED+NTKSORTED-1 downto NTKSORTED),
+                             data_out  => puppi_out360(NCALOSORTED+NTKSORTED-1 downto NTKSORTED),
                              valid_out => open,
-                             ap_done   => open,
-                             rden_out  => open
-                             );
-     puppi_start_360 <= puppi_read360_start(0);
-     puppi_read_360  <= puppi_read360;
- 
-  
---   gen_puppich_delay: for i in 0 to NTKSORTED-1 generate
---       puppich_delay: entity work.bram_delay
---           generic map(DELAY => LATENCY_PUPPINE - LATENCY_PUPPICH)
---           port map(clk => clk, 
---                    rst => rst, 
---                    d   => puppich_out_i(i),
---                    q   => puppi_out_i(i));
---   end generate gen_puppich_delay;
---
---   puppi_out_i(NTKSORTED+NCALOSORTED-1 downto NTKSORTED) <= puppine_out_i;
---
---   puppi2out: process(clk)
---   begin
---       if rising_edge(clk) then
---           if rst = '1' then
---               puppi_out   <= (others => (others => '0'));
---               puppi_valid <= '0';
---           else
---               if puppine_done_i = '1' then
---                   puppi_valid <= '1';
---                   puppi_out <= puppi_out_i;
---               end if;
---           end if;
---           puppi_done <= puppine_done_i;
---       end if;
---   end process puppi2out;
+                             ap_done   => open);
+     puppi_start <= puppi_read360_start(0);
+     puppi_read  <= puppi_read360;
+
+     puppi2out: process(clk)
+     begin
+        if rising_edge(clk) then
+            if rst = '1' then
+                puppi_out <= (others => (others => '0'));
+                puppi_valid <= '0';
+            elsif puppi_done360 = '1' then
+                puppi_out <= puppi_out360;
+                puppi_valid <= '1';
+            end if;
+            puppi_done <= puppi_done360;
+        end if;
+    end process puppi2out;
 
 end Behavioral;

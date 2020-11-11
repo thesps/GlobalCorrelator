@@ -18,8 +18,7 @@ entity serial2parallel is
             valid_in:  in  std_logic_vector(NSTREAM-1 downto 0);
             data_out:  out w64s(NITEMS-1 downto 0);
             valid_out: out std_logic_vector(NITEMS-1 downto 0);
-            ap_done:   out std_logic;
-            rden_out:  out std_logic
+            ap_done:   out std_logic
     );
 		
 end serial2parallel;
@@ -29,9 +28,7 @@ architecture Behavioral of serial2parallel is
     signal data  : w64s(NMEM-1 downto 0) := (others => (others => '0'));
     signal valid : std_logic_vector(NMEM-1 downto 0):= (others => '0');
     signal count : integer range 0 to NREAD+NWAIT-1 := 0;
-    signal may_read : std_logic := '1';
 begin
-    rden_out <= ap_start and may_read;
 
     logic: process(ap_clk) 
         begin
@@ -40,10 +37,6 @@ begin
                     valid <= (others => '0');
                     ap_done  <= '0';
                     count <= 0;
-                    may_read <= '1';
-                    --if NITEMS = NTKSORTED then
-                    --    report "S2P active at count " & integer'image(count) & " channel " & integer'image(i) & "  data: "
-                    --end if;
                 else
                     -- stream in data
                     if count <= NREAD-1 then
@@ -65,14 +58,8 @@ begin
                     -- increment & cycle counter
                     if count /= NREAD+NWAIT-1 then
                         count <= count + 1;
-                        if count < NREAD-1 then
-                            may_read <= '1';
-                        else
-                            may_read <= '0';
-                        end if;
                     else
                         count <= 0;
-                        may_read <= '1';
                     end if;
                end if; -- ap_start
             end if; -- clk
