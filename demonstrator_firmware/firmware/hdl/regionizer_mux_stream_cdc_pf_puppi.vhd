@@ -289,15 +289,6 @@ begin
                      puppine_valid => puppine_valid,
                      puppine_done  => puppine_done);
 
-    gen_pf_cdc: for i in NPFSTREAM-1 downto 0 generate
-        pf_cdc: entity work.cdc_bram_fifo
-                    port map(clk_in => clk240, clk_out => clk, rst_in => rst240,
-                     data_in  => pf_stream(i),
-                     data_out => pf_stream360(i),
-                     wr_en    => pf_write240,
-                     rd_en    => pf_read360,
-                     empty    => pf_empty(i));
-     end generate gen_pf_cdc;
 
      pf_read360_delay_start: entity work.bit_delay  -- in 240 MHz domain, spend PF latency + 1 
                                                     --                     + 2*6 for the two CDC 
@@ -308,59 +299,22 @@ begin
                     d => regionizer_out_warmup,
                     q => pf_read360_start);
 
-     pf_reader: process(clk)
-     begin
-         if rising_edge(clk) then
-             if rst = '1' then
-                 pf_decode360_start <= '0';
-                 pf_read360 <= '0';
-             elsif pf_read360_start = '1' then
-                 if pf_decode360_warmup = '0' then
-                     pf_decode360_warmup <= '1';
-                     pf_read360 <= '1';
-                     pf_read360_count <= 0;
-                 else
-                     if pf_read360_count = PFII240-1 then
-                         pf_read360_count <= pf_read360_count + 1;
-                         pf_read360    <= '0';
-                     elsif pf_read360_count = PFII-1 then
-                         pf_read360_count <= 0;
-                         pf_read360    <= '1';
-                     else 
-                         pf_read360_count <= pf_read360_count + 1;
-                     end if;
-                 end if;
-             end if;
-             pf_decode360_start <= pf_decode360_warmup;
-         end if;
-     end process pf_reader;
-
-     pf_unpack: entity work.serial2parallel
-                    generic map(NITEMS => NPFTOT, NSTREAM => NPFSTREAM, NREAD => PFII240, NWAIT => PFII-PFII240)
-                    port map(ap_clk   => clk,
-                             ap_start => pf_decode360_start, 
-                             data_in  => pf_stream360,
-                             valid_in => (others => '1'),
-                             data_out  => pf_out360,
-                             valid_out => open,
-                             ap_done   => pf_done360
-                             );
-    pf2out: process(clk)
-    begin
-        if rising_edge(clk) then
-            if rst = '1' then
-                pf_out <= (others => (others => '0'));
-                pf_valid <= '0';
-            elsif pf_done360 = '1' then
-                pf_out <= pf_out360;
-                pf_valid <= '1';
-            end if;
-            pf_done <= pf_done360;
-        end if;
-    end process pf2out;
-
+     pf_unpacker: entity work.cdc_and_deserializer
+            generic map(NITEMS => NPFTOT, 
+                        NSTREAM => NPFSTREAM)
+            port map(   clk => clk, 
+                        rst => rst,
+                        clk240 => clk240, 
+                        rst240 => rst240,
+                        data240 => pf_stream,
+                        write240 => pf_write240,
+                        start => pf_read360_start,
+                        data  => pf_out,
+                        valid => pf_valid,
+                        done  => pf_done,
+                        read  => pf_read,
+                        empty => pf_empty);
     pf_start <= pf_read360_start;
-    pf_read  <= pf_read360;
 
     vtx_delay_cdc: entity work.cdc_bram_fifo
             port map(clk_in => clk, clk_out => clk240, rst_in => rst,
@@ -369,25 +323,6 @@ begin
                      wr_en    => vtx_write360(PV_INITIAL_DELAY),
                      rd_en    => vtx_read240);
  
-    gen_puppich_cdc: for i in NTKSTREAM-1 downto 0 generate
-        puppich_cdc: entity work.cdc_bram_fifo
-                    port map(clk_in => clk240, clk_out => clk, rst_in => rst240,
-                     data_in  => puppich_stream(i),
-                     data_out => puppich_stream360(i),
-                     wr_en    => puppich_valid,
-                     rd_en    => puppi_read360,
-                     empty    => puppi_empty(i));
-     end generate gen_puppich_cdc;
-
-    gen_puppine_cdc: for i in NCALOSTREAM-1 downto 0 generate
-        puppine_cdc: entity work.cdc_bram_fifo
-                    port map(clk_in => clk240, clk_out => clk, rst_in => rst240,
-                     data_in  => puppine_stream(i),
-                     data_out => puppine_stream360(i),
-                     wr_en    => puppine_valid,
-                     rd_en    => puppi_read360,
-                     empty    => puppi_empty(i+NTKSTREAM));
-     end generate gen_puppine_cdc;
 
      puppi_read360_delay_start: entity work.bit_delay
            generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + LATENCY_PUPPINE + 4 + 12 + 3)*3)/2 + 10, SHREG => "yes")
@@ -395,67 +330,36 @@ begin
                     d => regionizer_out_warmup,
                     q => puppi_read360_start);
 
-     puppi_reader: process(clk)
-     begin
-         if rising_edge(clk) then
-             if rst = '1' then
-                 puppi_decode360_start <= '0';
-                 puppi_read360 <= '0';
-             elsif puppi_read360_start = '1' then
-                 if puppi_decode360_warmup = '0' then
-                     puppi_decode360_warmup <= '1';
-                     puppi_read360 <= '1';
-                     puppi_read360_count <= 0;
-                 else
-                     if puppi_read360_count = PFII240-1 then
-                         puppi_read360_count <= puppi_read360_count + 1;
-                         puppi_read360    <= '0';
-                     elsif puppi_read360_count = PFII-1 then
-                         puppi_read360_count <= 0;
-                         puppi_read360    <= '1';
-                     else 
-                         puppi_read360_count <= puppi_read360_count + 1;
-                     end if;
-                 end if;
-             end if;
-             puppi_decode360_start <= puppi_decode360_warmup;
-         end if;
-     end process puppi_reader;
-
-
-     puppich_unpack: entity work.serial2parallel
-                    generic map(NITEMS => NTKSORTED, NSTREAM => NTKSTREAM, NREAD => PFII240, NWAIT => PFII-PFII240)
-                    port map(ap_clk   => clk,
-                             ap_start => puppi_decode360_start,
-                             data_in  => puppich_stream360,
-                             valid_in => (others => '1'),
-                             data_out  => puppi_out360(NTKSORTED-1 downto 0),
-                             valid_out => open,
-                             ap_done   => puppi_done360);
-     puppine_unpack: entity work.serial2parallel
-                    generic map(NITEMS => NCALOSORTED, NSTREAM => NCALOSTREAM, NREAD => PFII240, NWAIT => PFII-PFII240)
-                    port map(ap_clk   => clk,
-                             ap_start => puppi_decode360_start,
-                             data_in  => puppine_stream360,
-                             valid_in => (others => '1'),
-                             data_out  => puppi_out360(NCALOSORTED+NTKSORTED-1 downto NTKSORTED),
-                             valid_out => open,
-                             ap_done   => open);
+     puppich_unpacker: entity work.cdc_and_deserializer
+            generic map(NITEMS => NTKSORTED, 
+                        NSTREAM => NTKSTREAM)
+            port map(   clk => clk, 
+                        rst => rst,
+                        clk240 => clk240, 
+                        rst240 => rst240,
+                        data240 => puppich_stream,
+                        write240 => puppich_valid,
+                        start => puppi_read360_start,
+                        data  => puppi_out(NTKSORTED-1 downto 0),
+                        valid => puppi_valid,
+                        done  => puppi_done,
+                        read  => puppi_read,
+                        empty => puppi_empty(NTKSTREAM-1 downto 0));
+     puppine_unpacker: entity work.cdc_and_deserializer
+            generic map(NITEMS => NCALOSORTED, 
+                        NSTREAM => NCALOSTREAM)
+            port map(   clk => clk, 
+                        rst => rst,
+                        clk240 => clk240, 
+                        rst240 => rst240,
+                        data240 => puppine_stream,
+                        write240 => puppine_valid,
+                        start => puppi_read360_start,
+                        data  => puppi_out(NCALOSORTED+NTKSORTED-1 downto NTKSORTED),
+                        valid => open,
+                        done  => open,
+                        read  => open,
+                        empty => puppi_empty(NCALOSTREAM+NTKSTREAM-1 downto NTKSTREAM));
      puppi_start <= puppi_read360_start;
-     puppi_read  <= puppi_read360;
-
-     puppi2out: process(clk)
-     begin
-        if rising_edge(clk) then
-            if rst = '1' then
-                puppi_out <= (others => (others => '0'));
-                puppi_valid <= '0';
-            elsif puppi_done360 = '1' then
-                puppi_out <= puppi_out360;
-                puppi_valid <= '1';
-            end if;
-            puppi_done <= puppi_done360;
-        end if;
-    end process puppi2out;
 
 end Behavioral;

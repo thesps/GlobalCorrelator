@@ -43,6 +43,7 @@ elif [[ "$1" == "stream-cdc-pf-puppi" ]]; then
     VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
     VHDLS="${VHDLS} ${DEMO_VHDL}/bram_delay.vhd  ${DEMO_VHDL}/bit_delay.vhd ${DEMO_VHDL}/cdc_bram_fifo.vhd  ${DEMO_VHDL}/serial2parallel.vhd ${DEMO_VHDL}/parallel2serial.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/stream_pf_puppi_240.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/cdc_and_deserializer.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/regionizer_mux_stream_cdc_pf_puppi.vhd "
     VHDLS="${VHDLS} regionizer_mux_stream_cdc_pf_puppi_tb.vhd"
 fi
@@ -62,11 +63,12 @@ fi;
 #rm -r xsim* xelab* webtalk* xvhdl* test.wdb 2> /dev/null || true;
 
 echo " ## Compiling IP cores VHDL files: $CORES";
+CORES_SRC=../ip_cores_firmware
 for C in $CORES; do
-    test -d ../ip_cores_firmware/$C || echo "Missing IP core $C; use make_hls_cores.sh in the main directory to generate it"
-    test -d ../ip_cores_firmware/$C || exit 2; 
-    for F in $(awk '/^src/{print $2}' ../ip_cores_firmware/$C/firmware/cfg/top.dep); do 
-        xvhdl ../ip_cores_firmware/$C/firmware/hdl/$F || exit 2;
+    test -d ${CORES_SRC}/$C || echo "Missing IP core $C; use make_hls_cores.sh in the main directory to generate it"
+    test -d ${CORES_SRC}/$C || exit 2; 
+    for F in $(awk '/^src/{print $2}' ${CORES_SRC}/$C/firmware/cfg/top.dep); do 
+        xvhdl ${CORES_SRC}/$C/firmware/hdl/$F || exit 2;
         grep -q ERROR xvhdl.log && exit 2;
     done;
 done
