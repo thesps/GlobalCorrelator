@@ -41,29 +41,16 @@ architecture Behavioral of testbench is
     signal pf_out: w64s(NPFTOT - 1 downto 0);
     signal pf_start, pf_read, pf_valid, pf_done : STD_LOGIC;
     signal pf_empty : STD_LOGIC_VECTOR(NPFSTREAM-1 downto 0);
-    -- PF: 240 MHz stuff
-    signal pf_in_240, pf_out_240: w64s(NPFTOT - 1 downto 0);
-    signal pf_start_240, pf_done_240, pf_valid_240, pf_ready_240, pf_idle_240 : STD_LOGIC;
 
     -- Puppi: 360 MHz stuff
     signal puppi_out  : w64s(NPUPPI - 1 downto 0);
     signal puppi_start, puppi_read, puppi_done, puppi_valid : STD_LOGIC;
     signal puppi_empty : STD_LOGIC_VECTOR(NTKSTREAM+NCALOSTREAM-1 downto 0);
-    -- Puppi: 240 MHz stuff
-    signal puppich_in    : w64s(NTKSORTED               downto 0);
-    signal puppine_in    : w64s(NTKSORTED + NCALOSORTED downto 0);
-    signal puppich_out   : w64s(NPUPPICH - 1 downto 0);
-    signal puppine_out   : w64s(NPUPPINE - 1 downto 0);
-    signal puppich_start, puppich_valid, puppich_done, puppich_ready, puppich_idle : STD_LOGIC := '0';
-    signal puppine_start, puppine_valid, puppine_done, puppine_ready, puppine_idle : STD_LOGIC := '0';
 
     file Fi : text open read_mode  is "input-emp.txt";
     file Fo_reg   : text open write_mode is "output-emp-regionized-vhdl_tb.txt";
     file Fo_pf    : text open write_mode is "output-emp-pf-vhdl_tb.txt";
     file Fo_puppi : text open write_mode is "output-emp-puppi-vhdl_tb.txt";
-    file Fo_pf240   : text open write_mode is "output-emp-pf240-vhdl_tb.txt";
-    file Fo_puppich : text open write_mode is "output-emp-puppich240-vhdl_tb.txt";
-    file Fo_puppine : text open write_mode is "output-emp-puppine240-vhdl_tb.txt";
 
 begin
     clk720 <= not clk720 after 0.69444 ns;
@@ -115,30 +102,8 @@ begin
                  puppi_read => puppi_read,
                  puppi_done => puppi_done,
                  puppi_valid => puppi_valid,
-                 puppi_empty => puppi_empty,
+                 puppi_empty => puppi_empty
 
-                 pf_in_240 => pf_in_240,
-                 pf_out_240 => pf_out_240,
-                 pf_start_240 => pf_start_240,
-                 pf_done_240 => pf_done_240,
-                 pf_valid_240 => pf_valid_240,
-                 pf_ready_240 => pf_ready_240,
-                 pf_idle_240 => pf_idle_240,
-
-                 puppich_in_240 => puppich_in,
-                 puppich_out_240 => puppich_out,
-                 puppich_start_240 => puppich_start,
-                 puppich_valid_240 => puppich_valid,
-                 puppich_done_240 => puppich_done,
-                 puppich_ready_240 => puppich_ready,
-                 puppich_idle_240 => puppich_idle,
-                 puppine_in_240 => puppine_in,
-                 puppine_out_240 => puppine_out,
-                 puppine_start_240 => puppine_start,
-                 puppine_valid_240 => puppine_valid,
-                 puppine_done_240 => puppine_done,
-                 puppine_ready_240 => puppine_ready,
-                 puppine_idle_240 => puppine_idle
              );
   
 
@@ -192,35 +157,4 @@ begin
         finish(0);
     end process;
 
-    write240 : process(clk240)
-        variable v_pf_out : w64s(2*NPFTOT downto 0) := (others => (others => '0'));
-        variable v_pf_out_valid : std_logic := '1';
-        variable v_puppich_out : w64s(NTKSORTED+1+NPUPPICH downto 0) := (others => (others => '0'));
-        variable v_puppich_out_valid : std_logic := '1';
-        variable v_puppine_out : w64s(NTKSORTED+NCALOSORTED+1+NPUPPINE downto 0) := (others => (others => '0'));
-        variable v_puppine_out_valid : std_logic := '1';
-        variable frame : integer := 0;
-    begin
-        if rising_edge(clk240) then
-            -- write out the pf output --
-            v_pf_out(NPFTOT-1 downto 0) := pf_in_240;
-            v_pf_out(2*NPFTOT-1 downto NPFTOT) := pf_out_240;
-            v_pf_out(2*NPFTOT) := (60=>pf_start_240, 56=>pf_ready_240,  52=>pf_idle_240,
-                                    4 => pf_done_240, 0 => pf_valid_240, others => '0');
-            write_pattern_frame(Fo_pf240, frame, v_pf_out, v_pf_out_valid);
-            ---- write out the puppi output --
-            v_puppich_out(NTKSORTED downto 0) := puppich_in;
-            v_puppich_out(NTKSORTED+1+NPUPPICH-1 downto NTKSORTED+1) := puppich_out;
-            v_puppich_out(NTKSORTED+1+NPUPPICH) := (60=>puppich_start, 56=>puppich_ready, 52=>puppich_idle,
-                                                     4 => puppich_done, 0 => puppich_valid, others => '0');
-            write_pattern_frame(Fo_puppich, frame, v_puppich_out, v_puppich_out_valid);
-            v_puppine_out(NTKSORTED+NCALOSORTED downto 0) := puppine_in;
-            v_puppine_out(NTKSORTED+NCALOSORTED+1+NPUPPINE-1 downto NTKSORTED+NCALOSORTED+1) := puppine_out;
-            v_puppine_out(NTKSORTED+NCALOSORTED+1+NPUPPINE) := (60=>puppine_start, 56=>puppine_ready, 52=>puppine_idle,
-                                                                4 => puppine_done, 0 => puppine_valid, others => '0');
-           write_pattern_frame(Fo_puppine, frame, v_puppine_out, v_puppine_out_valid);
-           frame := frame + 1;
-        end if;
-    end process;
-    
 end Behavioral;

@@ -42,6 +42,7 @@ elif [[ "$1" == "stream-cdc-pf-puppi" ]]; then
     VHDLS="${VHDLS} ${REG_VHDL}/full_regionizer_mux_stream.vhd"
     VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
     VHDLS="${VHDLS} ${DEMO_VHDL}/bram_delay.vhd  ${DEMO_VHDL}/bit_delay.vhd ${DEMO_VHDL}/cdc_bram_fifo.vhd  ${DEMO_VHDL}/serial2parallel.vhd ${DEMO_VHDL}/parallel2serial.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/stream_pf_puppi_240.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/regionizer_mux_stream_cdc_pf_puppi.vhd "
     VHDLS="${VHDLS} regionizer_mux_stream_cdc_pf_puppi_tb.vhd"
 fi
