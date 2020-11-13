@@ -50,8 +50,8 @@ architecture Behavioral of regionizer_mux_pf_puppi is
     constant NREGIONIZER_OUT : natural := NTKSORTED + NCALOSORTED + NMUSORTED;
     constant NPFTOT :          natural := NTKSORTED + NCALOSORTED + NMUSORTED;
 
-    constant LATENCY_PF : natural := 46;
-    constant LATENCY_PUPPINE : natural := 51;
+    constant LATENCY_PF : natural := 43;
+    constant LATENCY_PUPPINE : natural := 57;
     constant LATENCY_PUPPICH : natural :=  6;
     constant LATENCY_REGIONIZER : natural := 54+10;
     constant LATENCY_PV         : natural := 0; -- not realistic but who cares

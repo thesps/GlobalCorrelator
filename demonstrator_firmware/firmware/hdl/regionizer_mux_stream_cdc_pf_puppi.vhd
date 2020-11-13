@@ -16,7 +16,7 @@ entity regionizer_mux_stream_cdc_pf_puppi is
             links_in : IN w64s(NTKSECTORS*NTKFIBERS + NCALOSECTORS*NCALOFIBERS + NMUFIBERS downto 0);
             valid_in : IN STD_LOGIC_VECTOR(NTKSECTORS*NTKFIBERS + NCALOSECTORS*NCALOFIBERS + NMUFIBERS downto 0);
             -- 360 MHz clock regionizer 
-            regionizer_out   : OUT w64s(NTKSORTED + NCALOSORTED + NMUSORTED - 1 downto 0);
+            regionizer_out   : OUT w64s(NTKSTREAM+NCALOSTREAM+NMUSTREAM-1 downto 0);
             regionizer_done  : OUT STD_LOGIC; -- '1' for 1 clock at start of event
             regionizer_valid : OUT STD_LOGIC; -- '1' for valid output, '0' for null
             -- 360 MHz clock PF output
@@ -68,8 +68,8 @@ architecture Behavioral of regionizer_mux_stream_cdc_pf_puppi is
 
     constant NCLK_WRITE360 : natural := NPFREGIONS * PFII240;
     constant NCLK_WAIT360  : natural := NPFREGIONS * (PFII-PFII240);
-    constant LATENCY_PF      : natural := 35; -- at 240 MHz
-    constant LATENCY_PUPPINE : natural := 36; -- at 240 MHz
+    constant LATENCY_PF      : natural := 32; -- at 240 MHz
+    constant LATENCY_PUPPINE : natural := 32; -- at 240 MHz
     constant LATENCY_PUPPICH : natural :=  3; -- at 240 MHz
     constant LATENCY_REGIONIZER : natural := 54+10;
 
@@ -97,9 +97,8 @@ architecture Behavioral of regionizer_mux_stream_cdc_pf_puppi is
     signal pf_start_i, pf_done240, pf_valid240, pf_write240, pf_done_i, pf_idle_i, pf_ready_i : std_logic := '0';
 
     signal pf_stream, pf_stream360 : w64s(NPFSTREAM-1 downto 0) := (others => (others => '0'));
-    signal pf_read360, pf_done360, pf_decode360_warmup, pf_decode360_start : std_logic := '0';
+    signal pf_read360_start, pf_read360, pf_done360, pf_decode360_warmup, pf_decode360_start : std_logic := '0';
     signal pf_empty360 : std_logic_vector(NPFSTREAM-1 downto 0) := (others => '0');
-    signal pf_read360_start : std_logic_vector(63 downto 0) := (others => '0');
     signal tk_delay_out: w64s(NTKSORTED-1 downto 0) := (others => (others => '0'));
     signal pf_read360_count : natural range 0 to PFII-1;
     
@@ -117,8 +116,7 @@ architecture Behavioral of regionizer_mux_stream_cdc_pf_puppi is
 
     signal puppich_stream, puppich_stream360 : w64s(NTKSTREAM-1 downto 0)  := (others => (others => '0'));
     signal puppine_stream, puppine_stream360 : w64s(NCALOSTREAM-1 downto 0)  := (others => (others => '0'));
-    signal puppi_read360, puppi_done360, puppi_decode360_warmup, puppi_decode360_start : std_logic := '0';
-    signal puppich_write240, puppine_write240, puppi_read360_start : std_logic_vector(63 downto 0) := (others => '0');
+    signal puppi_read360_start, puppi_read360, puppi_done360, puppi_decode360_warmup, puppi_decode360_start : std_logic := '0';
     signal puppi_read360_count : natural range 0 to PFII-1;
 
     signal puppi_out360 : w64s(NTKSORTED+NCALOSORTED-1 downto 0) := (others => (others => '0'));
@@ -189,9 +187,6 @@ begin
         port map(ap_clk => clk, 
                  ap_rst => rst, 
                  ap_start => '1',
-                 --ap_ready => ready,
-                 --ap_idle =>  idle,
-                 --ap_done => done,
                  tracks_start => regionizer_start,
                  tracks_newevent => newevent,
                  tracks_in_0_0_V => tk_in( 0),
@@ -511,15 +506,13 @@ begin
                      empty    => pf_empty(i));
      end generate gen_pf_cdc;
 
-     pf_read360_delay_start: entity work.bram_delay -- FIXME wasteful BRAM36 for a single bit
-                                                    -- in 240 MHz domain, spend PF latency + 1 
+     pf_read360_delay_start: entity work.bit_delay  -- in 240 MHz domain, spend PF latency + 1 
                                                     --                     + 2*6 for the two CDC 
                                                     --                     + 4 for serial to parallel
                                                     -- in 360 MHz domain, wait for regionizer +
-     generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + 4 + 12 + 3)*3)/2 + 10) -- FIXME overconservative, to be tuned
-           port map(clk => clk, rst => rst, 
-                    d(0) => regionizer_out_warmup,
-                    d(63 downto 1) => (others => '0'), 
+           generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + 4 + 12 + 3)*3)/2 + 10, SHREG => "yes") 
+           port map(clk => clk, enable => '1', 
+                    d => regionizer_out_warmup,
                     q => pf_read360_start);
 
      pf_reader: process(clk)
@@ -528,7 +521,7 @@ begin
              if rst = '1' then
                  pf_decode360_start <= '0';
                  pf_read360 <= '0';
-             elsif pf_read360_start(0) = '1' then
+             elsif pf_read360_start = '1' then
                  if pf_decode360_warmup = '0' then
                      pf_decode360_warmup <= '1';
                      pf_read360 <= '1';
@@ -552,7 +545,7 @@ begin
      pf_unpack: entity work.serial2parallel
                     generic map(NITEMS => NPFTOT, NSTREAM => NPFSTREAM, NREAD => PFII240, NWAIT => PFII-PFII240)
                     port map(ap_clk   => clk,
-                             ap_start => pf_decode360_start, --pf_read360_start(0),
+                             ap_start => pf_decode360_start, 
                              data_in  => pf_stream360,
                              valid_in => (others => '1'),
                              data_out  => pf_out360,
@@ -573,7 +566,7 @@ begin
         end if;
     end process pf2out;
 
-    pf_start <= pf_read360_start(0);
+    pf_start <= pf_read360_start;
     pf_read  <= pf_read360;
 
     vtx_read_delay : entity work.bram_delay
@@ -860,11 +853,10 @@ begin
                      empty    => puppi_empty(i+NTKSTREAM));
      end generate gen_puppine_cdc;
 
-     puppi_read360_delay_start: entity work.bram_delay -- FIXME wasteful BRAM36 for a single bit
-     generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + LATENCY_PUPPINE + 4 + 12 + 3)*3)/2 + 10) -- FIXME overconservative, to be tuned
-           port map(clk => clk, rst => rst, 
-                    d(0) => regionizer_out_warmup,
-                    d(63 downto 1) => (others => '0'), 
+     puppi_read360_delay_start: entity work.bit_delay
+           generic map(DELAY => LATENCY_REGIONIZER + ((LATENCY_PF + LATENCY_PUPPINE + 4 + 12 + 3)*3)/2 + 10, SHREG => "yes")
+           port map(clk => clk, enable => '1', 
+                    d => regionizer_out_warmup,
                     q => puppi_read360_start);
 
      puppi_reader: process(clk)
@@ -873,7 +865,7 @@ begin
              if rst = '1' then
                  puppi_decode360_start <= '0';
                  puppi_read360 <= '0';
-             elsif puppi_read360_start(0) = '1' then
+             elsif puppi_read360_start = '1' then
                  if puppi_decode360_warmup = '0' then
                      puppi_decode360_warmup <= '1';
                      puppi_read360 <= '1';
@@ -913,7 +905,7 @@ begin
                              data_out  => puppi_out360(NCALOSORTED+NTKSORTED-1 downto NTKSORTED),
                              valid_out => open,
                              ap_done   => open);
-     puppi_start <= puppi_read360_start(0);
+     puppi_start <= puppi_read360_start;
      puppi_read  <= puppi_read360;
 
      puppi2out: process(clk)

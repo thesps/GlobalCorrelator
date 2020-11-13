@@ -16,7 +16,7 @@ end testbench;
 
 architecture Behavioral of testbench is
     constant NPATTERNS_IN    : natural := NTKSECTORS*NTKFIBERS + NCALOSECTORS*NCALOFIBERS + NMUFIBERS + 1;
-    constant NREGIONIZER_OUT : natural := NTKSORTED + NCALOSORTED + NMUSORTED;
+    constant NREGIONIZER_OUT : natural := NTKSTREAM + NCALOSTREAM + NMUSTREAM;
     constant NPFTOT   : natural := NTKSORTED + NCALOSORTED + NMUSORTED;
     constant NPUPPICH : natural := NTKSORTED;
     constant NPUPPINE : natural := NCALOSORTED;
@@ -34,7 +34,7 @@ architecture Behavioral of testbench is
     signal links_in:  w64s(NPATTERNS_IN-1 downto 0) := (others => (others => '0'));
     signal valid_in: std_logic_vector(NPATTERNS_IN-1 downto 0) := (others => '0');
 
-    signal regionizer_out: w64s(NTKSORTED + NCALOSORTED + NMUSORTED - 1 downto 0);
+    signal regionizer_out: w64s(NTKSTREAM+NCALOSTREAM+NMUSTREAM-1 downto 0);
     signal regionizer_done, regionizer_valid : STD_LOGIC := '0';
 
     -- PF: 360 MHz stuff
