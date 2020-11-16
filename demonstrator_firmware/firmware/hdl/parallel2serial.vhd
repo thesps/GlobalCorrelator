@@ -38,10 +38,10 @@ begin
                     -- be careful not to go outside of the vector
                     for i in 0 to NSTREAM-1 loop
                         for j in (i+1)*NWRITE-2 downto i*NWRITE loop
-                            if j < NITEMS-2 then
+                            if j < NITEMS-1 then
                                 data(j)  <=  data(j+1);
                                 valid(j) <= valid(j+1);
-                            elsif j < NITEMS-1 then
+                            elsif j < NITEMS then
                                 data (j) <= (others => '0');
                                 valid(j) <= '0';
                             end if;

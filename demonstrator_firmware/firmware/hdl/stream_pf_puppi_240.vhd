@@ -170,6 +170,8 @@ begin
                      puppine_in(NTKSORTED-1 downto 0) <= tk_delay_out; 
                      puppine_in(NTKSORTED)            <= vtx_in; 
                      puppine_in(NTKSORTED+NCALOSORTED downto NTKSORTED+1) <= pf_out_i(NTKSORTED+NCALOSORTED-1 downto NTKSORTED);
+                 else
+                     puppi_start_i <= '0';
                  end if;
              end if;
          end if;

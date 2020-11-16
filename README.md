@@ -114,7 +114,7 @@ This setup runs the streaming regionizer at 360 MHz, transfers the data to the 2
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `stream-cdc-pf-puppi` as argument.
  * The first PF & Puppi outputs arrive at frames 169 and 217 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
- * For a reduced set of inputs (20 tracks, 12 calo) the frames become 162 and 214. 
+ * For a reduced set of inputs (20 tracks, 12 calo) the frames become 162 and 202. 
 
 TODO:
  * Implementation in the EMP framework has routing and timing problems, but completes successfully for small number of inptus (20 track, 12 calo) and with no reset signals.
