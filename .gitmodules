@@ -1,0 +1,6 @@
+[submodule "emp_examples/Layer2/deregionizer/submodules/ruckus"]
+	path = emp_examples/Layer2/deregionizer/submodules/ruckus
+	url = https://github.com/slaclab/ruckus.git
+[submodule "emp_examples/Layer2/deregionizer/submodules/surf"]
+	path = emp_examples/Layer2/deregionizer/submodules/surf
+	url = https://github.com/slaclab/surf.git
