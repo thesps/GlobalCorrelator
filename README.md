@@ -45,6 +45,31 @@ Resource usage (emp framework, payload):
 |---------------|---------------|-------------|------------|---------------|-------------|-------------|----------|--------------|
 |  53698(4.54%) |  53698(4.54%) |    0(0.00%) |   0(0.00%) | 105002(4.44%) |  132(6.11%) |    0(0.00%) | 0(0.00%) |     0(0.00%) |
 
+### PF IP core designs
+
+These are used to test the routing and timing for a single HLS IP core
+
+#### `pf_360`: PF @ 360 MHz
+
+This setup runs the PF block at full 360 MHz.
+ * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_2p2ns_ii6` (which runs `l1pf_hls/run_hls_pfalgo2hgc_2p2ns_II6.tcl`)
+
+TODO:
+ * the design has routing & timing issues, even when running with reduced inputs (20 tracks, 12 calo) and disabling the reset signal (which is a major offender in the timing)
+ * the inputs & outputs are taken from the first N links, while picking them from a suitable set associated to quads in a same SLR would be better
+ * the design is importing the IP core VHDL files directly instead of importing the core itself
+
+#### `pf_240`: PF @ 240 MHz
+
+This setup runs the PF block at 240 MHz by using dual-clock BRAM FIFOs to bridge the 360 to 240 MHz clock domains 
+ * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_3ns_ii4` (which runs `l1pf_hls/run_hls_pfalgo2hgc_3ns_II4.tcl`)
+
+TODO:
+ * the design has routing & timing challenges, but it does succeeed with reduced inputs (20 tracks, 12 calo) and disabling the reset signal)
+ * the inputs & outputs are taken from the first N links, while picking them from a suitable set associated to quads in a same SLR would be better
+ * the design is importing the IP core VHDL files directly instead of importing the core itself
+
+
 ### Layer-1 designs
 
 #### `regionizer_mux_pf`: `regionizer_mux` + PF@360
@@ -68,12 +93,13 @@ This setup runs the mux regionizer + the PF and Puppi at 360 MHz with II=6 (same
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `mux-pf-puppi` as argument.
  * The first PF & Puppi outputs arrive at frames 110 and 168 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
+ * For a reduced set of inputs (20 tracks, 12 calo) the frames become 105 and 152 for PF and puppi
  
 
 TODO:
- * Implementation in the EMP framework still pending, and anyway for the moment we don't expect it to meet timing
+ * Implementation in the EMP framework has routing and timing problems
  * The design is somewhat wasteful in terms of resources for delaying the tracks & PV for puppi: it's using one BRAM36 for each track while in principle one could just use NTRACKS / II BRAMs, and uses a full BRAM36 for the PV Z where a BRAM18 would have been sufficient
- * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core, so it may break if anything changes in the synthesis. It was tested only in Vivado 2018.3.
+ * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core
 
 #### `regionizer_stream_cdc_pf_puppi`: `regionizer_stream` +  PF@240 + Puppi@240
 
@@ -88,12 +114,13 @@ This setup runs the streaming regionizer at 360 MHz, transfers the data to the 2
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `stream-cdc-pf-puppi` as argument.
  * The first PF & Puppi outputs arrive at frames 169 and 217 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
+ * For a reduced set of inputs (20 tracks, 12 calo) the frames become 162 and 214. 
 
 TODO:
- * Implementation in the EMP framework still pending
+ * Implementation in the EMP framework has routing and timing problems, but completes successfully for small number of inptus (20 track, 12 calo) and with no reset signals.
  * The design is somewhat wasteful in terms of resources for delaying objects (BRAM36s are used in all places, also when BRAM18 or shift registers would do)
  * The parallel FIFOs importing data in the 240 MHz are assumed to be all in phase, and so the 240 MHz processing starts as soon as one FIFO becomes readable. It may be safer to wait until all FIFOs are non-empty before staring to read.
- * There's a lot of code duplication for the various CDCs and serial to parallel transitions, and proably redundant clock cycle counters.
- * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core, so it may break if anything changes in the synthesis. It was tested only in Vivado 2018.3.
+ * There's a lot of code duplication for the various CDCs and serial to parallel transitions.
+ * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core.
 
 

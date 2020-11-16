@@ -1,0 +1,17 @@
+# project-specific
+src -c multififo_regionizer:vhdl regionizer_data.vhd
+src pf_block_wrapper.vhd
+src word_delay.vhd
+src parallel2serial.vhd
+src serial2parallel.vhd
+src emp_payload_pf_360.vhd
+
+include -c ip_cores_firmware:pfHGCal_2p2ns_ii6 top.dep 
+
+src --cd ../ucf pblocks.tcl
+
+# generic
+addrtab -c emp-fwk:components/payload emp_payload.xml
+src -c emp-fwk:components/payload ../ucf/emp_simple_payload.tcl
+include -c emp-fwk:boards/vcu118
+src emp_project_decl.vhd
