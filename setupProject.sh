@@ -35,6 +35,7 @@ else
         pushd src 
             ln -sd ../../l1pf_hls/multififo_regionizer .
             ln -sd ../../demonstrator_firmware .
+            ln -sd ../../ip_cores_firmware .
         popd
     popd
 fi
