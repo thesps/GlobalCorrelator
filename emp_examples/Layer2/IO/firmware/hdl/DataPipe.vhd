@@ -1,1 +1,1 @@
-../../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/DataPipe.vhd
+../../../../../../RuflCore/firmware/hdl/ReuseableElements/DataPipe.vhd

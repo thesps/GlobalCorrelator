@@ -1,1 +1,1 @@
-../../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PkgArrayTypes.vhd
+../../../../../../RuflCore/firmware/hdl/ReuseableElements/PkgArrayTypes.vhd

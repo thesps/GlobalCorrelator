@@ -1,1 +1,1 @@
-../../../../../../HGC-firmware/projects/Common/firmware/hdl/ReuseableElements/PairReduceMax.vhd
+../../../../../../RuflCore/firmware/hdl/ReuseableElements/PairReduceMax.vhd
