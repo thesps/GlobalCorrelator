@@ -63,9 +63,9 @@ begin
 
     ipb_out <= IPB_RBUS_NULL;
 
-    export_rst240: process(clk_payload(2))
+    export_rst240: process(clk_payload(0))
     begin
-        if rising_edge(clk_payload(2)) then
+        if rising_edge(clk_payload(0)) then
             rst240_u <= rst_loc(0);
             rst240_chain(RST_CHAIN_DELAY) <= rst240_u;
             rst240_chain(RST_CHAIN_DELAY-1 downto 0) <= rst240_chain(RST_CHAIN_DELAY downto 1);
@@ -106,7 +106,7 @@ begin
 
     gen_pf_in_cdc: for i in 0 to NPFSTREAM-1 generate
         pf_in_cdc: entity work.cdc_bram_fifo
-            port map(clk_in => clk_p, clk_out => clk_payload(2), rst_in => rst_loc(0),
+            port map(clk_in => clk_p, clk_out => clk_payload(0), rst_in => rst_loc(0),
                      data_in  => pf_in_stream(i),
                      wr_en    => pf_in_write,
                      data_out => pf_in240_stream(i),
@@ -116,7 +116,7 @@ begin
 
     pf_unpack: entity work.serial2parallel
             generic map(NITEMS => NPFTOT, NSTREAM => NPFSTREAM, NREAD => PFII)
-            port map(ap_clk   => clk_payload(2),
+            port map(ap_clk   => clk_payload(0),
                      ap_start => pf_in240_err_stream(0), 
                      data_in  => pf_in240_stream,
                      valid_in => (others => '1'),
@@ -126,7 +126,7 @@ begin
                      );
 
     pfblock : entity work.pf_block
-        port map(ap_clk   => clk_payload(2), 
+        port map(ap_clk   => clk_payload(0), 
                  ap_rst   => '0', --rst240, 
                  ap_start => pf_start,
                  ap_done  => pf_done,
@@ -136,7 +136,7 @@ begin
 
     pf_streamer : entity work.parallel2serial
                 generic map(NITEMS => NPFTOT, NSTREAM => NPFSTREAM)
-                port map( ap_clk => clk_payload(2),
+                port map( ap_clk => clk_payload(0),
                           roll   => pf_done,
                           data_in  => pf_out,
                           valid_in => (others => '1'),
@@ -144,9 +144,9 @@ begin
                           valid_out => open,
                           roll_out  => pf_serialized);
 
-    pf_write : process(clk_payload(2))
+    pf_write : process(clk_payload(0))
     begin
-        if rising_edge(clk_payload(2)) then
+        if rising_edge(clk_payload(0)) then
             if pf_serialized = '1' then
                 pf_out_write <= '1';
             end if;
@@ -156,7 +156,7 @@ begin
 
     gen_pf_out_cdc: for i in 0 to NPFSTREAM-1 generate
         pf_out_cdc: entity work.cdc_bram_fifo
-            port map(clk_in => clk_payload(2), clk_out => clk_p, rst_in => '0', --rst240,
+            port map(clk_in => clk_payload(0), clk_out => clk_p, rst_in => '0', --rst240,
                      data_in  => pf_towrite240(i),
                      data_out => pf_out_stream(i),
                      wr_en    => pf_out_write,

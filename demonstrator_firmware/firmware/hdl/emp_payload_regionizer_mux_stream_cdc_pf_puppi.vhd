@@ -82,9 +82,9 @@ begin
 
     ipb_out <= IPB_RBUS_NULL;
 
-    export_rst240: process(clk_payload(2))
+    export_rst240: process(clk_payload(0))
     begin
-        if rising_edge(clk_payload(2)) then
+        if rising_edge(clk_payload(0)) then
             rst240_u <= rst_loc(0);
             rst240_chain(RST_CHAIN_DELAY) <= rst240_u;
             rst240_chain(RST_CHAIN_DELAY-1 downto 0) <= rst240_chain(RST_CHAIN_DELAY downto 1);
@@ -94,7 +94,7 @@ begin
 
 
     algo_payload : entity work.regionizer_mux_stream_cdc_pf_puppi
-        port map(clk => clk_p, clk240 => clk_payload(2), 
+        port map(clk => clk_p, clk240 => clk_payload(0), 
                  rst => '0', --rst_loc(0), 
                  rst240 => '0', --rst240, 
                  links_in => links_in,
