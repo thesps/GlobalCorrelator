@@ -54,5 +54,13 @@ case $core in
         cp -v l1pf_hls/multififo_regionizer/tdemux/project/solution/impl/vhdl/* ip_cores_firmware/$core/firmware/hdl/ &&
         (cd ip_cores_firmware/$core/firmware/hdl && ls -1 ) | sed 's/^/src /' | tee ip_cores_firmware/$core/firmware/cfg/top.dep;
         ;;
-
+    unpackers)
+        test -d ip_cores_firmware/$core && rm -r ip_cores_firmware/$core 2> /dev/null;
+        mkdir -p ip_cores_firmware/$core/firmware/{hdl,cfg} &&
+        pushd l1pf_hls/multififo_regionizer &&
+            (test -d project_unpack_hgcal_3to1 && test -d project_unpack_mu_3to12 && test -d project_unpack_track_3to2 || vivado_hls -f run_hls_unpackers.tcl) &&
+            popd &&
+        cp -v l1pf_hls/multififo_regionizer/project_unpack_{hgcal_3to1,track_3to2,mu_3to12}/solution/impl/vhdl/* ip_cores_firmware/$core/firmware/hdl/ &&
+        (cd ip_cores_firmware/$core/firmware/hdl && ls -1 ) | sed 's/^/src /' | tee ip_cores_firmware/$core/firmware/cfg/top.dep;
+        ;;
 esac;

@@ -63,9 +63,16 @@ TODO:
 
 This setup runs the PF block at 240 MHz by using dual-clock BRAM FIFOs to bridge the 360 to 240 MHz clock domains 
  * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_3ns_ii4` (which runs `l1pf_hls/run_hls_pfalgo2hgc_3ns_II4.tcl`)
+ * the design has routing & timing challenges, but it does succeeed when tying the reset signal to zero
+
+Resource usage (emp framework, pf block only):
+| Tk/Calo/Mu |   Total LUTs   |   Logic LUTs   |       FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks  |
+|------------|----------------|----------------|----------------|-------------|-------------|----------|---------------|
+|  20/12/4   |  55768( 4.72%) |  51956( 4.39%) |   54380(2.30%) |    0(0.00%) |    3(0.07%) | 0(0.00%) |   312( 4.56%) |
+|  30/20/4   | 127499(10.78%) | 119017(10.07%) |  117915(4.99%) |    0(0.00%) |    0(0.00%) | 0(0.00%) |   710(10.38%) |
+
 
 TODO:
- * the design has routing & timing challenges, but it does succeeed with reduced inputs (20 tracks, 12 calo) and disabling the reset signal)
  * the inputs & outputs are taken from the first N links, while picking them from a suitable set associated to quads in a same SLR would be better
  * the design is importing the IP core VHDL files directly instead of importing the core itself
 
@@ -109,12 +116,16 @@ This setup runs the streaming regionizer at 360 MHz, transfers the data to the 2
  * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_3ns_ii4` and `make_hls_cores.sh puppiHGCal_3ns_ii4`, which run `l1pf_hls/run_hls_pfalgo2hgc_3ns_II4.tcl` and `l1pf_hls/puppi/run_hls_linpuppi_hgcal_3ns_II4.tcl`
  * clock domain crossings are done with dual-clock BRAM36 used in native FIFO mode.
  * the reading of the output in the 360 MHz domain is synchronized to a delayed version of the start of writing inputs from the 360 MHz domain, so that the latency in the 360 MHz domain is fixed irrespectively of the phase between the two clocks and the time it takes to make the two clock domain crossings. The price for this is that the design is conservative on the latency, potentially waits a bit more before starting to read the outputs.
- * inputs and outputs in the 240 MHz clock domain are also provided for debugging in the testbench
-
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `stream-cdc-pf-puppi` as argument.
  * The first PF & Puppi outputs arrive at frames 169 and 217 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
  * For a reduced set of inputs (20 tracks, 12 calo) the frames become 162 and 202. 
+
+Resource usage (emp framework, payload):
+|  Tk/Calo/Mu  |   Total LUTs   |   Logic LUTs   |   LUTRAMs   |     SRLs    |       FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
+|--------------|----------------|----------------|-------------|-------------|----------------|-------------|-------------|----------|--------------|
+|  30/20/4     | 245570(20.77%) | 236304(19.99%) |    0(0.00%) | 9266(1.57%) | 372574(15.76%) |  204(9.44%) |   10(0.23%) | 0(0.00%) | 1220(17.84%) |
+|  20/12/4     | 124651(10.54%) | 120494(10.19%) |    0(0.00%) | 4157(0.70%) |  216147(9.14%) |  179(8.29%) |    9(0.21%) | 0(0.00%) |   530(7.75%) |
 
 TODO:
  * Implementation in the EMP framework has routing and timing problems, but completes successfully for small number of inptus (20 track, 12 calo) and with no reset signals.
