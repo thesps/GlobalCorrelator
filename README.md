@@ -135,3 +135,23 @@ TODO:
  * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core.
 
 
+#### `tdemux_regionizer_cdc_pf_puppi`: time demultiplexer + trivial decoder + `regionizer_stream` +  PF@240 + Puppi@240
+
+This setup starts from `regionizer_stream_cdc_pf_puppi` and makes the inputs more realistic:
+ * tracks come at TMUX 18 with 1 fiber per sector per time slice, and 3 input times slices (T0, T0+6, T0+12). Track objects are 96 bit long.
+ * hgcal comes at TMUX 18 with 4 fiber per sector per time slice, and 3 input times slices (T0, T0+6, T0+12). Calo objects are 128 bit long, and arrive at 16 G so with 1 null word after 2 valid ones.
+ * muons come at TMUX 18 with 1 fiber per time slice and 3 input time slices  (T0, T0+6, T0+12). Muons are 128 bit long.
+In all cases the "longer" objects are made just by padding our existing 64 bit objecs with zeros so the decoding to 64 bit is trivial, but the decoding is anyway performed with an HLS IP core so a more complex version of it should be straightfoward to use.
+
+Compared to `regionizer_stream_cdc_pf_puppi` : 
+ * the EMP input pattern files can be generated with `l1pf_hls/multififo_regionizer/run_hls_csim_pf_puppi_tm18.tcl`
+ * this needs additional IP cores that can be build with `make_hls_cores.sh tdemux` and `make_hls_cores.sh unpackers`.
+
+A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `tdemux-stream-cdc-pf-puppi` as argument.
+ * For a reduced set of inputs (20 tracks, 12 calo), the only setup tested so far, the first PF & Puppi outputs arrive at frames 274 and 314 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). 
+
+
+TODO:
+ * Implementation in the EMP framework is pending
+
+
