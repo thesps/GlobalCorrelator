@@ -44,9 +44,6 @@ architecture Behavioral of testbench is
     signal links_in:  w64s(NPATTERNS_IN-1 downto 0) := (others => (others => '0'));
     signal valid_in: std_logic_vector(NPATTERNS_IN-1 downto 0) := (others => '0');
 
-    signal demuxed_out : w64s(NTKSECTORS*TDEMUX_FACTOR*TDEMUX_NTKFIBERS+NCALOSECTORS*TDEMUX_FACTOR*TDEMUX_NCALOFIBERS+TDEMUX_FACTOR*TDEMUX_NMUFIBERS-1 downto 0);
-    signal demuxed_vld : std_logic_vector(NTKSECTORS*TDEMUX_FACTOR*TDEMUX_NTKFIBERS+NCALOSECTORS*TDEMUX_FACTOR*TDEMUX_NCALOFIBERS+TDEMUX_FACTOR*TDEMUX_NMUFIBERS-1 downto 0);
-
     signal regionizer_out: w64s(NTKSTREAM+NCALOSTREAM+NMUSTREAM-1 downto 0);
     signal regionizer_done, regionizer_valid : STD_LOGIC := '0';
 
@@ -61,7 +58,6 @@ architecture Behavioral of testbench is
     signal puppi_empty : STD_LOGIC_VECTOR(NTKSTREAM+NCALOSTREAM-1 downto 0);
 
     file Fi : text open read_mode  is "input-emp.txt";
-    file Fo_dmux   : text open write_mode is "output-emp-demuxed-vhdl_tb.txt";
     file Fo_reg   : text open write_mode is "output-emp-regionized-vhdl_tb.txt";
     file Fo_pf    : text open write_mode is "output-emp-pf-vhdl_tb.txt";
     file Fo_puppi : text open write_mode is "output-emp-puppi-vhdl_tb.txt";
@@ -107,9 +103,6 @@ begin
                  mu_valid_in => valid_in(IPATTERN_MU_END downto IPATTERN_MU_START),
                  vtx_link_in => links_in(IPATTERN_PV),
                  vtx_valid_in => valid_in(IPATTERN_PV),
-
-                 demuxed_out => demuxed_out,
-                 demuxed_vld => demuxed_vld,
 
                  regionizer_out => regionizer_out,
                  regionizer_done => regionizer_done,
@@ -178,10 +171,6 @@ begin
                                      4=>puppi_done, 0=>puppi_valid, others => '0');
             v_puppi_out(NPUPPI)(NTKSTREAM+NCALOSTREAM+15 downto 16) := puppi_empty;
             write_pattern_frame(Fo_puppi, frame, v_puppi_out, v_puppi_out_valid);
-            ----
-            v_demuxed_out := demuxed_out;
-            v_demuxed_vld := demuxed_vld;
-            write_pattern_frame(Fo_dmux, frame, v_demuxed_out, v_demuxed_vld);
             ----
             frame := frame + 1;
         end loop;

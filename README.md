@@ -139,6 +139,6 @@ A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run w
 
 
 TODO:
- * Implementation in the EMP framework is pending
+ * Implementation in the EMP framework is not tested
 
 
