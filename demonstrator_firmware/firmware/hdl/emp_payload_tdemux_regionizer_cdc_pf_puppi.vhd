@@ -105,7 +105,7 @@ begin
     end process export_rst240;
 
 
-    algo_payload : entity work.tdemux_regionizer_mux_stream_cdc_pf_puppi
+    algo_payload : entity work.tdemux_regionizer_cdc_pf_puppi
         port map(clk => clk_p, clk240 => clk_payload(0), 
                  rst => '0', --rst_loc(0), 
                  rst240 => '0', --rst240, 
