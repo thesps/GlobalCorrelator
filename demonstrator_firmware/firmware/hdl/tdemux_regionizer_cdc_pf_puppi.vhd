@@ -57,30 +57,9 @@ architecture Behavioral of tdemux_regionizer_cdc_pf_puppi is
     constant LATENCY_PF      : natural := 27; -- at 240 MHz
     constant LATENCY_PUPPINE : natural := 27; -- at 240 MHz
     constant LATENCY_PUPPICH : natural :=  1; -- at 240 MHz
-    constant LATENCY_REGIONIZER : natural := 54+10;
+    constant LATENCY_REGIONIZER : natural := 54+11;
 
-
-    signal tk_tmux,   tk_tdemux:   w65s(NTKSECTORS*TDEMUX_FACTOR*TDEMUX_NTKFIBERS-1 downto 0) := (others => (others => '0'));
-    signal calo_tmux, calo_tdemux: w65s(NCALOSECTORS*TDEMUX_FACTOR*TDEMUX_NCALOFIBERS-1 downto 0) := (others => (others => '0'));
-    signal mu_tmux,   mu_tdemux:   w65s(TDEMUX_FACTOR*TDEMUX_NMUFIBERS-1 downto 0) := (others => (others => '0'));
-    signal tk_tmux_isinit, tk_tmux_init, tk_tdemux_return, tk_tdemux_done : std_logic_vector(NTKSECTORS*TDEMUX_NTKFIBERS-1 downto 0) := (others => '0');
-    signal calo_tmux_isinit, calo_tmux_init, calo_tdemux_return, calo_tdemux_done : std_logic_vector(NCALOSECTORS*TDEMUX_NCALOFIBERS-1 downto 0) := (others => '0');
-    signal mu_tmux_isinit, mu_tmux_init, mu_tdemux_return, mu_tdemux_done   : std_logic_vector(TDEMUX_NMUFIBERS-1 downto 0) := (others => '0');
-    signal tk_tdemux_valid   : std_logic_vector(NTKSECTORS*TDEMUX_FACTOR*TDEMUX_NTKFIBERS-1 downto 0) := (others => '0');
-    signal calo_tdemux_valid : std_logic_vector(NCALOSECTORS*TDEMUX_FACTOR*TDEMUX_NCALOFIBERS-1 downto 0) := (others => '0');
-    signal mu_tdemux_valid   : std_logic_vector(TDEMUX_FACTOR*TDEMUX_NMUFIBERS-1 downto 0) := (others => '0');
-
-    signal input_was_valid, regionizer_start, newevent, newevent_out : std_logic := '0';
-
-    signal tk_unpack,   tk_in:  w64s(NTKSECTORS*NTKFIBERS-1 downto 0) := (others => (others => '0'));
-    signal calo_unpack, calo_in:  w64s(NCALOSECTORS*NCALOFIBERS-1 downto 0) := (others => (others => '0'));
-    signal mu_unpack,   mu_in:  w64s(NMUFIBERS-1 downto 0) := (others => (others => '0'));
-    signal tk_unpack_valid:  std_logic_vector(NTKSECTORS*NTKFIBERS-1 downto 0) := (others => '0');
-    signal calo_unpack_valid:  std_logic_vector(NCALOSECTORS*NCALOFIBERS-1 downto 0) := (others => '0');
-    signal mu_unpack_valid:  std_logic_vector(NMUFIBERS-1 downto 0) := (others => '0');
-    signal tk_unpack_done:  std_logic_vector(NTKSECTORS-1 downto 0) := (others => '0');
-    signal calo_unpack_done:  std_logic_vector(NCALOSECTORS*NCALOFIBERS-1 downto 0) := (others => '0');
-    signal mu_unpack_done:  std_logic_vector(TDEMUX_NMUFIBERS-1 downto 0) := (others => '0');
+    signal tk_newevent_out, calo_newevent_out, mu_newevent_out : std_logic := '0';
 
     signal tk_out,   tk_in240,   tk_out240:   w64s(NTKSTREAM-1 downto 0) := (others => (others => '0'));
     signal calo_out, calo_in240, calo_out240: w64s(NCALOSTREAM-1 downto 0) := (others => (others => '0'));
@@ -121,211 +100,33 @@ architecture Behavioral of tdemux_regionizer_cdc_pf_puppi is
     signal vtx_count360 : natural range 0 to NCLK_WRITE360-1 := 0;
 begin
 
-    tmux_input_links: process(clk)
-    begin
-        if rising_edge(clk) then
-            for i in 0 to NTKSECTORS*TDEMUX_NTKFIBERS-1 loop
-                for j in 0 to TDEMUX_FACTOR-1 loop
-                    tk_tmux(TDEMUX_FACTOR*i+j)(63 downto 0) <= tk_links_in(TDEMUX_FACTOR*i+j);
-                    tk_tmux(TDEMUX_FACTOR*i+j)(64)          <= tk_valid_in(TDEMUX_FACTOR*i+j);
-                end loop;
-                if rst = '1' then
-                    tk_tmux_isinit(i) <= '0';
-                    tk_tmux_init(i)   <= '0';
-                elsif tk_valid_in(TDEMUX_FACTOR*i) = '1' then
-                    tk_tmux_isinit(i) <= '1';
-                    tk_tmux_init(i)   <= not tk_tmux_isinit(i);
-                else
-                    tk_tmux_init(i)   <= '0';
-                end if;
-            end loop;
-            for i in 0 to NCALOSECTORS*TDEMUX_NCALOFIBERS-1 loop
-                for j in 0 to TDEMUX_FACTOR-1 loop
-                    calo_tmux(TDEMUX_FACTOR*i+j)(63 downto 0) <= calo_links_in(TDEMUX_FACTOR*i+j);
-                    calo_tmux(TDEMUX_FACTOR*i+j)(64)          <= calo_valid_in(TDEMUX_FACTOR*i+j);
-                end loop;
-                if rst = '1' then
-                    calo_tmux_isinit(i) <= '0';
-                    calo_tmux_init(i)   <= '0';
-                elsif calo_valid_in(TDEMUX_FACTOR*i) = '1' then
-                    calo_tmux_isinit(i) <= '1';
-                    calo_tmux_init(i)   <= not calo_tmux_isinit(i);
-                else
-                    calo_tmux_init(i)   <= '0';
-                end if;
-            end loop;
-            for i in 0 to TDEMUX_NMUFIBERS-1 loop
-                for j in 0 to TDEMUX_FACTOR-1 loop
-                    mu_tmux(TDEMUX_FACTOR*i+j)(63 downto 0) <= mu_links_in(TDEMUX_FACTOR*i+j);
-                    mu_tmux(TDEMUX_FACTOR*i+j)(64)          <= mu_valid_in(TDEMUX_FACTOR*i+j);
-                end loop;
-                if rst = '1' then
-                    mu_tmux_isinit(i) <= '0';
-                    mu_tmux_init(i)   <= '0';
-                elsif mu_valid_in(TDEMUX_FACTOR*i) = '1' then
-                    mu_tmux_isinit(i) <= '1';
-                    mu_tmux_init(i)   <= not mu_tmux_isinit(i);
-                else
-                    mu_tmux_init(i)   <= '0';
-                end if;
-            end loop;
-        end if;
-    end process tmux_input_links;
+    tk_tdemux_decode_regionizer : entity work.tracker_tdemux_decode_regionizer
+                   port map(
+                        clk => clk,
+                        rst => rst,
+                        links_in => tk_links_in,
+                        valid_in => tk_valid_in,
+                        tk_out => tk_out,
+                        newevent_out => tk_newevent_out);
 
-    gen_tk_tdemux: for i in 0 to NTKSECTORS*TDEMUX_NTKFIBERS-1 generate
-        tk_tdemuxer : entity work.tdemux
-                        port map(    ap_clk => clk,
-                                     ap_rst => '0',
-                                     ap_start => '1',
-                                     ap_done => tk_tdemux_done(i),
-                                     ap_idle => open,
-                                     ap_ready => open,
-                                     newEvent => tk_tmux_init(i),
-                                     links_0_V => tk_tmux(TDEMUX_FACTOR*i+0),
-                                     links_1_V => tk_tmux(TDEMUX_FACTOR*i+1),
-                                     links_2_V => tk_tmux(TDEMUX_FACTOR*i+2),
-                                     out_0_V => tk_tdemux(TDEMUX_FACTOR*i+0),
-                                     out_1_V => tk_tdemux(TDEMUX_FACTOR*i+1),
-                                     out_2_V => tk_tdemux(TDEMUX_FACTOR*i+2),
-                                     ap_return(0) => tk_tdemux_return(i));
-              gen_tk_demux_valid: for j in 0 to TDEMUX_FACTOR-1 generate
-                    tk_tdemux_valid(TDEMUX_FACTOR*i+j) <= tk_tdemux_done(i) and tk_tdemux_return(i) and tk_tdemux(TDEMUX_FACTOR*i+j)(64);
-              end generate gen_tk_demux_valid;
-        end generate gen_tk_tdemux;
+    calo_tdemux_decode_regionizer : entity work.hgcal_tdemux_decode_regionizer
+                   port map(
+                        clk => clk,
+                        rst => rst,
+                        links_in => calo_links_in,
+                        valid_in => calo_valid_in,
+                        calo_out => calo_out,
+                        newevent_out => calo_newevent_out);
 
-    gen_calo_tdemux: for i in 0 to NCALOSECTORS*TDEMUX_NCALOFIBERS-1 generate
-        calo_tdemuxer : entity work.tdemux
-                        port map(    ap_clk => clk,
-                                     ap_rst => '0',
-                                     ap_start => '1',
-                                     ap_done => calo_tdemux_done(i),
-                                     ap_idle => open,
-                                     ap_ready => open,
-                                     newEvent => calo_tmux_init(i),
-                                     links_0_V => calo_tmux(TDEMUX_FACTOR*i+0),
-                                     links_1_V => calo_tmux(TDEMUX_FACTOR*i+1),
-                                     links_2_V => calo_tmux(TDEMUX_FACTOR*i+2),
-                                     out_0_V => calo_tdemux(TDEMUX_FACTOR*i+0),
-                                     out_1_V => calo_tdemux(TDEMUX_FACTOR*i+1),
-                                     out_2_V => calo_tdemux(TDEMUX_FACTOR*i+2),
-                                     ap_return(0) => calo_tdemux_return(i));
-              gen_calo_demux_valid: for j in 0 to TDEMUX_FACTOR-1 generate
-                    calo_tdemux_valid(TDEMUX_FACTOR*i+j) <= calo_tdemux_done(i) and calo_tdemux_return(i) and calo_tdemux(TDEMUX_FACTOR*i+j)(64);
-              end generate gen_calo_demux_valid;
-        end generate gen_calo_tdemux;
-
-
-    gen_mu_tdemux: for i in 0 to TDEMUX_NMUFIBERS-1 generate
-        mu_tdemuxer : entity work.tdemux
-                        port map(    ap_clk => clk,
-                                     ap_rst => '0',
-                                     ap_start => '1',
-                                     ap_done => mu_tdemux_done(i),
-                                     ap_idle => open,
-                                     ap_ready => open,
-                                     newEvent => mu_tmux_init(i),
-                                     links_0_V => mu_tmux(TDEMUX_FACTOR*i+0),
-                                     links_1_V => mu_tmux(TDEMUX_FACTOR*i+1),
-                                     links_2_V => mu_tmux(TDEMUX_FACTOR*i+2),
-                                     out_0_V => mu_tdemux(TDEMUX_FACTOR*i+0),
-                                     out_1_V => mu_tdemux(TDEMUX_FACTOR*i+1),
-                                     out_2_V => mu_tdemux(TDEMUX_FACTOR*i+2),
-                                     ap_return(0) => mu_tdemux_return(i));
-              gen_mu_demux_valid: for j in 0 to TDEMUX_FACTOR-1 generate
-                    mu_tdemux_valid(TDEMUX_FACTOR*i+j) <= mu_tdemux_done(i) and mu_tdemux_return(i) and mu_tdemux(TDEMUX_FACTOR*i+j)(64);
-              end generate gen_mu_demux_valid;
-        end generate gen_mu_tdemux;
-
-        echo_tk_demux: for i in 0 to TDEMUX_FACTOR*NTKSECTORS*TDEMUX_NTKFIBERS-1 generate
-            demuxed_out(i) <= tk_tdemux(i)(63 downto 0);
-            demuxed_vld(i) <= tk_tdemux_valid(i);
-        end generate;
-        echo_calo_demux: for i in 0 to TDEMUX_FACTOR*NCALOSECTORS*TDEMUX_NCALOFIBERS-1 generate
-            demuxed_out(TDEMUX_FACTOR*NTKSECTORS*TDEMUX_NTKFIBERS+i) <= calo_tdemux(i)(63 downto 0);
-            demuxed_vld(TDEMUX_FACTOR*NTKSECTORS*TDEMUX_NTKFIBERS+i) <= calo_tdemux_valid(i);
-        end generate;
-        echo_mu_demux: for i in 0 to TDEMUX_FACTOR*TDEMUX_NMUFIBERS-1 generate
-            demuxed_out(TDEMUX_FACTOR*(NTKSECTORS*TDEMUX_NTKFIBERS+NCALOSECTORS*TDEMUX_NCALOFIBERS)+i) <= mu_tdemux(i)(63 downto 0);
-            demuxed_vld(TDEMUX_FACTOR*(NTKSECTORS*TDEMUX_NTKFIBERS+NCALOSECTORS*TDEMUX_NCALOFIBERS)+i) <= mu_tdemux_valid(i);
-        end generate;
-
-    gen_tk_unpack: for i in 0 to NTKSECTORS-1 generate
-        tk_unpacker : entity work.unpack_track_3to2
-                        port map(    ap_clk => clk,
-                                     ap_rst => '0',
-                                     ap_start => '1',
-                                     ap_done => tk_unpack_done(i),
-                                     ap_idle => open,
-                                     ap_ready => open,
-                                     in1_V     => tk_tdemux(TDEMUX_FACTOR*i+0)(63 downto 0),
-                                     in2_V     => tk_tdemux(TDEMUX_FACTOR*i+1)(63 downto 0),
-                                     in3_V     => tk_tdemux(TDEMUX_FACTOR*i+2)(63 downto 0),
-                                     in1_valid => tk_tdemux_valid(TDEMUX_FACTOR*i+0),
-                                     in2_valid => tk_tdemux_valid(TDEMUX_FACTOR*i+1),
-                                     in3_valid => tk_tdemux_valid(TDEMUX_FACTOR*i+2),
-                                     out1_V => tk_unpack(NTKFIBERS*i+0),
-                                     out2_V => tk_unpack(NTKFIBERS*i+1),
-                                     out1_valid => tk_unpack_valid(NTKFIBERS*i+0),
-                                     out2_valid => tk_unpack_valid(NTKFIBERS*i+1));
-        end generate gen_tk_unpack;
-
-    gen_calo_unpack: for i in 0 to NCALOSECTORS*NCALOFIBERS-1 generate
-        calo_unpacker : entity work.unpack_hgcal_3to1
-                        port map(    ap_clk => clk,
-                                     ap_rst => '0',
-                                     ap_start => '1',
-                                     ap_done => calo_unpack_done(i),
-                                     ap_idle => open,
-                                     ap_ready => open,
-                                     in1_V     => calo_tdemux(TDEMUX_FACTOR*i+0)(63 downto 0),
-                                     in2_V     => calo_tdemux(TDEMUX_FACTOR*i+1)(63 downto 0),
-                                     in3_V     => calo_tdemux(TDEMUX_FACTOR*i+2)(63 downto 0),
-                                     in1_valid => calo_tdemux_valid(TDEMUX_FACTOR*i+0),
-                                     in2_valid => calo_tdemux_valid(TDEMUX_FACTOR*i+1),
-                                     in3_valid => calo_tdemux_valid(TDEMUX_FACTOR*i+2),
-                                     out1_V     => calo_unpack(i),
-                                     out1_valid => calo_unpack_valid(i));
-        end generate gen_calo_unpack;
-
-    gen_mu_unpack: for i in 0 to TDEMUX_NMUFIBERS-1 generate
-        mu_unpacker : entity work.unpack_mu_3to12
-                        port map(    ap_clk => clk,
-                                     ap_rst => '0',
-                                     ap_start => '1',
-                                     ap_done => mu_unpack_done(i),
-                                     ap_idle => open,
-                                     ap_ready => open,
-                                     in1_V     => mu_tdemux(TDEMUX_FACTOR*i+0)(63 downto 0),
-                                     in2_V     => mu_tdemux(TDEMUX_FACTOR*i+1)(63 downto 0),
-                                     in3_V     => mu_tdemux(TDEMUX_FACTOR*i+2)(63 downto 0),
-                                     in1_valid => mu_tdemux_valid(TDEMUX_FACTOR*i+0),
-                                     in2_valid => mu_tdemux_valid(TDEMUX_FACTOR*i+1),
-                                     in3_valid => mu_tdemux_valid(TDEMUX_FACTOR*i+2),
-                                     out1_V => mu_unpack(NMUFIBERS*i+0),
-                                     out2_V => mu_unpack(NMUFIBERS*i+1),
-                                     out1_valid => mu_unpack_valid(NMUFIBERS*i+0),
-                                     out2_valid => mu_unpack_valid(NMUFIBERS*i+1));
-        end generate gen_mu_unpack;
-        
-    input_links: process(clk)
-    begin
-        if rising_edge(clk) then
-            -- for these we put some reset logic
-            if rst = '1' then
-                input_was_valid  <= '0';
-                regionizer_start <= '0';
-            else
-                input_was_valid  <=  tk_unpack_done(0) and tk_unpack_valid(0);
-                regionizer_start <= (tk_unpack_done(0) and tk_unpack_valid(0)) or input_was_valid;
-            end if;
-            -- these run anyway
-            newevent <= (tk_unpack_done(0) and tk_unpack_valid(0)) and not(input_was_valid);
-            tk_in <= tk_unpack;
-            calo_in <= calo_unpack;
-            mu_in <= mu_unpack;
-        end if;
-    end process input_links;
-
+    mu_tdemux_decode_regionizer : entity work.muon_tdemux_decode_regionizer
+                   generic map(MU_ETA_CENTER => 460)
+                   port map(
+                        clk => clk,
+                        rst => rst,
+                        links_in => mu_links_in,
+                        valid_in => mu_valid_in,
+                        mu_out => mu_out,
+                        newevent_out => mu_newevent_out);
 
     input_link_pv: process(clk)
     begin
@@ -353,55 +154,6 @@ begin
         end if;
     end process input_link_pv;
 
-    regionizer : entity work.full_regionizer_mux_stream
-        generic map(MU_ETA_CENTER => 460)
-        port map(ap_clk => clk, 
-                 ap_rst => rst, 
-                 ap_start => '1',
-                 tracks_start => regionizer_start,
-                 tracks_newevent => newevent,
-                 tracks_in_0_0_V => tk_in( 0),
-                 tracks_in_0_1_V => tk_in( 1),
-                 tracks_in_1_0_V => tk_in( 2),
-                 tracks_in_1_1_V => tk_in( 3), 
-                 tracks_in_2_0_V => tk_in( 4),
-                 tracks_in_2_1_V => tk_in( 5),
-                 tracks_in_3_0_V => tk_in( 6),
-                 tracks_in_3_1_V => tk_in( 7),
-                 tracks_in_4_0_V => tk_in( 8),
-                 tracks_in_4_1_V => tk_in( 9), 
-                 tracks_in_5_0_V => tk_in(10),
-                 tracks_in_5_1_V => tk_in(11),
-                 tracks_in_6_0_V => tk_in(12),
-                 tracks_in_6_1_V => tk_in(13),
-                 tracks_in_7_0_V => tk_in(14),
-                 tracks_in_7_1_V => tk_in(15), 
-                 tracks_in_8_0_V => tk_in(16),
-                 tracks_in_8_1_V => tk_in(17),
-                 calo_start => regionizer_start,
-                 calo_newevent => newevent,
-                 calo_in_0_0_V => calo_in( 0),
-                 calo_in_0_1_V => calo_in( 1),
-                 calo_in_0_2_V => calo_in( 2),
-                 calo_in_0_3_V => calo_in( 3), 
-                 calo_in_1_0_V => calo_in( 4),
-                 calo_in_1_1_V => calo_in( 5),
-                 calo_in_1_2_V => calo_in( 6),
-                 calo_in_1_3_V => calo_in( 7),
-                 calo_in_2_0_V => calo_in( 8),
-                 calo_in_2_1_V => calo_in( 9), 
-                 calo_in_2_2_V => calo_in(10),
-                 calo_in_2_3_V => calo_in(11),
-                 mu_start => regionizer_start,
-                 mu_newevent => newevent,
-                 mu_in_0_V => mu_in(0),
-                 mu_in_1_V => mu_in(1),
-                 tracks_out => tk_out,
-                 calo_out   => calo_out,
-                 mu_out     => mu_out,
-                 newevent_out => newevent_out
-             );
-
     regio2cdc: process(clk)
     begin
         if rising_edge(clk) then
@@ -410,7 +162,8 @@ begin
                 regionizer_out_write  <= '0';
                 regionizer_done <= '0';
             else
-                if newevent_out = '1' then
+                assert tk_newevent_out = calo_newevent_out and tk_newevent_out = mu_newevent_out;
+                if tk_newevent_out = '1' then
                     -- if warmed up, start streaming out. otherwise, just warm up
                     if regionizer_out_warmup = '1' then
                         regionizer_count      <= 0;

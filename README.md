@@ -79,19 +79,6 @@ TODO:
 
 ### Layer-1 designs
 
-#### `regionizer_mux_pf`: `regionizer_mux` + PF@360
-
-This setup runs the mux regionizer + the PF at 360 MHz with II=6 (same clock as the regionizer)
- * the EMP input pattern files can be generated with `l1pf_hls/multififo_regionizer/run_hls_csim_pf_puppi.tcl`
- * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_2p2ns_ii6` (which runs `l1pf_hls/run_hls_pfalgo2hgc_2p2ns_II6.tcl`)
-
-A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `mux-pf` as argument.
- * The first PF outputs arrive at frame 124 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF)
-
-TODO:
- * The VHDL testbench uses the VHDL output files from the IP core synthesis directly instead of importing the IP core, so it may break if anything changes in the synthesis. It was tested only in Vivado 2018.3.
-
-
 #### `regionizer_mux_pf_puppi`: `regionizer_mux` + PF@360 + Puppi@360
 
 This setup runs the mux regionizer + the PF and Puppi at 360 MHz with II=6 (same clock as the regionizer)
@@ -99,8 +86,8 @@ This setup runs the mux regionizer + the PF and Puppi at 360 MHz with II=6 (same
  * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_2p2ns_ii6` and `make_hls_cores.sh puppiHGCal_2p2ns_ii6`, which run `l1pf_hls/run_hls_pfalgo2hgc_2p2ns_II6.tcl` and `l1pf_hls/puppi/run_hls_linpuppi_hgcal_2p2ns_II6.tcl`
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `mux-pf-puppi` as argument.
- * The first PF & Puppi outputs arrive at frames 110 and 168 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
- * For a reduced set of inputs (20 tracks, 12 calo) the frames become 105 and 152 for PF and puppi
+ * The first PF & Puppi outputs arrive at frames 111 and 169 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
+ * For a reduced set of inputs (20 tracks, 12 calo) the frames become 106 and 153 for PF and puppi
  
 
 TODO:
@@ -118,10 +105,10 @@ This setup runs the streaming regionizer at 360 MHz, transfers the data to the 2
  * the reading of the output in the 360 MHz domain is synchronized to a delayed version of the start of writing inputs from the 360 MHz domain, so that the latency in the 360 MHz domain is fixed irrespectively of the phase between the two clocks and the time it takes to make the two clock domain crossings. The price for this is that the design is conservative on the latency, potentially waits a bit more before starting to read the outputs.
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `stream-cdc-pf-puppi` as argument.
- * The first PF & Puppi outputs arrive at frames 169 and 217 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
- * For a reduced set of inputs (20 tracks, 12 calo) the frames become 162 and 202. 
+ * The first PF & Puppi outputs arrive at frames 170 and 218 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
+ * For a reduced set of inputs (20 tracks, 12 calo) the frames become 163 and 203. 
 
-Resource usage (emp framework, payload):
+Resource usage from emp framework, payload (might not be 100% up to date):
 |  Tk/Calo/Mu  |   Total LUTs   |   Logic LUTs   |   LUTRAMs   |     SRLs    |       FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
 |--------------|----------------|----------------|-------------|-------------|----------------|-------------|-------------|----------|--------------|
 |  30/20/4     | 245570(20.77%) | 236304(19.99%) |    0(0.00%) | 9266(1.57%) | 372574(15.76%) |  204(9.44%) |   10(0.23%) | 0(0.00%) | 1220(17.84%) |
@@ -148,7 +135,7 @@ Compared to `regionizer_stream_cdc_pf_puppi` :
  * this needs additional IP cores that can be build with `make_hls_cores.sh tdemux` and `make_hls_cores.sh unpackers`.
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `tdemux-stream-cdc-pf-puppi` as argument.
- * For a reduced set of inputs (20 tracks, 12 calo), the only setup tested so far, the first PF & Puppi outputs arrive at frames 274 and 314 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). 
+ * For a reduced set of inputs (20 tracks, 12 calo), the only setup tested so far, the first PF & Puppi outputs arrive at frames 276 and 316 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). 
 
 
 TODO:
