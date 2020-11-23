@@ -147,3 +147,25 @@ TODO:
  * Implementation in the EMP framework does not meet timing: with reduced inputs the WNS is -0.26 ns, while with full inputs WNS is about -0.7 ns
 
 
+#### `tdemux_regionizer_cdc_pf_puppi_stream`: time demultiplexer + trivial decoder + `regionizer_stream` +  PF@240 + Puppi stream@240
+
+The change wrt `tdemux_regionizer_cdc_pf_puppi` is that it uses a streaming implementation of Puppi, with 3 components: 
+ * a chs component that takes a single PF charged candidate and the PV, computes the compatibility and returns in output the PF candidate charged or zero
+ * a prepare component that takes as input a track and the PV, and saves an object with pt, eta and a weight equal to pt^2 if the track is PV-compatible and zero otherwise
+ * a neutral component that takes as input a single PF neutral candidate and a list of objects from the prepare above, and outputs the puppi candidate (or a null candidate)
+all the components are pipelined at II=1.
+
+The whole Puppi logic is implemented with the above 3:
+ * PF Charged particles serialized into NTrack/II streams and are then processed by a set of parallell instances of the "chs" component before being inputed in the CDC logic
+ * A copy of the input tracks is made before the serial-to-parallel conversion, and they delayed and then processed by the prepare component, and then converted from serial to parallel
+ * PF neutral particles are serialized, and then processed together with the prepared objects before going into the CDC logic  
+
+The implementation requires to compile the new cores for the streaming puppi with  `make_hls_cores.sh puppiHGCal_3ns_ii4_stream` 
+
+A VHDL testbench implementation can be run with  `run_vhdltb.sh tdemux-stream2-cdc-pf-puppi`:
+ * For a reduced set of inputs (20 tracks, 12 calo), the only setup tested so far, the first PF & Puppi outputs arrive at frames 276 and 316 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). This estimate of the latency is largely conservative, as it's using the latency of the traditional Puppi algorithm which is longer.
+
+Resource usage from emp framework, payload:
+|  Tk/Calo/Mu  |   Total LUTs   |   Logic LUTs   |   LUTRAMs   |     SRLs    |       FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
+|--------------|----------------|----------------|-------------|-------------|----------------|-------------|-------------|----------|--------------|
+|  20/12/4     |  117498(9.94%) |  112590(9.52%) |    0(0.00%) | 4908(0.83%) |  216797(9.17%) | 230(10.65%) |   39(0.90%) | 0(0.00%) |   506(7.40%) |
