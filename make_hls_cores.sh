@@ -32,7 +32,7 @@ case $core in
             (test -d proj_linpuppi_HGCal_VCU118_3ns_II4_stream_prep || vivado_hls -f run_hls_linpuppi_hgcal_3ns_II4_stream.tcl ) &&
             popd &&
         for X in prep one chs; do
-            cp -v l1pf_hls/puppi/proj_linpuppi_HGCal_VCU118_3ns_II4_${X}/solution/impl/vhdl/* ip_cores_firmware/${core}_${X}/firmware/hdl/ &&
+            cp -v l1pf_hls/puppi/proj_linpuppi_HGCal_VCU118_3ns_II4_stream_${X}/solution/impl/vhdl/* ip_cores_firmware/${core}_${X}/firmware/hdl/ &&
             (cd ip_cores_firmware/${core}_${X}/firmware/hdl && ls -1 ) | sed 's/^/src /' | tee ip_cores_firmware/${core}_${X}/firmware/cfg/top.dep;
         done
         ;;
