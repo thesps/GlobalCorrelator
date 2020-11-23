@@ -25,6 +25,17 @@ case $core in
             (cd ip_cores_firmware/${core}_${X}/firmware/hdl && ls -1 ) | sed 's/^/src /' | tee ip_cores_firmware/${core}_${X}/firmware/cfg/top.dep;
         done
         ;;
+    puppiHGCal_3ns_ii4_stream)
+        test -d ip_cores_firmware/${core}_prep && rm -r ip_cores_firmware/${core}_{prep,one,chs} 2> /dev/null;
+        mkdir -p ip_cores_firmware/${core}_{prep,one,chs}/firmware/{hdl,cfg} &&
+        pushd l1pf_hls/puppi &&
+            (test -d proj_linpuppi_HGCal_VCU118_3ns_II4_stream_prep || vivado_hls -f run_hls_linpuppi_hgcal_3ns_II4_stream.tcl ) &&
+            popd &&
+        for X in prep one chs; do
+            cp -v l1pf_hls/puppi/proj_linpuppi_HGCal_VCU118_3ns_II4_${X}/solution/impl/vhdl/* ip_cores_firmware/${core}_${X}/firmware/hdl/ &&
+            (cd ip_cores_firmware/${core}_${X}/firmware/hdl && ls -1 ) | sed 's/^/src /' | tee ip_cores_firmware/${core}_${X}/firmware/cfg/top.dep;
+        done
+        ;;
     pfHGCal_2p2ns_ii6)
         test -d ip_cores_firmware/$core && rm -r ip_cores_firmware/$core 2> /dev/null;
         mkdir -p ip_cores_firmware/$core/firmware/{hdl,cfg} &&

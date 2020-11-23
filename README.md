@@ -137,8 +137,13 @@ Compared to `regionizer_stream_cdc_pf_puppi` :
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `tdemux-stream-cdc-pf-puppi` as argument.
  * For a reduced set of inputs (20 tracks, 12 calo), the only setup tested so far, the first PF & Puppi outputs arrive at frames 276 and 316 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). 
 
+Resource usage from emp framework, payload:
+|  Tk/Calo/Mu  |   Total LUTs   |   Logic LUTs   |   LUTRAMs   |     SRLs    |       FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
+|--------------|----------------|----------------|-------------|-------------|----------------|-------------|-------------|----------|--------------|
+|  20/12/4     | 136789(11.57%) | 132335(11.19%) |    0(0.00%) | 4454(0.75%) | 236713(10.01%) | 245(11.34%) |    9(0.21%) | 0(0.00%) |   530(7.75%) |
+|  30/20/4     | 258435(21.86%) | 248872(21.05%) |    0(0.00%) | 9563(1.62%) | 393420(16.64%) | 270(12.50%) |   10(0.23%) | 0(0.00%) | 1220(17.84%) |
 
 TODO:
- * Implementation in the EMP framework is not tested
+ * Implementation in the EMP framework does not meet timing: with reduced inputs the WNS is -0.26 ns, while with full inputs WNS is about -0.7 ns
 
 
