@@ -163,9 +163,11 @@ The whole Puppi logic is implemented with the above 3:
 The implementation requires to compile the new cores for the streaming puppi with  `make_hls_cores.sh puppiHGCal_3ns_ii4_stream` 
 
 A VHDL testbench implementation can be run with  `run_vhdltb.sh tdemux-stream2-cdc-pf-puppi`:
- * For a reduced set of inputs (20 tracks, 12 calo), the only setup tested so far, the first PF & Puppi outputs arrive at frames 276 and 316 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). This estimate of the latency is largely conservative, as it's using the latency of the traditional Puppi algorithm which is longer.
+ * For a reduced set of inputs (20 tracks, 12 calo), the first PF & Puppi outputs arrive at frames 276 and 316 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). This estimate of the latency is largely conservative, as it's using the latency of the traditional Puppi algorithm which is longer.
+ * For the full set of inputs (30 tracks, 20 calo), the only setup tested so far, the first PF & Puppi outputs arrive at frames 283 and 331 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). This estimate of the latency is largely conservative, as it's using the latency of the traditional Puppi algorithm which is longer.
 
 Resource usage from emp framework, payload:
-|  Tk/Calo/Mu  |   Total LUTs   |   Logic LUTs   |   LUTRAMs   |     SRLs    |       FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
-|--------------|----------------|----------------|-------------|-------------|----------------|-------------|-------------|----------|--------------|
-|  20/12/4     |  117498(9.94%) |  112590(9.52%) |    0(0.00%) | 4908(0.83%) |  216797(9.17%) | 230(10.65%) |   39(0.90%) | 0(0.00%) |   506(7.40%) |
+|  Tk/Calo/Mu  |   Total LUTs   |   Logic LUTs   |   LUTRAMs   |      SRLs    |       FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
+|--------------|----------------|----------------|-------------|--------------|----------------|-------------|-------------|----------|--------------|
+|  20/12/4     |  117498(9.94%) |  112590(9.52%) |    0(0.00%) |  4908(0.83%) |  216797(9.17%) | 230(10.65%) |   39(0.90%) | 0(0.00%) |   506(7.40%) |
+|  30/20/4     | 210611(17.81%) | 199967(16.91%) |    0(0.00%) | 10644(1.80%) | 339456(14.36%) | 248(11.48%) |   85(1.97%) | 0(0.00%) | 1183(17.30%) |
