@@ -50,6 +50,8 @@ architecture rtl of emp_payload is
         constant RST_CHAIN_DELAY : natural := 6;
         signal rst240, rst240_u : std_logic := '0';
         signal rst240_chain : std_logic_vector(RST_CHAIN_DELAY downto 0):= (others => '0');
+        signal clk240 : std_logic := '0';
+
         attribute ASYNC_REG : string;
         attribute ASYNC_REG of rst240_u : signal is "TRUE";
         attribute KEEP : string;
@@ -82,9 +84,11 @@ begin
 
     ipb_out <= IPB_RBUS_NULL;
 
-    export_rst240: process(clk_payload(2))
+    clk240 <= clk_payload(0);
+
+    export_rst240: process(clk240)
     begin
-        if rising_edge(clk_payload(2)) then
+        if rising_edge(clk240) then
             rst240_u <= rst_loc(0);
             rst240_chain(RST_CHAIN_DELAY) <= rst240_u;
             rst240_chain(RST_CHAIN_DELAY-1 downto 0) <= rst240_chain(RST_CHAIN_DELAY downto 1);
@@ -94,7 +98,7 @@ begin
 
 
     algo_payload : entity work.regionizer_mux_stream_cdc_pf_puppi
-        port map(clk => clk_p, clk240 => clk_payload(2), 
+        port map(clk => clk_p, clk240 => clk240, 
                  rst => '0', --rst_loc(0), 
                  rst240 => '0', --rst240, 
                  links_in => links_in,
