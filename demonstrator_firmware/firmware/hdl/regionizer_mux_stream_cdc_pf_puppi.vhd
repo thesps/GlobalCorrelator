@@ -3,6 +3,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.regionizer_data.all;
 
+library pf;
+library utilities;
+use utilities.utilities;
+
 entity regionizer_mux_stream_cdc_pf_puppi is
     port(
             clk    : IN STD_LOGIC;
@@ -83,6 +87,15 @@ architecture Behavioral of regionizer_mux_stream_cdc_pf_puppi is
     signal puppi_read360_count : natural range 0 to PFII-1;
 
     signal puppi_out360 : w64s(NTKSORTED+NCALOSORTED-1 downto 0) := (others => (others => '0'));
+    signal puppi_out_unsorted : w64s(NPUPPI-1 downto 0) := (others => (others => '0'));
+    signal puppi_out_sorted : w64s(NPUPPI-1 downto 0) := (others => (others => '0'));
+    signal puppi_start_unsorted : std_logic := '0';
+    signal puppi_read_unsorted  : std_logic := '0';
+    signal puppi_done_unsorted  : std_logic := '0';
+    signal puppi_valid_unsorted : std_logic := '0';
+    signal puppi_empty_unsorted : std_logic_vector(NTKSTREAM+NCALOSTREAM-1 downto 0) := (others => '0');
+
+    constant SORT_LATENCY : integer := utilities.utilities.LatencyOfBitonicSort(puppi_out_unsorted'length, puppi_out'length);
 
     constant PV_INITIAL_DELAY : natural := 10; -- extra delay because FIFOs don't become writable immediately after rst goes down. 
                                                -- not sure how much, but 6 is too little and 10 is ok
@@ -340,11 +353,11 @@ begin
                         data240 => puppich_stream,
                         write240 => puppich_valid,
                         start => puppi_read360_start,
-                        data  => puppi_out(NTKSORTED-1 downto 0),
-                        valid => puppi_valid,
-                        done  => puppi_done,
-                        read  => puppi_read,
-                        empty => puppi_empty(NTKSTREAM-1 downto 0));
+                        data  => puppi_out_unsorted(NTKSORTED-1 downto 0),
+                        valid => puppi_valid_unsorted,
+                        done  => puppi_done_unsorted,
+                        read  => puppi_read_unsorted,
+                        empty => puppi_empty_unsorted(NTKSTREAM-1 downto 0));
      puppine_unpacker: entity work.cdc_and_deserializer
             generic map(NITEMS => NCALOSORTED, 
                         NSTREAM => NCALOSTREAM)
@@ -355,11 +368,40 @@ begin
                         data240 => puppine_stream,
                         write240 => puppine_valid,
                         start => puppi_read360_start,
-                        data  => puppi_out(NCALOSORTED+NTKSORTED-1 downto NTKSORTED),
+                        data  => puppi_out_unsorted(NCALOSORTED+NTKSORTED-1 downto NTKSORTED),
                         valid => open,
                         done  => open,
                         read  => open,
-                        empty => puppi_empty(NCALOSTREAM+NTKSTREAM-1 downto NTKSTREAM));
+                        empty => puppi_empty_unsorted(NCALOSTREAM+NTKSTREAM-1 downto NTKSTREAM));
      puppi_start <= puppi_read360_start;
+
+     -- Sort the puppi outputs
+     puppi_sort: entity work.sort_pfpuppi_cands
+     port map(
+        clk => clk,
+        d => puppi_out_unsorted,
+        q => puppi_out
+     );
+
+    -- delay the associated control signals by the sort latency
+    puppi_valid_pipe: entity work.bit_delay
+    generic map(delay => SORT_LATENCY)
+    port map(clk, '1', puppi_valid_unsorted, puppi_valid);
+
+    puppi_done_pipe: entity work.bit_delay
+    generic map(delay => SORT_LATENCY)
+    port map(clk, '1', puppi_done_unsorted, puppi_done);
+     
+    puppi_read_pipe: entity work.bit_delay
+    generic map(delay => SORT_LATENCY)
+    port map(clk, '1', puppi_read_unsorted, puppi_read);
+
+    gen_puppi_empty_pipe:
+    for i in 0 to NTKSTREAM+NCALOSTREAM-1 generate
+    begin
+        puppi_empty_pipe: entity work.bit_delay
+        generic map(delay => SORT_LATENCY)
+        port map(clk, '1', puppi_empty_unsorted(i), puppi_empty(i));
+    end generate;
 
 end Behavioral;

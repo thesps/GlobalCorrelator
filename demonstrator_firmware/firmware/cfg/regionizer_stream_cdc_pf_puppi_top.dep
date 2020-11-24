@@ -1,5 +1,5 @@
 # project-specific
-include -c multififo_regionizer:vhdl regionizer.dep 
+include -c l1pf_hls/multififo_regionizer/vhdl regionizer.dep 
 src bit_delay.vhd
 src word_delay.vhd
 src bram_delay.vhd
@@ -14,9 +14,11 @@ src cdc_and_deserializer.vhd
 src regionizer_mux_stream_cdc_pf_puppi.vhd
 src emp_payload_regionizer_mux_stream_cdc_pf_puppi.vhd
 
-include -c ip_cores_firmware:pfHGCal_3ns_ii4 top.dep 
-include -c ip_cores_firmware:puppiHGCal_3ns_ii4_charged top.dep 
-include -c ip_cores_firmware:puppiHGCal_3ns_ii4_neutral top.dep 
+include -c ip_cores_firmware/pfHGCal_3ns_ii4 top.dep 
+include -c ip_cores_firmware/puppiHGCal_3ns_ii4_charged top.dep 
+include -c ip_cores_firmware/puppiHGCal_3ns_ii4_neutral top.dep 
+
+include -c post_sort post_sort.dep
 
 # generic
 addrtab -c emp-fwk:components/payload emp_payload.xml
