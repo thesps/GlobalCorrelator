@@ -126,7 +126,8 @@ begin
                             NSORTED  => NTKSORTED,
                             NSTREAM  => NTKSTREAM,
                             OUTII    => PFII240,
-                            DELAY    => TKDELAY)
+                            DELAY    => TKDELAY,
+                            SORT_NSTAGES => 2)
                 port map(ap_clk => clk,
                          d_in => tk_regionized,
                          valid_in => tk_regionized_valid,

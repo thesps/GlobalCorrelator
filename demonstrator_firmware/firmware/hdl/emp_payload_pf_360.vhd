@@ -34,6 +34,7 @@ end emp_payload;
 
 architecture rtl of emp_payload is
         constant NPFSTREAM360    : natural := (NPFTOT+PFII-1)/PFII;
+        constant FIRST_LINK : natural := 4*9;
         constant N_IN  : natural := NPFSTREAM360;
         constant N_OUT : natural := NPFSTREAM360;
         constant N_DELAY_IN  : natural := 6;
@@ -52,13 +53,12 @@ begin
 
     buffers_in: for i in 0 to N_IN-1 generate
         buff_in : entity work.word_delay
-                    generic map(DELAY => N_DELAY_IN, N_BITS => 65)
-                    port    map(clk => clk_p, enable => '1',
-                                d(63 downto 0) => d(i).data,
-                                d(64)          => d(i).valid,
-                                q(63 downto 0) => links_in(i),
-                                q(64)          => valid_in(i));
-                                
+            generic map(DELAY => N_DELAY_IN, N_BITS => 65)
+            port    map(clk => clk_p, enable => '1',
+                        d(63 downto 0) => d(FIRST_LINK+i).data,
+                        d(64)          => d(FIRST_LINK+i).valid,
+                        q(63 downto 0) => links_in(i),
+                        q(64)          => valid_in(i));
         end generate buffers_in;
 
     input_links: process(clk_p)
@@ -128,14 +128,13 @@ begin
                                 
         end generate buffers_out;
 
-
     emp_output: process(clk_p)
     begin
         if rising_edge(clk_p) then
             for i in 0 to N_OUT-1 loop 
-                q(i).data   <= pf_out_stream(i);
-                q(i).valid  <= pf_out_valid_stream(i);
-                q(i).strobe <= '1';
+                q(FIRST_LINK+i).data   <= links_out(i);
+                q(FIRST_LINK+i).valid  <= valid_out(i);
+                q(FIRST_LINK+i).strobe <= '1';
             end loop;
         end if;
     end process emp_output;    
@@ -144,7 +143,12 @@ begin
     process(clk_p) 
     begin
         if rising_edge(clk_p) then
-            for i in 4 * N_REGION - 1 downto N_OUT loop
+            for i in FIRST_LINK - 1 downto 0 loop
+                q(i).data <= (others => '0');
+                q(i).valid <= '0';
+                q(i).strobe <= '1';
+            end loop;
+            for i in 4 * N_REGION - 1 downto N_OUT+FIRST_LINK loop
                 q(i).data <= (others => '0');
                 q(i).valid <= '0';
                 q(i).strobe <= '1';
