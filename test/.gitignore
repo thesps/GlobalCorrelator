@@ -1,0 +1,12 @@
+output*.txt
+input*.txt
+vivado*log*
+vivado*jou*
+webtalk*
+xelab.*
+xsim.*
+xsim*.log*
+xsim*.jou
+xvhdl.*
+test.wcfg
+test.wdb
