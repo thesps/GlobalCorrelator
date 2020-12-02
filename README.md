@@ -26,7 +26,7 @@ This is the simplest full regionizer algorithm
    * the muon system sends muons globally with 2 muons / clock, in global coordinates
    * the regionizer waits for 54 clocks to read all inputs, then outputs the sorted list of the best 30 tracks, 20 calo and muons for each region, sending out all objects of the region in parallel and keeping them stable for 6 clocks before moving on with the next region.
 
-Resource usage (emp framework, payload):
+Resource usage (emp framework, payload only):
 |   Total LUTs  |   Logic LUTs  |   LUTRAMs   |    SRLs    |      FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
 |---------------|---------------|-------------|------------|---------------|-------------|-------------|----------|--------------|
 |  52209(4.42%) |  51912(4.39%) |    0(0.00%) | 297(0.05%) | 111220(4.70%) |  132(6.11%) |    0(0.00%) | 0(0.00%) |     0(0.00%) |
@@ -40,7 +40,7 @@ So, the output is 5 tracks, 4 calo, 1 muon per clock cycle.
  * At the 3rd clock cycle it will output: tracks 2, 8, 14, 20, 26; calo 2, 8, 14 plus one null calo; muon 2
  * At the 6th and last clock cycle it will output: tracks 5, 11, 17, 23, 29; calo 5, 11, 17 plus one null; a null muon
 
-Resource usage (emp framework, payload):
+Resource usage (emp framework, payload only):
 |   Total LUTs  |   Logic LUTs  |   LUTRAMs   |    SRLs    |      FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
 |---------------|---------------|-------------|------------|---------------|-------------|-------------|----------|--------------|
 |  53822(4.55%) |  53525(4.53%) |    0(0.00%) | 297(0.05%) | 106097(4.49%) |  132(6.11%) |    0(0.00%) | 0(0.00%) |     0(0.00%) |
@@ -54,6 +54,7 @@ These are used to test the routing and timing for a single HLS IP core
 This setup runs the PF block at full 360 MHz.
  * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_2p2ns_ii6` (which runs `l1pf_hls/run_hls_pfalgo2hgc_2p2ns_II6.tcl`)
 
+Resource usage (emp framework)
 |  Instance  |  Total LUTs  |  Logic LUTs  |   LUTRAMs   |     SRLs    |      FFs      |   RAMB36  |    RAMB18   |   URAM   | DSP48 Blocks |
 |------------|--------------|--------------|-------------|-------------|---------------|-----------|-------------|----------|--------------|
 | top        | 89199(7.54%) | 81938(6.93%) | 1754(0.30%) | 5507(0.93%) | 113139(4.78%) | 96(4.44%) | 896(20.74%) | 0(0.00%) |   440(6.43%) |
@@ -86,7 +87,7 @@ TODO:
 
 This setup runs the mux regionizer + the PF and Puppi at 360 MHz with II=6 (same clock as the regionizer)
  * the EMP input pattern files can be generated with `l1pf_hls/multififo_regionizer/run_hls_csim_pf_puppi.tcl`
- * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_2p2ns_ii6` and `make_hls_cores.sh puppiHGCal_2p2ns_ii6`, which run `l1pf_hls/run_hls_pfalgo2hgc_2p2ns_II6.tcl` and `l1pf_hls/puppi/run_hls_linpuppi_hgcal_2p2ns_II6.tcl`
+ * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_360MHz_ii6` and `make_hls_cores.sh puppiHGCal_360MHz_ii6`, which run `l1pf_hls/run_hls_pfalgo2hgc_360MHz_II6.tcl` and `l1pf_hls/puppi/run_hls_linpuppi_hgcal_360MHz_II6.tcl`
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `mux-pf-puppi` as argument.
  * The first PF & Puppi outputs arrive at frames 111 and 169 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi)
@@ -103,7 +104,7 @@ TODO:
 
 This setup runs the streaming regionizer at 360 MHz, transfers the data to the 240 MHz clock domain and runs the PF and Puppi with II=4, and then crosses the data back
  * the EMP input pattern files can be generated with `l1pf_hls/multififo_regionizer/run_hls_csim_pf_puppi.tcl`
- * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_240MHz_ii4` and `make_hls_cores.sh puppiHGCal_240MHz_ii4`, which run `l1pf_hls/run_hls_pfalgo2hgc_3ns_II4.tcl` and `l1pf_hls/puppi/run_hls_linpuppi_hgcal_3ns_II4.tcl`
+ * the IP core for PF can be build with `make_hls_cores.sh pfHGCal_240MHz_ii4` and `make_hls_cores.sh puppiHGCal_240MHz_ii4`, which run `l1pf_hls/run_hls_pfalgo2hgc_240MHz_II4.tcl` and `l1pf_hls/puppi/run_hls_linpuppi_hgcal_240MHz_II4.tcl`
  * clock domain crossings are done with dual-clock BRAM36 used in native FIFO mode.
  * the reading of the output in the 360 MHz domain is synchronized to a delayed version of the start of writing inputs from the 360 MHz domain, so that the latency in the 360 MHz domain is fixed irrespectively of the phase between the two clocks and the time it takes to make the two clock domain crossings. The price for this is that the design is conservative on the latency, potentially waits a bit more before starting to read the outputs.
 
@@ -137,8 +138,7 @@ Compared to `regionizer_stream_cdc_pf_puppi` :
  * this needs additional IP cores that can be build with `make_hls_cores.sh tdemux` and `make_hls_cores.sh unpackers`.
 
 A vhdl testbench simulation in vivado can be run with `test/run_vhdltb.sh` run with `tdemux-stream-cdc-pf-puppi` as argument.
- * For a reduced set of inputs (20 tracks, 12 calo), the first PF & Puppi outputs arrive at frames 276 and 316 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). 
- * For the full set of inputs (30 tracks, 20 calo) and the longer latency PF block (B), the first PF & Puppi outputs arrive at frames 297 and 345 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). This estimate of the latency is largely conservative, as it's using the latency of the traditional Puppi algorithm which is longer.
+ * For the full set of inputs (30 tracks, 20 calo), the first PF & Puppi outputs arrive at frames 297 and 345 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). This estimate of the latency is conservative, as the code in the 360 MHz domain waits more before starting to read from the FIFOs.
 
 Resource usage from emp framework:
 
@@ -164,10 +164,11 @@ The whole Puppi logic is implemented with the above 3:
  * A copy of the input tracks is made before the serial-to-parallel conversion, and they delayed and then processed by the prepare component, and then converted from serial to parallel
  * PF neutral particles are serialized, and then processed together with the prepared objects before going into the CDC logic  
 
-The implementation requires to compile the new cores for the streaming puppi with  `make_hls_cores.sh puppiHGCal_240MHz_stream` 
+The implementation requires to compile the new cores for the streaming puppi with  `make_hls_cores.sh puppiHGCal_240MHz_stream`.
+The full set of cores for this design is `pfHGCal_240MHz_ii4 puppiHGCal_240MHz_stream tdemux unpackers`
 
 A VHDL testbench implementation can be run with  `run_vhdltb.sh tdemux-stream2-cdc-pf-puppi`:
- * For the full set of inputs (30 tracks, 20 calo) and the longer latency PF block (B), the first PF & Puppi outputs arrive at frames 297 and 345 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). This estimate of the latency is largely conservative, as it's using the latency of the traditional Puppi algorithm which is longer.
+ * For the full set of inputs (30 tracks, 20 calo), the first PF & Puppi outputs arrive at frames 297 and 345 in the testbench output, compared to 54 in the reference from HLS (HLS has an ideal 54 clock cycle latency for the regionizer, to stream in the inputs, and zero latency for PF & Puppi). This estimate of the latency is largely conservative, more than the previous design, as it's using the latency of the traditional Puppi algorithm which is longer.
 
 Resource usage from emp framework:
 |  Instance  |   Total LUTs   |   Logic LUTs   |   LUTRAMs   |     SRLs     |       FFs      |    RAMB36   |    RAMB18   |   URAM   | DSP48 Blocks |
