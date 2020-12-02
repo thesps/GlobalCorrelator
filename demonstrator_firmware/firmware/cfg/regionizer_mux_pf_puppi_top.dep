@@ -10,9 +10,9 @@ src regionizer_mux_pf_puppi.vhd
 src parallel2serial.vhd
 src emp_payload_regionizer_mux_pf_puppi.vhd
 
-include -c ip_cores_firmware:pfHGCal_2p2ns_ii6 top.dep 
-include -c ip_cores_firmware:puppiHGCal_2p2ns_ii6_charged top.dep 
-include -c ip_cores_firmware:puppiHGCal_2p2ns_ii6_neutral top.dep 
+include -c ip_cores_firmware:pfHGCal_360MHz_ii6 top.dep 
+include -c ip_cores_firmware:puppiHGCal_360MHz_ii6_charged top.dep 
+include -c ip_cores_firmware:puppiHGCal_360MHz_ii6_neutral top.dep 
 
 # generic
 addrtab -c emp-fwk:components/payload emp_payload.xml

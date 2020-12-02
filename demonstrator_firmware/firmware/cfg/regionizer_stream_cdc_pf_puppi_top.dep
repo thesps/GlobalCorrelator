@@ -14,9 +14,9 @@ src cdc_and_deserializer.vhd
 src --vhdl2008 regionizer_mux_stream_cdc_pf_puppi.vhd
 src --vhdl2008 emp_payload_regionizer_mux_stream_cdc_pf_puppi.vhd
 
-include -c ip_cores_firmware/pfHGCal_3ns_ii4 top.dep 
-include -c ip_cores_firmware/puppiHGCal_3ns_ii4_charged top.dep 
-include -c ip_cores_firmware/puppiHGCal_3ns_ii4_neutral top.dep 
+include -c ip_cores_firmware:pfHGCal_240MHz_ii4 top.dep 
+include -c ip_cores_firmware:puppiHGCal_240MHz_ii4_charged top.dep 
+include -c ip_cores_firmware:puppiHGCal_240MHz_ii4_neutral top.dep 
 
 include -c post_sort post_sort.dep
 

@@ -48,10 +48,10 @@ architecture Behavioral of regionizer_mux_stream_cdc_pf_puppi is
 
     constant NCLK_WRITE360 : natural := NPFREGIONS * PFII240;
     constant NCLK_WAIT360  : natural := NPFREGIONS * (PFII-PFII240);
-    constant LATENCY_PF      : natural := 27; -- at 240 MHz
-    constant LATENCY_PUPPINE : natural := 27; -- at 240 MHz
+    constant LATENCY_PF      : natural := 41; -- at 240 MHz
+    constant LATENCY_PUPPINE : natural := 32; -- at 240 MHz
     constant LATENCY_PUPPICH : natural :=  1; -- at 240 MHz
-    constant LATENCY_REGIONIZER : natural := 54+10;
+    constant LATENCY_REGIONIZER : natural := 54+11;
 
     signal input_was_valid, newevent, newevent_out : std_logic := '0';
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 if [[ "$1" == "" ]]; then echo "Usage : $0 project"; exit 1; fi;
 
-REG_VHDL="../l1pf_hls/multififo_regionizer/vhdl/firmware/hdl"
+REG_VHDL="../l1pf_hls/multififo_regionizer/vhdl/firmware/hdl/"
 REG_VHDLTB="../l1pf_hls/multififo_regionizer/vhdl/firmware/testbench"
 
 DEMO_VHDL="../demonstrator_firmware/firmware/hdl"
@@ -9,29 +9,22 @@ DEMO_VHDL="../demonstrator_firmware/firmware/hdl"
 HLS_CSIM="../l1pf_hls/multififo_regionizer/project_csim_pf_puppi"
 VHDLS=""
 
-if [[ "$1" == "mux-pf-puppi" ]]; then
-    CORES="pfHGCal_2p2ns_ii6 puppiHGCal_2p2ns_ii6_charged  puppiHGCal_2p2ns_ii6_neutral"
+## Preload the regionizer files
+for F in $( awk '/src/{print $2}' ${REG_VHDL}/../cfg/regionizer.dep ); do
+    VHDLS="${VHDLS} ${REG_VHDL}/$F";
+done
+VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
 
-    VHDLS="${VHDLS} ${REG_VHDL}/regionizer_data.vhd ${REG_VHDL}/rolling_fifo.vhd ${REG_VHDL}/fifo_merge2.vhd ${REG_VHDL}/fifo_merge2_full.vhd ${REG_VHDL}/fifo_merge3.vhd ${REG_VHDL}/stream_sort.vhd ${REG_VHDL}/region_mux.vhd"
-    VHDLS="${VHDLS} ${REG_VHDL}/tk_router_element.vhd ${REG_VHDL}/tk_router.vhd ${REG_VHDL}/tk_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/calo_router.vhd ${REG_VHDL}/calo_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/mu_router.vhd ${REG_VHDL}/mu_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/full_regionizer_mux.vhd"
-    VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
+
+if [[ "$1" == "mux-pf-puppi" ]]; then
+    CORES="pfHGCal_360MHz_ii6 puppiHGCal_360MHz_ii6_charged  puppiHGCal_360MHz_ii6_neutral"
     VHDLS="${VHDLS} ${DEMO_VHDL}/bram_delay.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/pf_block_wrapper.vhd ${DEMO_VHDL}/puppich_block_wrapper.vhd  ${DEMO_VHDL}/puppine_block_wrapper.vhd"
     VHDLS="${VHDLS} ${DEMO_VHDL}/regionizer_mux_pf_puppi.vhd "
     VHDLS="${VHDLS} regionizer_mux_pf_puppi_tb.vhd"
 elif [[ "$1" == "stream-cdc-pf-puppi" ]]; then
-    CORES="pfHGCal_3ns_ii4 puppiHGCal_3ns_ii4_charged  puppiHGCal_3ns_ii4_neutral"
+    CORES="pfHGCal_240MHz_ii4 puppiHGCal_240MHz_ii4_charged  puppiHGCal_240MHz_ii4_neutral"
 
-    VHDLS="${VHDLS} ${REG_VHDL}/regionizer_data.vhd ${REG_VHDL}/rolling_fifo.vhd ${REG_VHDL}/fifo_merge2.vhd ${REG_VHDL}/fifo_merge2_full.vhd ${REG_VHDL}/fifo_merge3.vhd ${REG_VHDL}/stream_sort.vhd ${REG_VHDL}/region_mux_stream.vhd"
-    VHDLS="${VHDLS} ${REG_VHDL}/tk_router_element.vhd ${REG_VHDL}/tk_router.vhd ${REG_VHDL}/tk_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/calo_router.vhd ${REG_VHDL}/calo_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/mu_router.vhd ${REG_VHDL}/mu_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/delay_sort_mux_stream.vhd"
-    VHDLS="${VHDLS} ${REG_VHDL}/full_regionizer_mux_stream.vhd"
-    VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
     VHDLS="${VHDLS} ${DEMO_VHDL}/bram_delay.vhd ${DEMO_VHDL}/bit_delay.vhd ${DEMO_VHDL}/cdc_bram_fifo.vhd  ${DEMO_VHDL}/serial2parallel.vhd ${DEMO_VHDL}/parallel2serial.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/pf_block_wrapper.vhd ${DEMO_VHDL}/puppich_block_wrapper.vhd  ${DEMO_VHDL}/puppine_block_wrapper.vhd"
     VHDLS="${VHDLS} ${DEMO_VHDL}/stream_pf_puppi_240.vhd "
@@ -39,14 +32,8 @@ elif [[ "$1" == "stream-cdc-pf-puppi" ]]; then
     VHDLS="${VHDLS} ${DEMO_VHDL}/regionizer_mux_stream_cdc_pf_puppi.vhd "
     VHDLS="${VHDLS} regionizer_mux_stream_cdc_pf_puppi_tb.vhd"
 elif [[ "$1" == "tdemux-stream-cdc-pf-puppi" ]]; then
-    CORES="pfHGCal_3ns_ii4 puppiHGCal_3ns_ii4_charged  puppiHGCal_3ns_ii4_neutral tdemux unpackers"
+    CORES="pfHGCal_240MHz_ii4 puppiHGCal_240MHz_ii4_charged  puppiHGCal_240MHz_ii4_neutral tdemux unpackers"
 
-    VHDLS="${VHDLS} ${REG_VHDL}/regionizer_data.vhd ${REG_VHDL}/rolling_fifo.vhd ${REG_VHDL}/fifo_merge2.vhd ${REG_VHDL}/fifo_merge2_full.vhd ${REG_VHDL}/fifo_merge3.vhd ${REG_VHDL}/stream_sort.vhd ${REG_VHDL}/region_mux_stream.vhd"
-    VHDLS="${VHDLS} ${REG_VHDL}/tk_router_element.vhd ${REG_VHDL}/tk_router.vhd ${REG_VHDL}/tk_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/calo_router.vhd ${REG_VHDL}/calo_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/mu_router.vhd ${REG_VHDL}/mu_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/delay_sort_mux_stream.vhd"
-    VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
     VHDLS="${VHDLS} ${DEMO_VHDL}/bram_delay.vhd ${DEMO_VHDL}/bit_delay.vhd ${DEMO_VHDL}/cdc_bram_fifo.vhd  ${DEMO_VHDL}/serial2parallel.vhd ${DEMO_VHDL}/parallel2serial.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/tdemux_link_group.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/tracker_tdemux_decode_regionizer.vhd "
@@ -59,14 +46,8 @@ elif [[ "$1" == "tdemux-stream-cdc-pf-puppi" ]]; then
     VHDLS="${VHDLS} tdemux_regionizer_cdc_pf_puppi_tb.vhd"
     HLS_CSIM="../l1pf_hls/multififo_regionizer/project_csim_pf_puppi_tm18"
 elif [[ "$1" == "tdemux-stream2-cdc-pf-puppi" ]]; then
-    CORES="pfHGCal_3ns_ii4 puppiHGCal_3ns_ii4_stream_prep puppiHGCal_3ns_ii4_stream_one puppiHGCal_3ns_ii4_stream_chs tdemux unpackers"
+    CORES="pfHGCal_240MHz_ii4 puppiHGCal_240MHz_stream_prep puppiHGCal_240MHz_stream_one puppiHGCal_240MHz_stream_chs tdemux unpackers"
 
-    VHDLS="${VHDLS} ${REG_VHDL}/regionizer_data.vhd ${REG_VHDL}/rolling_fifo.vhd ${REG_VHDL}/fifo_merge2.vhd ${REG_VHDL}/fifo_merge2_full.vhd ${REG_VHDL}/fifo_merge3.vhd ${REG_VHDL}/stream_sort.vhd ${REG_VHDL}/region_mux_stream.vhd"
-    VHDLS="${VHDLS} ${REG_VHDL}/tk_router_element.vhd ${REG_VHDL}/tk_router.vhd ${REG_VHDL}/tk_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/calo_router.vhd ${REG_VHDL}/calo_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/mu_router.vhd ${REG_VHDL}/mu_regionizer.vhd "
-    VHDLS="${VHDLS} ${REG_VHDL}/delay_sort_mux_stream.vhd"
-    VHDLS="${VHDLS} ${REG_VHDLTB}/pattern_textio.vhd"
     VHDLS="${VHDLS} ${DEMO_VHDL}/bram_delay.vhd ${DEMO_VHDL}/bit_delay.vhd ${DEMO_VHDL}/word_delay.vhd ${DEMO_VHDL}/cdc_bram_fifo.vhd  ${DEMO_VHDL}/serial2parallel.vhd ${DEMO_VHDL}/parallel2serial.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/tdemux_link_group.vhd "
     VHDLS="${VHDLS} ${DEMO_VHDL}/tracker_tdemux_decode_regionizer.vhd "

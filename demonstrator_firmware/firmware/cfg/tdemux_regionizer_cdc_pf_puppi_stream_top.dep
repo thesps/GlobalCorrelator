@@ -17,10 +17,10 @@ src muon_tdemux_decode_regionizer.vhd
 src tdemux_regionizer_cdc_pf_puppi.vhd
 src emp_payload_tdemux_regionizer_cdc_pf_puppi.vhd
 
-include -c ip_cores_firmware:pfHGCal_3ns_ii4 top.dep 
-include -c ip_cores_firmware:puppiHGCal_3ns_ii4_stream_prep top.dep 
-include -c ip_cores_firmware:puppiHGCal_3ns_ii4_stream_one top.dep 
-include -c ip_cores_firmware:puppiHGCal_3ns_ii4_stream_chs top.dep 
+include -c ip_cores_firmware:pfHGCal_240MHz_ii4 top.dep 
+include -c ip_cores_firmware:puppiHGCal_240MHz_stream_prep top.dep 
+include -c ip_cores_firmware:puppiHGCal_240MHz_stream_one top.dep 
+include -c ip_cores_firmware:puppiHGCal_240MHz_stream_chs top.dep 
 include -c ip_cores_firmware:tdemux top.dep 
 include -c ip_cores_firmware:unpackers top.dep 
 

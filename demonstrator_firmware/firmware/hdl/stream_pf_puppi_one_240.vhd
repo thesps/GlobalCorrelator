@@ -36,7 +36,7 @@ architecture Behavioral of stream_pf_puppi_240 is
     constant NPUPPI   : natural := NTKSORTED+NCALOSORTED;
     constant LATENCY_CHS_ONE: natural := 1;
     constant LATENCY_PREP_ONE: natural := 4;
-    constant LATENCY_PUPPI_ONE: natural := 14;
+    constant LATENCY_PUPPI_ONE: natural := 20;
 
     signal alltk_240:   w64s(NTKSORTED-1 downto 0)   := (others => (others => '0'));
     signal allcalo_240: w64s(NCALOSORTED-1 downto 0) := (others => (others => '0'));
@@ -44,9 +44,9 @@ architecture Behavioral of stream_pf_puppi_240 is
     signal tk_empty240  : std_logic_vector(NTKSTREAM-1 downto 0) := (others => '0');
     signal alltk_240_done, allcalo_240_done, allmu_240_done, empty240not : std_logic := '0'; 
 
-    signal pf_in   : w64s(NPFTOT-1 downto 0) := (others => (others => '0'));
+    signal pf_prein, pf_in    : w64s(NPFTOT-1 downto 0) := (others => (others => '0'));
     signal pf_out_i, pf_out_p : w64s(NPFTOT-1 downto 0) := (others => (others => '0'));
-    signal pf_start_i, pf_done_i, pf_done_p, pf_valid_p : std_logic := '0';
+    signal pf_prestart, pf_start_i, pf_done_i, pf_done_p, pf_valid_p : std_logic := '0';
 
     signal vtx_read_i, puppi_start, puppi_prepare_start : std_logic := '0';
     signal pfch_stream : w64s(NTKSTREAM-1 downto 0) := (others => (others => '0'));
@@ -101,11 +101,13 @@ begin
         begin
             if rising_edge(clk240) then
                 if alltk_240_done = '1' then
-                    pf_in(NCALOSORTED-1 downto 0) <= allcalo_240;
-                    pf_in(NCALOSORTED+NTKSORTED-1 downto NCALOSORTED) <= alltk_240;
-                    pf_in(NCALOSORTED+NTKSORTED+NMUSORTED-1 downto NCALOSORTED+NTKSORTED) <= allmu_240;
-                    pf_start_i <= '1'; -- should also go to zero if empty240 delayed
+                    pf_prein(NCALOSORTED-1 downto 0) <= allcalo_240;
+                    pf_prein(NCALOSORTED+NTKSORTED-1 downto NCALOSORTED) <= alltk_240;
+                    pf_prein(NCALOSORTED+NTKSORTED+NMUSORTED-1 downto NCALOSORTED+NTKSORTED) <= allmu_240;
+                    pf_prestart <= '1'; -- should also go to zero if empty240 delayed
                 end if;
+                pf_start_i <= pf_prestart; 
+                pf_in <= pf_prein;
             end if;
         end process all2pf;
  
@@ -202,7 +204,7 @@ begin
 
      gen_tk_delay: for i in 0 to NTKSTREAM-1 generate
          tk_delay: entity work.bram_delay
-                generic map(DELAY => LATENCY_PF - LATENCY_PREP_ONE+2)
+                generic map(DELAY => LATENCY_PF - LATENCY_PREP_ONE+3)
                 port map(clk => clk240, 
                          rst => rst240, 
                          d   => tk_in(i),

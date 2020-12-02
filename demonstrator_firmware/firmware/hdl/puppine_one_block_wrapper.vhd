@@ -47,6 +47,16 @@ begin
                   sel_tracks_17_V  => prep_tk_in(17)(36 downto 0),
                   sel_tracks_18_V  => prep_tk_in(18)(36 downto 0),
                   sel_tracks_19_V  => prep_tk_in(19)(36 downto 0),
+                  sel_tracks_20_V  => prep_tk_in(20)(36 downto 0),
+                  sel_tracks_21_V  => prep_tk_in(21)(36 downto 0),
+                  sel_tracks_22_V  => prep_tk_in(22)(36 downto 0),
+                  sel_tracks_23_V  => prep_tk_in(23)(36 downto 0),
+                  sel_tracks_24_V  => prep_tk_in(24)(36 downto 0),
+                  sel_tracks_25_V  => prep_tk_in(25)(36 downto 0),
+                  sel_tracks_26_V  => prep_tk_in(26)(36 downto 0),
+                  sel_tracks_27_V  => prep_tk_in(27)(36 downto 0),
+                  sel_tracks_28_V  => prep_tk_in(28)(36 downto 0),
+                  sel_tracks_29_V  => prep_tk_in(29)(36 downto 0),
                   ap_return => puppi_out
               );
   

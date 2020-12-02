@@ -7,7 +7,7 @@ src parallel2serial.vhd
 src serial2parallel.vhd
 src emp_payload_pf_240.vhd
 
-include -c ip_cores_firmware:pfHGCal_3ns_ii4 top.dep 
+include -c ip_cores_firmware:pfHGCal_240MHz_ii4 top.dep 
 
 src --cd ../ucf pblocks.tcl
 
