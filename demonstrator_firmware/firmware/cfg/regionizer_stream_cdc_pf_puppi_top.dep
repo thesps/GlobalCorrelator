@@ -1,5 +1,5 @@
 # project-specific
-include -c l1pf_hls/multififo_regionizer/vhdl regionizer.dep 
+include -c multififo_regionizer:vhdl regionizer.dep 
 src bit_delay.vhd
 src word_delay.vhd
 src bram_delay.vhd
@@ -18,10 +18,11 @@ include -c ip_cores_firmware:pfHGCal_240MHz_ii4 top.dep
 include -c ip_cores_firmware:puppiHGCal_240MHz_ii4_charged top.dep 
 include -c ip_cores_firmware:puppiHGCal_240MHz_ii4_neutral top.dep 
 
-include -c post_sort post_sort.dep
+include -c post_sort: post_sort.dep
 
 # generic
 addrtab -c emp-fwk:components/payload emp_payload.xml
 src -c emp-fwk:components/payload ../ucf/emp_simple_payload.tcl
 include -c emp-fwk:boards/vcu118
 src emp_project_decl.vhd
+setup -f vhdl2008.tcl
