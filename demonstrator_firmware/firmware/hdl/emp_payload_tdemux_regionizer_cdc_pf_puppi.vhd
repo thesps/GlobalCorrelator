@@ -36,30 +36,50 @@ architecture rtl of emp_payload is
         constant N_DELAY_IN  : natural := 5;
         constant N_DELAY_OUT : natural := 8;
 
+        constant NPATTERNS_TK_IN   : natural := NTKSECTORS*TDEMUX_FACTOR*TDEMUX_NTKFIBERS;
+        constant NPATTERNS_CALO_IN : natural := NCALOSECTORS*TDEMUX_FACTOR*TDEMUX_NCALOFIBERS;
+        constant NPATTERNS_MU_IN   : natural := TDEMUX_FACTOR*TDEMUX_NMUFIBERS;
+        constant N_IN    : natural := NPATTERNS_TK_IN + NPATTERNS_CALO_IN + NPATTERNS_MU_IN + 1;
+        constant IPATTERN_TK_START : natural := 0;
+        constant IPATTERN_TK_END   : natural := NPATTERNS_TK_IN-1;
+        constant IPATTERN_CALO_START : natural := NPATTERNS_TK_IN;
+        constant IPATTERN_CALO_END   : natural := NPATTERNS_TK_IN+NPATTERNS_CALO_IN-1;
+        constant IPATTERN_MU_START : natural := NPATTERNS_TK_IN+NPATTERNS_CALO_IN;
+        constant IPATTERN_MU_END   : natural := NPATTERNS_TK_IN+NPATTERNS_CALO_IN+NPATTERNS_MU_IN-1;
+        constant IPATTERN_PV       : natural := NPATTERNS_TK_IN+NPATTERNS_CALO_IN+NPATTERNS_MU_IN;
+
         constant NPFSTREAM360    : natural := (NPFTOT+PFII-1)/PFII;
         constant NPUPPISTREAM360 : natural := (NPUPPI+PFII-1)/PFII;
-        constant N_IN  : natural := NTKSECTORS*NTKFIBERS + NCALOSECTORS*NCALOFIBERS + NMUFIBERS + 1;
+
         constant N_OUT_REG   : natural := NTKSTREAM + NCALOSTREAM + NMUSTREAM;
         constant N_OUT_PF    : natural := NPFSTREAM360;
         constant N_OUT_PUPPI : natural := NPUPPISTREAM360;
         constant LINK0_PF    : natural := N_OUT_REG;
         constant LINK0_PUPPI : natural := N_OUT_REG + N_OUT_PF;
         constant N_OUT : natural := N_OUT_REG + N_OUT_PF + N_OUT_PUPPI;
-        
-
+       
         constant RST_CHAIN_DELAY : natural := 6;
         signal rst240, rst240_u : std_logic := '0';
         signal rst240_chain : std_logic_vector(RST_CHAIN_DELAY downto 0):= (others => '0');
-        signal clk240 : std_logic := '0';
-
         attribute ASYNC_REG : string;
         attribute ASYNC_REG of rst240_u : signal is "TRUE";
         attribute KEEP : string;
         attribute KEEP of rst240_chain : signal is "TRUE";
         attribute SHREG_EXTRACT : string;
         attribute SHREG_EXTRACT of rst240_chain : signal is "FALSE";
-        signal links_in:  w64s(N_IN-1 downto 0) := (others => (others => '0'));
-        signal valid_in: std_logic_vector(N_IN-1 downto 0) := (others => '0');
+
+        signal links_in:  w64s(4*N_REGION-1 downto 0) := (others => (others => '0'));
+        signal valid_in: std_logic_vector(4*N_REGION-1 downto 0) := (others => '0');
+
+        signal tk_links_in : w64s(NTKSECTORS*TDEMUX_FACTOR*TDEMUX_NTKFIBERS-1 downto 0);
+        signal tk_valid_in : STD_LOGIC_VECTOR(NTKSECTORS*TDEMUX_FACTOR*TDEMUX_NTKFIBERS-1 downto 0);
+        signal calo_links_in : w64s(NCALOSECTORS*TDEMUX_FACTOR*TDEMUX_NCALOFIBERS-1 downto 0);
+        signal calo_valid_in : STD_LOGIC_VECTOR(NCALOSECTORS*TDEMUX_FACTOR*TDEMUX_NCALOFIBERS-1 downto 0);
+        signal mu_links_in : w64s(TDEMUX_FACTOR*TDEMUX_NMUFIBERS-1 downto 0);
+        signal mu_valid_in : STD_LOGIC_VECTOR(TDEMUX_FACTOR*TDEMUX_NMUFIBERS-1 downto 0);
+        signal vtx_link_in : word64;
+        signal vtx_valid_in : STD_LOGIC;
+
 
         -- Regionizer: 360 MHz stuff
         signal regionizer_out: w64s(NTKSTREAM+NCALOSTREAM+NMUSTREAM-1 downto 0);
@@ -95,12 +115,20 @@ begin
     end process export_rst240;
 
 
-    algo_payload : entity work.regionizer_mux_stream_cdc_pf_puppi
+    algo_payload : entity work.tdemux_regionizer_cdc_pf_puppi
         port map(clk => clk_p, clk240 => clk_payload(0), 
                  rst => '0', --rst_loc(0), 
                  rst240 => '0', --rst240, 
-                 links_in => links_in,
-                 valid_in => valid_in,
+
+                 tk_links_in => tk_links_in,
+                 tk_valid_in => tk_valid_in,
+                 calo_links_in => calo_links_in,
+                 calo_valid_in => calo_valid_in,
+                 mu_links_in => mu_links_in,
+                 mu_valid_in => mu_valid_in,
+                 vtx_link_in => vtx_link_in,
+                 vtx_valid_in => vtx_valid_in,
+
                  regionizer_out => regionizer_out,
                  regionizer_done => regionizer_done,
                  regionizer_valid => regionizer_valid,
@@ -120,15 +148,38 @@ begin
                  puppi_empty => puppi_empty
              );
 
-    buffers_in: for i in 0 to N_IN-1 generate
-        buff_in : entity work.word_delay
-            generic map(DELAY => N_DELAY_IN, N_BITS => 65)
-            port    map(clk => clk_p, enable => '1',
-                        d(63 downto 0) => d(i).data,
-                        d(64)          => d(i).valid,
-                        q(63 downto 0) => links_in(i),
-                        q(64)          => valid_in(i));
-        end generate buffers_in;
+    buffers_in: for i in 0 to 4*N_REGION-1 generate 
+        -- we generate for all, and assume the unneded ones get killed
+        skip_unnecessary: if (i < 4*4) or (4*9-1 < i and i < 4*17) or (4*24-1 < i and i < 4*27+3) generate
+            buff_in : entity work.word_delay
+                generic map(DELAY => N_DELAY_IN, N_BITS => 65)
+                port    map(clk => clk_p, enable => '1',
+                            d(63 downto 0) => d(i).data,
+                            d(64)          => d(i).valid,
+                            q(63 downto 0) => links_in(i),
+                            q(64)          => valid_in(i));
+        end generate skip_unnecessary;
+    end generate buffers_in;
+
+    input_link_map: process(clk_p)
+    begin
+        if rising_edge(clk_p) then
+            -- region 0 fibers 1-3 mapped to muons --
+            mu_links_in(2 downto 0) <= links_in(2 downto 0);
+            mu_valid_in(2 downto 0) <= valid_in(2 downto 0);
+            -- region 0 fiber 4 mapped to PV
+            vtx_link_in  <= links_in(3);
+            vtx_valid_in <= valid_in(3);
+            -- regions 1-3 + 24-27 = 28 fibers mapped to tracker (3x9 fibers)
+            tk_links_in(11 downto  0) <= links_in(4* 4-1 downto 4* 1); -- 12 links (4 sectors)
+            tk_valid_in(11 downto  0) <= valid_in(4* 4-1 downto 4* 1); 
+            tk_links_in(26 downto 12) <= links_in(4*27+2 downto 4*24); -- 15 links (5 sectors)
+            tk_valid_in(26 downto 12) <= valid_in(4*27+2 downto 4*24);
+            -- regions 9-17 = 36 fibers mapped to HGCal
+            calo_links_in(NPATTERNS_CALO_IN-1 downto 0) <= links_in(4*17+3 downto 4*9);
+            calo_valid_in(NPATTERNS_CALO_IN-1 downto 0) <= valid_in(4*17+3 downto 4*9);
+        end if;
+    end process input_link_map;
 
     buffers_reg_out: for i in 0 to N_OUT_REG-1 generate
         buff_reg_out : entity work.word_delay
@@ -138,7 +189,7 @@ begin
                         d(64)          => regionizer_valid,
                         q(63 downto 0) => q(i).data,
                         q(64)          => q(i).valid);
-        end generate buffers_reg_out;
+    end generate buffers_reg_out;
 
     tie_reg_strobe: for i in 0 to N_OUT_REG-1 generate 
         q(i).strobe <= '1';

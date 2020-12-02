@@ -1,0 +1,33 @@
+# project-specific
+include -c multififo_regionizer:vhdl regionizer.dep 
+src bit_delay.vhd
+src word_delay.vhd
+src bram_delay.vhd
+src cdc_bram_fifo.vhd
+src serial2parallel.vhd
+src parallel2serial.vhd
+src pf_block_wrapper.vhd
+src puppich_block_wrapper.vhd
+src puppine_block_wrapper.vhd
+src stream_pf_puppi_240.vhd
+src cdc_and_deserializer.vhd
+src tdemux_link_group.vhd
+src tracker_tdemux_decode_regionizer.vhd 
+src hgcal_tdemux_decode_regionizer.vhd 
+src muon_tdemux_decode_regionizer.vhd 
+src tdemux_regionizer_cdc_pf_puppi.vhd
+src emp_payload_tdemux_regionizer_cdc_pf_puppi.vhd
+
+include -c ip_cores_firmware:pfHGCal_3ns_ii4 top.dep 
+include -c ip_cores_firmware:puppiHGCal_3ns_ii4_charged top.dep 
+include -c ip_cores_firmware:puppiHGCal_3ns_ii4_neutral top.dep 
+include -c ip_cores_firmware:tdemux top.dep 
+include -c ip_cores_firmware:unpackers top.dep 
+
+src --cd ../ucf tdemux_regionizer_cdc_pf_puppi_placement.tcl
+
+# generic
+addrtab -c emp-fwk:components/payload emp_payload.xml
+src -c emp-fwk:components/payload ../ucf/emp_simple_payload.tcl
+include -c emp-fwk:boards/vcu118
+src emp_project_decl.vhd
