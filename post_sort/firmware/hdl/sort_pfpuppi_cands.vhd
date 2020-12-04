@@ -22,17 +22,21 @@ end entity;
 
 architecture rtl of sort_pfpuppi_cands is
     signal pf_d : PF.ArrayTypes.Vector(0 to d'length-1) := PF.ArrayTypes.NullVector(d'length);
-    signal pf_q : PF.ArrayTypes.Vector(0 to d'length-1) := PF.ArrayTypes.NullVector(d'length);
+    signal pf_q : PF.ArrayTypes.Vector(0 to q'length-1) := PF.ArrayTypes.NullVector(q'length);
 begin
 
-    GenCast:
+    GenCastIn:
     for i in d'range generate
         pf_d(i) <= PF.DataType.FromW64(d(i));
+    end generate;
+
+    GenCastOut:
+    for i in q'range generate
         q(i) <= PF.DataType.ToStdLogicVector(pf_q(i));
     end generate;
 
     Sort: entity PF.BitonicSort
-    generic map(InSize => d'length, OutSize => d'length, d => false, id => "pfsort")
+    generic map(InSize => d'length, OutSize => q'length, d => false, id => "pfsort")
     port map(clk, pf_d, pf_q);
 
 end architecture;
