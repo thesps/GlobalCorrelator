@@ -29,9 +29,9 @@ if [ -d algo-work ]; then
 else
     ipbb init algo-work
     pushd algo-work
-        ipbb add git https://:@gitlab.cern.ch:8443/p2-xware/firmware/emp-fwk.git -b v0.3.4
+        ipbb add git https://:@gitlab.cern.ch:8443/p2-xware/firmware/emp-fwk.git -b v0.3.6
         ipbb add git https://gitlab.cern.ch/ttc/legacy_ttc.git -b v2.1
-        ipbb add git https://github.com/ipbus/ipbus-firmware -b v1.7
+        ipbb add git https://github.com/ipbus/ipbus-firmware -b v1.8
         pushd src 
             ln -sd ../../l1pf_hls/multififo_regionizer .
             ln -sd ../../demonstrator_firmware .
