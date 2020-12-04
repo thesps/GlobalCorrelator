@@ -10,6 +10,12 @@ This uses the [git submodule](https://git-scm.com/docs/gitsubmodules) feature to
 * a project can be created with `./setupProject.sh project_name` (see below for the list of projects)
 * then, one can compile the firmware with `./buildFirmware.sh project_name`
 
+If you have problems with setting up ipbb with python 2.7, do the following once: 
+ * `rm -r ipbb-master/venv/ipbb`
+ * log a lxplus7 node, with a clean environment
+ * `source ipbb-master/env.sh`
+after that, the environment should work also on other machines.
+
 ## Implemented Projects
 
 

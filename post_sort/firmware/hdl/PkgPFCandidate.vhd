@@ -35,7 +35,7 @@ PACKAGE DataType IS
     pt  : integer range -32768 to 32767; -- 16 bits signed
     eta : integer range -512 to 511; -- 10 bits signed
     phi : integer range -512 to 511; -- 10 bits signed
-    z0  : integer range -512 to 511; -- 10 bits signed
+    data  : integer range 0 to 4095; -- 12 bits unsigned (opaque)
     DataValid    : BOOLEAN;
     FrameValid   : BOOLEAN;
   END RECORD;
@@ -83,37 +83,28 @@ PACKAGE BODY DataType IS
   FUNCTION ToStdLogicVector( aData : tData ) RETURN STD_LOGIC_VECTOR IS
     VARIABLE lRet                  : STD_LOGIC_VECTOR( tData'Size-1 DOWNTO 0 ) := ( OTHERS => '0' );
   BEGIN
-    lRet(15 downto 0)  := std_logic_vector(to_signed(aData.pt, 16));
-    lRet(18 downto 16) := std_logic_vector(to_unsigned(aData.id, 3));
-    lRet(41 downto 32) := std_logic_vector(to_signed(aData.eta, 10));
-    lRet(51 downto 42) := std_logic_vector(to_signed(aData.phi, 10));
-    lRet(61 downto 52) := std_logic_vector(to_signed(aData.z0, 10));
-    lRet(62)           := '1' when aData.DataValid else '0';
+    lRet( 9 downto  0) := std_logic_vector(to_signed(aData.eta, 10));
+    lRet(19 downto 10) := std_logic_vector(to_signed(aData.phi, 10));
+    lRet(31 downto 20) := std_logic_vector(to_unsigned(aData.data, 12));
+    lRet(47 downto 32) := std_logic_vector(to_signed(aData.pt, 16));
+    lRet(50 downto 48) := std_logic_vector(to_unsigned(aData.id, 3));
     RETURN lRet;
   END FUNCTION;
 
   FUNCTION ToDataType( aStdLogicVector : STD_LOGIC_VECTOR ) RETURN tData IS
-    VARIABLE lRet                      : tData := cNull;
   BEGIN
-    lRet.pt  := to_integer(signed(aStdLogicVector(15 downto 0)));
-    lRet.id  := to_integer(unsigned(aStdLogicVector(18 downto 16)));
-    lRet.eta := to_integer(signed(aStdLogicVector(41 downto 32)));
-    lRet.phi := to_integer(signed(aStdLogicVector(51 downto 42)));
-    lRet.z0  := to_integer(signed(aStdLogicVector(61 downto 52)));
-    lRet.DataValid := true when aStdLogicVector(62) = '1' else false;
-    RETURN lRet;
+    RETURN FromW64(aStdLogicVector);
   END FUNCTION;
 
   FUNCTION FromW64( aStdLogicVector : STD_LOGIC_VECTOR ) RETURN tData IS
     VARIABLE lRet                   : tData := cNull;
     VARIABLE pt                     : integer := to_integer(signed(aStdLogicVector(47 downto 32)));
-
   BEGIN
-    lRet.pt  := pt;
-    --lRet.id  := to_integer(unsigned(aStdLogicVector(18 downto 16)));
-    lRet.eta := to_integer(signed(aStdLogicVector(9 downto 0)));
-    lRet.phi := to_integer(signed(aStdLogicVector(19 downto 10)));
-    --lRet.z0  := to_integer(signed(aStdLogicVector(61 downto 52)));
+    lRet.eta :=  to_integer(  signed(aStdLogicVector( 9 downto  0)));
+    lRet.phi :=  to_integer(  signed(aStdLogicVector(19 downto 10)));
+    lRet.data := to_integer(unsigned(aStdLogicVector(31 downto 20)));
+    lRet.pt  :=  pt;                              -- 47 downto 32
+    lRet.id  :=  to_integer(unsigned(aStdLogicVector(50 downto 48)));
     lRet.DataValid := true when pt /= 0 else false;
     RETURN lRet;
   END FUNCTION;
@@ -125,7 +116,7 @@ PACKAGE BODY DataType IS
     WRITE( aLine , STRING' ( "id" ) , RIGHT , 15 );
     WRITE( aLine , STRING' ( "eta" ) , RIGHT , 15 );
     WRITE( aLine , STRING' ( "phi" ) , RIGHT , 15 );
-    WRITE( aLine , STRING' ( "z0" ) , RIGHT , 15 );
+    WRITE( aLine , STRING' ( "data" ) , RIGHT , 15 );
     WRITE( aLine , STRING' ( "FrameValid" ) , RIGHT , 15 );
     WRITE( aLine , STRING' ( "DataValid" ) , RIGHT , 15 );
     RETURN aLine.ALL;
@@ -138,7 +129,7 @@ PACKAGE BODY DataType IS
     WRITE( aLine , aData.id , RIGHT , 15 );
     WRITE( aLine , aData.eta , RIGHT , 15 );
     WRITE( aLine , aData.phi , RIGHT , 15 );
-    WRITE( aLine , aData.z0 , RIGHT , 15 );
+    WRITE( aLine , aData.data , RIGHT , 15 );
     WRITE( aLine , aData.FrameValid , RIGHT , 15 );
     WRITE( aLine , aData.DataValid , RIGHT , 15 );
     RETURN aLine.ALL;

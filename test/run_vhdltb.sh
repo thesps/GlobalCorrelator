@@ -82,7 +82,20 @@ elif [[ "${PROJ}" == "tdemux-stream2-cdc-pf-puppi" ]]; then
     VHDLS="${VHDLS} ${DEMO_VHDL}/tdemux_regionizer_cdc_pf_puppi.vhd "
     VHDLS="${VHDLS} tdemux_regionizer_cdc_pf_puppi_tb.vhd"
     HLS_CSIM="../l1pf_hls/multififo_regionizer/project_csim_pf_puppi_tm18"
+elif [[ "${PROJ}" == "tdemux-stream2-cdc-pf-puppi-sort" ]]; then
+    CORES="pfHGCal_240MHz_ii4 puppiHGCal_240MHz_stream_prep puppiHGCal_240MHz_stream_one puppiHGCal_240MHz_stream_chs tdemux unpackers"
 
+    VHDLS="${VHDLS} ${DEMO_VHDL}/bram_delay.vhd ${DEMO_VHDL}/bit_delay.vhd ${DEMO_VHDL}/word_delay.vhd ${DEMO_VHDL}/cdc_bram_fifo.vhd  ${DEMO_VHDL}/serial2parallel.vhd ${DEMO_VHDL}/parallel2serial.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/tdemux_link_group.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/tracker_tdemux_decode_regionizer.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/hgcal_tdemux_decode_regionizer.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/muon_tdemux_decode_regionizer.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/pf_block_wrapper.vhd ${DEMO_VHDL}/puppine_one_block_wrapper.vhd"
+    VHDLS="${VHDLS} ${DEMO_VHDL}/stream_pf_puppi_one_240.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/cdc_and_deserializer.vhd "
+    VHDLS="${VHDLS} ${DEMO_VHDL}/tdemux_regionizer_cdc_pf_puppi_sort.vhd "
+    VHDLS="${VHDLS} tdemux_regionizer_cdc_pf_puppi_sort_tb.vhd"
+    HLS_CSIM="../l1pf_hls/multififo_regionizer/project_csim_pf_puppi_tm18"
 fi
 
 if [[ "$1" == "retry" ]]; then
@@ -134,6 +147,28 @@ else
     fi;
 fi;
 
+if echo ${PROJ} | grep -q sort ; then
+    # This is messy and ad-hoc because the code needs libraries, will be sorted out once it's moved to ipbb
+    echo " ## Compiling the sorter";
+    if [[ "${SIMULATOR}" == "vsim" ]]; then
+        if [[ "$1" != "retry" ]]; then
+            vlib PF
+            vmap PF ${PWD}/PF
+            vlib Utilities
+            vmap Utilities ${PWD}/Utilities
+        fi;
+        vcom -2008 -quiet -source  ../../l1pf_hls/multififo_regionizer/vhdl/firmware/hdl/regionizer_data.vhd || exit 2;
+        vcom -2008 -quiet -source  -work Utilities ../../algo-work/src/RuflCore/firmware/hdl/ReuseableElements/PkgUtilities.vhd || exit 2;
+        for F in ../../post_sort/firmware/hdl/PkgPFCandidate.vhd ../../algo-work/src/RuflCore/firmware/hdl/ReuseableElements/PkgArrayTypes.vhd ../../algo-work/src/RuflCore/firmware/hdl/ReuseableElements/BitonicSort.vhd; do
+            vcom -2008 -quiet -source  -work PF $F || exit 2; 
+        done
+        vcom -2008 -quiet -source ../../post_sort/firmware/hdl/sort_pfpuppi_cands.vhd || exit 2;
+    else
+        echo "Sorry, the sorting is not supported with XSim yet."
+        exit 7;
+    fi;
+
+fi;
 
 echo " ## Compiling VHDL files: $VHDLS";
 for V in $VHDLS; do
