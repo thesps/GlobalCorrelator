@@ -149,8 +149,8 @@ begin
                     end if;
                 end if;
             end if;
-            vtx_write360(PV_INITIAL_DELAY downto 1) <= vtx_write360(PV_INITIAL_DELAY-1downto 0);
-            vtx360(PV_INITIAL_DELAY downto 1) <= vtx360(PV_INITIAL_DELAY-1downto 0);
+            vtx_write360(PV_INITIAL_DELAY downto 1) <= vtx_write360(PV_INITIAL_DELAY - 1 downto 0);
+            vtx360(PV_INITIAL_DELAY downto 1) <= vtx360(PV_INITIAL_DELAY - 1 downto 0);
         end if;
     end process input_link_pv;
 
