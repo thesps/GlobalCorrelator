@@ -15,12 +15,12 @@ src cdc_and_deserializer.vhd
 src cdc_bram_fifo.vhd
 src serial2parallel.vhd
 src parallel2serial.vhd
-include -c post_sort post_sort.dep
-include -c l1pf_hls/multififo_regionizer/vhdl regionizer.dep 
+include -c post_sort: post_sort.dep
+include -c multififo_regionizer:vhdl regionizer.dep 
 
-include -c ip_cores_firmware/pfHGCal_3ns_ii4 top.dep 
-include -c ip_cores_firmware/puppiHGCal_3ns_ii4_charged top.dep 
-include -c ip_cores_firmware/puppiHGCal_3ns_ii4_neutral top.dep 
+include -c ip_cores_firmware:pfHGCal_240MHz_ii4 top.dep 
+include -c ip_cores_firmware:puppiHGCal_240MHz_ii4_charged top.dep 
+include -c ip_cores_firmware:puppiHGCal_240MHz_ii4_neutral top.dep 
 
 # generic
 src -c emp-fwk:components/ttc emp_ttc_decl.vhd
