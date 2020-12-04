@@ -17,12 +17,12 @@ else
     echo "Found Xilinx Vivado at" ${XILINX_VIVADO}
 fi
 
-if [ -d ipbb-0.5.2 ]; then
+if [ -d ipbb-master ]; then
     echo "Will not re-download ipbb"
 else 
-    curl -L https://github.com/ipbus/ipbb/archive/v0.5.2.tar.gz | tar xvz
+    git clone https://github.com/ipbus/ipbb.git ipbb-master
 fi
-source ipbb-0.5.2/env.sh
+source ipbb-master/env.sh
 
 if [ -d algo-work ]; then
     echo "Using existing algo-work directory"
@@ -32,10 +32,12 @@ else
         ipbb add git https://:@gitlab.cern.ch:8443/p2-xware/firmware/emp-fwk.git -b v0.3.6
         ipbb add git https://gitlab.cern.ch/ttc/legacy_ttc.git -b v2.1
         ipbb add git https://github.com/ipbus/ipbus-firmware -b v1.8
+        ipbb add git https://:@gitlab.cern.ch:8443/rufl/RuflCore.git
         pushd src 
             ln -sd ../../l1pf_hls/multififo_regionizer .
             ln -sd ../../demonstrator_firmware .
             ln -sd ../../ip_cores_firmware .
+            ln -sd ../../post_sort .
         popd
     popd
 fi
@@ -52,7 +54,7 @@ pushd algo-work
     test -d proj/$PROJECT && rm -rf proj/$PROJECT 
     ipbb proj create vivado $PROJECT demonstrator_firmware: -t ${PROJECT}_top.dep
     pushd proj/$PROJECT
-        ipbb vivado project 
+        ipbb vivado project -c -1
         #if test -f demonstrator_firmware/firmware/cfg/${PROJECT}_importIP.tcl then
         #vivado -mode batch -source ../../../$PROJECT/$HLSIP/importIP.tcl
         #end if

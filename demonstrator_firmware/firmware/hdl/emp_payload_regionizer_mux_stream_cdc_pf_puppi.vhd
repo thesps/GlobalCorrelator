@@ -50,6 +50,7 @@ architecture rtl of emp_payload is
         constant RST_CHAIN_DELAY : natural := 6;
         signal rst240, rst240_u : std_logic := '0';
         signal rst240_chain : std_logic_vector(RST_CHAIN_DELAY downto 0):= (others => '0');
+
         attribute ASYNC_REG : string;
         attribute ASYNC_REG of rst240_u : signal is "TRUE";
         attribute KEEP : string;

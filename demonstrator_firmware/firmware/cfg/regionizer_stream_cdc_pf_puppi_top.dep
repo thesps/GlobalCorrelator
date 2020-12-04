@@ -11,15 +11,18 @@ src puppich_block_wrapper.vhd
 src puppine_block_wrapper.vhd
 src stream_pf_puppi_240.vhd
 src cdc_and_deserializer.vhd
-src regionizer_mux_stream_cdc_pf_puppi.vhd
-src emp_payload_regionizer_mux_stream_cdc_pf_puppi.vhd
+src --vhdl2008 regionizer_mux_stream_cdc_pf_puppi.vhd
+src --vhdl2008 emp_payload_regionizer_mux_stream_cdc_pf_puppi.vhd
 
 include -c ip_cores_firmware:pfHGCal_240MHz_ii4 top.dep 
 include -c ip_cores_firmware:puppiHGCal_240MHz_ii4_charged top.dep 
 include -c ip_cores_firmware:puppiHGCal_240MHz_ii4_neutral top.dep 
+
+include -c post_sort: post_sort.dep
 
 # generic
 addrtab -c emp-fwk:components/payload emp_payload.xml
 src -c emp-fwk:components/payload ../ucf/emp_simple_payload.tcl
 include -c emp-fwk:boards/vcu118
 src emp_project_decl.vhd
+setup -f vhdl2008.tcl

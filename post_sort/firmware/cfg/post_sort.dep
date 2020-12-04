@@ -1,0 +1,7 @@
+src --vhdl2008 sort_pfpuppi_cands.vhd
+src --vhdl2008 -c RuflCore: -l PF ReuseableElements/BitonicSort.vhd
+src --vhdl2008 -c RuflCore: -l PF ReuseableElements/PkgArrayTypes.vhd
+src -c multififo_regionizer:vhdl regionizer_data.vhd
+src --vhdl2008 -l PF PkgPFCandidate.vhd
+
+src --vhdl2008 -c RuflCore: -l Utilities ReuseableElements/PkgUtilities.vhd
