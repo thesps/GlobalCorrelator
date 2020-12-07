@@ -33,3 +33,4 @@ addrtab -c emp-fwk:components/payload emp_payload.xml
 src -c emp-fwk:components/payload ../ucf/emp_simple_payload.tcl
 include -c emp-fwk:boards/vcu118
 src emp_project_decl.vhd
+setup -f vhdl2008.tcl
