@@ -3,32 +3,32 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity algo_main_mul_mulg8j_DSP48_4 is
+entity algo_main_mul_mulfYi_DSP48_3 is
 port (
     a: in std_logic_vector(18 - 1 downto 0);
-    b: in std_logic_vector(17 - 1 downto 0);
-    p: out std_logic_vector(35 - 1 downto 0));
+    b: in std_logic_vector(22 - 1 downto 0);
+    p: out std_logic_vector(40 - 1 downto 0));
 
 end entity;
 
-architecture behav of algo_main_mul_mulg8j_DSP48_4 is
+architecture behav of algo_main_mul_mulfYi_DSP48_3 is
     signal a_cvt: unsigned(18 - 1 downto 0);
-    signal b_cvt: signed(17 - 1 downto 0);
-    signal p_cvt: signed(35 - 1 downto 0);
+    signal b_cvt: signed(22 - 1 downto 0);
+    signal p_cvt: signed(40 - 1 downto 0);
 
 
 begin
 
     a_cvt <= unsigned(a);
     b_cvt <= signed(b);
-    p_cvt <= signed (resize(unsigned (signed ('0' & a_cvt) * signed (b_cvt)), 35));
+    p_cvt <= signed (resize(unsigned (signed ('0' & a_cvt) * signed (b_cvt)), 40));
     p <= std_logic_vector(p_cvt);
 
 end architecture;
 Library IEEE;
 use IEEE.std_logic_1164.all;
 
-entity algo_main_mul_mulg8j is
+entity algo_main_mul_mulfYi is
     generic (
         ID : INTEGER;
         NUM_STAGE : INTEGER;
@@ -41,8 +41,8 @@ entity algo_main_mul_mulg8j is
         dout : OUT STD_LOGIC_VECTOR(dout_WIDTH - 1 DOWNTO 0));
 end entity;
 
-architecture arch of algo_main_mul_mulg8j is
-    component algo_main_mul_mulg8j_DSP48_4 is
+architecture arch of algo_main_mul_mulfYi is
+    component algo_main_mul_mulfYi_DSP48_3 is
         port (
             a : IN STD_LOGIC_VECTOR;
             b : IN STD_LOGIC_VECTOR;
@@ -52,7 +52,7 @@ architecture arch of algo_main_mul_mulg8j is
 
 
 begin
-    algo_main_mul_mulg8j_DSP48_4_U :  component algo_main_mul_mulg8j_DSP48_4
+    algo_main_mul_mulfYi_DSP48_3_U :  component algo_main_mul_mulfYi_DSP48_3
     port map (
         a => din0,
         b => din1,

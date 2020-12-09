@@ -11,242 +11,83 @@ use IEEE.numeric_std.all;
 
 entity reduce_5 is
 port (
-    ap_clk : IN STD_LOGIC;
-    ap_rst : IN STD_LOGIC;
-    x_0_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_1_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_2_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_3_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_4_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_5_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_6_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_7_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_8_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_9_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_10_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_11_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_12_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_13_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_14_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_15_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_0_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_1_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_2_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_3_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_4_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_5_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_6_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_7_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_8_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_9_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_10_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_11_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_12_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_13_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_14_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_15_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_0_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_1_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_2_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_3_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_4_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_5_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_6_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_7_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_8_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_9_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_10_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_11_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_12_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_13_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_14_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_15_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    ap_return_0 : OUT STD_LOGIC_VECTOR (15 downto 0);
-    ap_return_1 : OUT STD_LOGIC_VECTOR (9 downto 0);
-    ap_return_2 : OUT STD_LOGIC_VECTOR (9 downto 0);
-    ap_ce : IN STD_LOGIC );
+    ap_ready : OUT STD_LOGIC;
+    x_0_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_1_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_2_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_3_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_4_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_5_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_6_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_7_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_8_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_9_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_10_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_11_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_12_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_13_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_14_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_15_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    ap_return : OUT STD_LOGIC_VECTOR (15 downto 0) );
 end;
 
 
 architecture behav of reduce_5 is 
     constant ap_const_logic_1 : STD_LOGIC := '1';
-    constant ap_const_logic_0 : STD_LOGIC := '0';
     constant ap_const_boolean_1 : BOOLEAN := true;
-    constant ap_const_boolean_0 : BOOLEAN := false;
-    constant ap_const_lv1_1 : STD_LOGIC_VECTOR (0 downto 0) := "1";
+    constant ap_const_logic_0 : STD_LOGIC := '0';
 
-    signal grp_reduce_fu_402_ap_return_0 : STD_LOGIC_VECTOR (15 downto 0);
-    signal grp_reduce_fu_402_ap_return_1 : STD_LOGIC_VECTOR (9 downto 0);
-    signal grp_reduce_fu_402_ap_return_2 : STD_LOGIC_VECTOR (9 downto 0);
-    signal grp_reduce_fu_402_ap_ce : STD_LOGIC;
-    signal ap_block_state1_pp0_stage0_iter0_ignore_call49 : BOOLEAN;
-    signal ap_block_state2_pp0_stage0_iter1_ignore_call49 : BOOLEAN;
-    signal ap_block_pp0_stage0_11001_ignoreCallOp51 : BOOLEAN;
-    signal grp_reduce_fu_454_ap_return_0 : STD_LOGIC_VECTOR (15 downto 0);
-    signal grp_reduce_fu_454_ap_return_1 : STD_LOGIC_VECTOR (9 downto 0);
-    signal grp_reduce_fu_454_ap_return_2 : STD_LOGIC_VECTOR (9 downto 0);
-    signal grp_reduce_fu_454_ap_ce : STD_LOGIC;
-    signal ap_block_state1_pp0_stage0_iter0_ignore_call53 : BOOLEAN;
-    signal ap_block_state2_pp0_stage0_iter1_ignore_call53 : BOOLEAN;
-    signal ap_block_pp0_stage0_11001_ignoreCallOp52 : BOOLEAN;
-    signal ap_block_pp0_stage0 : BOOLEAN;
-    signal ap_block_state1_pp0_stage0_iter0 : BOOLEAN;
-    signal ap_block_state2_pp0_stage0_iter1 : BOOLEAN;
-    signal ap_block_pp0_stage0_11001 : BOOLEAN;
-    signal icmp_ln891_fu_530_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal xor_ln891_fu_536_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal select_ln84_fu_542_p3 : STD_LOGIC_VECTOR (15 downto 0);
-    signal select_ln84_3_fu_550_p3 : STD_LOGIC_VECTOR (9 downto 0);
-    signal select_ln84_4_fu_558_p3 : STD_LOGIC_VECTOR (9 downto 0);
+    signal p_Val2_s_reduce_fu_140_ap_ready : STD_LOGIC;
+    signal p_Val2_s_reduce_fu_140_ap_return : STD_LOGIC_VECTOR (15 downto 0);
+    signal p_Val2_5_reduce_fu_160_ap_ready : STD_LOGIC;
+    signal p_Val2_5_reduce_fu_160_ap_return : STD_LOGIC_VECTOR (15 downto 0);
 
     component reduce IS
     port (
-        ap_clk : IN STD_LOGIC;
-        ap_rst : IN STD_LOGIC;
-        x_0_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_1_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_2_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_3_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_4_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_5_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_6_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_7_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_0_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_1_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_2_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_3_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_4_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_5_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_6_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_7_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_0_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_1_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_2_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_3_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_4_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_5_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_6_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_7_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        ap_return_0 : OUT STD_LOGIC_VECTOR (15 downto 0);
-        ap_return_1 : OUT STD_LOGIC_VECTOR (9 downto 0);
-        ap_return_2 : OUT STD_LOGIC_VECTOR (9 downto 0);
-        ap_ce : IN STD_LOGIC );
+        ap_ready : OUT STD_LOGIC;
+        x_0_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        x_1_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        x_2_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        x_3_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        x_4_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        x_5_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        x_6_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        x_7_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        ap_return : OUT STD_LOGIC_VECTOR (15 downto 0) );
     end component;
 
 
 
 begin
-    grp_reduce_fu_402 : component reduce
+    p_Val2_s_reduce_fu_140 : component reduce
     port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst,
-        x_0_hwPt_V_read => x_0_hwPt_V_read,
-        x_1_hwPt_V_read => x_1_hwPt_V_read,
-        x_2_hwPt_V_read => x_2_hwPt_V_read,
-        x_3_hwPt_V_read => x_3_hwPt_V_read,
-        x_4_hwPt_V_read => x_4_hwPt_V_read,
-        x_5_hwPt_V_read => x_5_hwPt_V_read,
-        x_6_hwPt_V_read => x_6_hwPt_V_read,
-        x_7_hwPt_V_read => x_7_hwPt_V_read,
-        x_0_hwEta_V_read => x_0_hwEta_V_read,
-        x_1_hwEta_V_read => x_1_hwEta_V_read,
-        x_2_hwEta_V_read => x_2_hwEta_V_read,
-        x_3_hwEta_V_read => x_3_hwEta_V_read,
-        x_4_hwEta_V_read => x_4_hwEta_V_read,
-        x_5_hwEta_V_read => x_5_hwEta_V_read,
-        x_6_hwEta_V_read => x_6_hwEta_V_read,
-        x_7_hwEta_V_read => x_7_hwEta_V_read,
-        x_0_hwPhi_V_read => x_0_hwPhi_V_read,
-        x_1_hwPhi_V_read => x_1_hwPhi_V_read,
-        x_2_hwPhi_V_read => x_2_hwPhi_V_read,
-        x_3_hwPhi_V_read => x_3_hwPhi_V_read,
-        x_4_hwPhi_V_read => x_4_hwPhi_V_read,
-        x_5_hwPhi_V_read => x_5_hwPhi_V_read,
-        x_6_hwPhi_V_read => x_6_hwPhi_V_read,
-        x_7_hwPhi_V_read => x_7_hwPhi_V_read,
-        ap_return_0 => grp_reduce_fu_402_ap_return_0,
-        ap_return_1 => grp_reduce_fu_402_ap_return_1,
-        ap_return_2 => grp_reduce_fu_402_ap_return_2,
-        ap_ce => grp_reduce_fu_402_ap_ce);
+        ap_ready => p_Val2_s_reduce_fu_140_ap_ready,
+        x_0_V_read => x_0_V_read,
+        x_1_V_read => x_1_V_read,
+        x_2_V_read => x_2_V_read,
+        x_3_V_read => x_3_V_read,
+        x_4_V_read => x_4_V_read,
+        x_5_V_read => x_5_V_read,
+        x_6_V_read => x_6_V_read,
+        x_7_V_read => x_7_V_read,
+        ap_return => p_Val2_s_reduce_fu_140_ap_return);
 
-    grp_reduce_fu_454 : component reduce
+    p_Val2_5_reduce_fu_160 : component reduce
     port map (
-        ap_clk => ap_clk,
-        ap_rst => ap_rst,
-        x_0_hwPt_V_read => x_8_hwPt_V_read,
-        x_1_hwPt_V_read => x_9_hwPt_V_read,
-        x_2_hwPt_V_read => x_10_hwPt_V_read,
-        x_3_hwPt_V_read => x_11_hwPt_V_read,
-        x_4_hwPt_V_read => x_12_hwPt_V_read,
-        x_5_hwPt_V_read => x_13_hwPt_V_read,
-        x_6_hwPt_V_read => x_14_hwPt_V_read,
-        x_7_hwPt_V_read => x_15_hwPt_V_read,
-        x_0_hwEta_V_read => x_8_hwEta_V_read,
-        x_1_hwEta_V_read => x_9_hwEta_V_read,
-        x_2_hwEta_V_read => x_10_hwEta_V_read,
-        x_3_hwEta_V_read => x_11_hwEta_V_read,
-        x_4_hwEta_V_read => x_12_hwEta_V_read,
-        x_5_hwEta_V_read => x_13_hwEta_V_read,
-        x_6_hwEta_V_read => x_14_hwEta_V_read,
-        x_7_hwEta_V_read => x_15_hwEta_V_read,
-        x_0_hwPhi_V_read => x_8_hwPhi_V_read,
-        x_1_hwPhi_V_read => x_9_hwPhi_V_read,
-        x_2_hwPhi_V_read => x_10_hwPhi_V_read,
-        x_3_hwPhi_V_read => x_11_hwPhi_V_read,
-        x_4_hwPhi_V_read => x_12_hwPhi_V_read,
-        x_5_hwPhi_V_read => x_13_hwPhi_V_read,
-        x_6_hwPhi_V_read => x_14_hwPhi_V_read,
-        x_7_hwPhi_V_read => x_15_hwPhi_V_read,
-        ap_return_0 => grp_reduce_fu_454_ap_return_0,
-        ap_return_1 => grp_reduce_fu_454_ap_return_1,
-        ap_return_2 => grp_reduce_fu_454_ap_return_2,
-        ap_ce => grp_reduce_fu_454_ap_ce);
+        ap_ready => p_Val2_5_reduce_fu_160_ap_ready,
+        x_0_V_read => x_8_V_read,
+        x_1_V_read => x_9_V_read,
+        x_2_V_read => x_10_V_read,
+        x_3_V_read => x_11_V_read,
+        x_4_V_read => x_12_V_read,
+        x_5_V_read => x_13_V_read,
+        x_6_V_read => x_14_V_read,
+        x_7_V_read => x_15_V_read,
+        ap_return => p_Val2_5_reduce_fu_160_ap_return);
 
 
 
 
-        ap_block_pp0_stage0 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_pp0_stage0_11001 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_pp0_stage0_11001_ignoreCallOp51 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_pp0_stage0_11001_ignoreCallOp52 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_state1_pp0_stage0_iter0 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_state1_pp0_stage0_iter0_ignore_call49 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_state1_pp0_stage0_iter0_ignore_call53 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_state2_pp0_stage0_iter1 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_state2_pp0_stage0_iter1_ignore_call49 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-        ap_block_state2_pp0_stage0_iter1_ignore_call53 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-    ap_return_0 <= select_ln84_fu_542_p3;
-    ap_return_1 <= select_ln84_3_fu_550_p3;
-    ap_return_2 <= select_ln84_4_fu_558_p3;
-
-    grp_reduce_fu_402_ap_ce_assign_proc : process(ap_block_pp0_stage0_11001_ignoreCallOp51, ap_ce)
-    begin
-        if (((ap_const_boolean_0 = ap_block_pp0_stage0_11001_ignoreCallOp51) and (ap_const_logic_1 = ap_ce))) then 
-            grp_reduce_fu_402_ap_ce <= ap_const_logic_1;
-        else 
-            grp_reduce_fu_402_ap_ce <= ap_const_logic_0;
-        end if; 
-    end process;
-
-
-    grp_reduce_fu_454_ap_ce_assign_proc : process(ap_ce, ap_block_pp0_stage0_11001_ignoreCallOp52)
-    begin
-        if (((ap_const_logic_1 = ap_ce) and (ap_const_boolean_0 = ap_block_pp0_stage0_11001_ignoreCallOp52))) then 
-            grp_reduce_fu_454_ap_ce <= ap_const_logic_1;
-        else 
-            grp_reduce_fu_454_ap_ce <= ap_const_logic_0;
-        end if; 
-    end process;
-
-    icmp_ln891_fu_530_p2 <= "1" when (unsigned(grp_reduce_fu_402_ap_return_0) < unsigned(grp_reduce_fu_454_ap_return_0)) else "0";
-    select_ln84_3_fu_550_p3 <= 
-        grp_reduce_fu_402_ap_return_1 when (xor_ln891_fu_536_p2(0) = '1') else 
-        grp_reduce_fu_454_ap_return_1;
-    select_ln84_4_fu_558_p3 <= 
-        grp_reduce_fu_402_ap_return_2 when (xor_ln891_fu_536_p2(0) = '1') else 
-        grp_reduce_fu_454_ap_return_2;
-    select_ln84_fu_542_p3 <= 
-        grp_reduce_fu_402_ap_return_0 when (xor_ln891_fu_536_p2(0) = '1') else 
-        grp_reduce_fu_454_ap_return_0;
-    xor_ln891_fu_536_p2 <= (icmp_ln891_fu_530_p2 xor ap_const_lv1_1);
+    ap_ready <= ap_const_logic_1;
+    ap_return <= std_logic_vector(unsigned(p_Val2_5_reduce_fu_160_ap_return) + unsigned(p_Val2_s_reduce_fu_140_ap_return));
 end behav;

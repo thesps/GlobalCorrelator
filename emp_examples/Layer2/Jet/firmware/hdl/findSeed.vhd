@@ -418,10 +418,10 @@ architecture behav of findSeed is
     signal ap_block_state6_pp0_stage0_iter5 : BOOLEAN;
     signal ap_block_state7_pp0_stage0_iter6 : BOOLEAN;
     signal ap_block_pp0_stage0_11001 : BOOLEAN;
-    signal grp_reduce_6_fu_3094_ap_return_0 : STD_LOGIC_VECTOR (15 downto 0);
-    signal grp_reduce_6_fu_3094_ap_return_1 : STD_LOGIC_VECTOR (9 downto 0);
-    signal grp_reduce_6_fu_3094_ap_return_2 : STD_LOGIC_VECTOR (9 downto 0);
-    signal grp_reduce_6_fu_3094_ap_ce : STD_LOGIC;
+    signal grp_reduce_20_fu_3094_ap_return_0 : STD_LOGIC_VECTOR (15 downto 0);
+    signal grp_reduce_20_fu_3094_ap_return_1 : STD_LOGIC_VECTOR (9 downto 0);
+    signal grp_reduce_20_fu_3094_ap_return_2 : STD_LOGIC_VECTOR (9 downto 0);
+    signal grp_reduce_20_fu_3094_ap_ce : STD_LOGIC;
     signal ap_block_state1_pp0_stage0_iter0_ignore_call385 : BOOLEAN;
     signal ap_block_state2_pp0_stage0_iter1_ignore_call385 : BOOLEAN;
     signal ap_block_state3_pp0_stage0_iter2_ignore_call385 : BOOLEAN;
@@ -431,9 +431,9 @@ architecture behav of findSeed is
     signal ap_block_state7_pp0_stage0_iter6_ignore_call385 : BOOLEAN;
     signal ap_block_pp0_stage0_11001_ignoreCallOp392 : BOOLEAN;
     signal ap_block_pp0_stage0 : BOOLEAN;
-    signal icmp_ln895_fu_3878_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal select_ln102_fu_3884_p3 : STD_LOGIC_VECTOR (9 downto 0);
-    signal select_ln103_fu_3892_p3 : STD_LOGIC_VECTOR (9 downto 0);
+    signal icmp_ln1494_fu_3878_p2 : STD_LOGIC_VECTOR (0 downto 0);
+    signal select_ln166_fu_3884_p3 : STD_LOGIC_VECTOR (9 downto 0);
+    signal select_ln167_fu_3892_p3 : STD_LOGIC_VECTOR (9 downto 0);
     signal work_0_hwPt_V_read_int_reg : STD_LOGIC_VECTOR (15 downto 0);
     signal work_1_hwPt_V_read_int_reg : STD_LOGIC_VECTOR (15 downto 0);
     signal work_2_hwPt_V_read_int_reg : STD_LOGIC_VECTOR (15 downto 0);
@@ -819,7 +819,7 @@ architecture behav of findSeed is
     signal work_126_hwPhi_V_re_int_reg : STD_LOGIC_VECTOR (9 downto 0);
     signal work_127_hwPhi_V_re_int_reg : STD_LOGIC_VECTOR (9 downto 0);
 
-    component reduce_6 IS
+    component reduce_20 IS
     port (
         ap_clk : IN STD_LOGIC;
         ap_rst : IN STD_LOGIC;
@@ -1216,7 +1216,7 @@ architecture behav of findSeed is
 
 
 begin
-    grp_reduce_6_fu_3094 : component reduce_6
+    grp_reduce_20_fu_3094 : component reduce_20
     port map (
         ap_clk => ap_clk,
         ap_rst => ap_rst,
@@ -1604,10 +1604,10 @@ begin
         x_125_hwPhi_V_read => work_125_hwPhi_V_re_int_reg,
         x_126_hwPhi_V_read => work_126_hwPhi_V_re_int_reg,
         x_127_hwPhi_V_read => work_127_hwPhi_V_re_int_reg,
-        ap_return_0 => grp_reduce_6_fu_3094_ap_return_0,
-        ap_return_1 => grp_reduce_6_fu_3094_ap_return_1,
-        ap_return_2 => grp_reduce_6_fu_3094_ap_return_2,
-        ap_ce => grp_reduce_6_fu_3094_ap_ce);
+        ap_return_0 => grp_reduce_20_fu_3094_ap_return_0,
+        ap_return_1 => grp_reduce_20_fu_3094_ap_return_1,
+        ap_return_2 => grp_reduce_20_fu_3094_ap_return_2,
+        ap_ce => grp_reduce_20_fu_3094_ap_ce);
 
 
 
@@ -4317,23 +4317,23 @@ begin
         ap_block_state6_pp0_stage0_iter5_ignore_call385 <= not((ap_const_boolean_1 = ap_const_boolean_1));
         ap_block_state7_pp0_stage0_iter6 <= not((ap_const_boolean_1 = ap_const_boolean_1));
         ap_block_state7_pp0_stage0_iter6_ignore_call385 <= not((ap_const_boolean_1 = ap_const_boolean_1));
-    ap_return_0 <= select_ln102_fu_3884_p3;
-    ap_return_1 <= select_ln103_fu_3892_p3;
+    ap_return_0 <= select_ln166_fu_3884_p3;
+    ap_return_1 <= select_ln167_fu_3892_p3;
 
-    grp_reduce_6_fu_3094_ap_ce_assign_proc : process(ap_block_pp0_stage0_11001_ignoreCallOp392)
+    grp_reduce_20_fu_3094_ap_ce_assign_proc : process(ap_block_pp0_stage0_11001_ignoreCallOp392)
     begin
         if ((ap_const_boolean_0 = ap_block_pp0_stage0_11001_ignoreCallOp392)) then 
-            grp_reduce_6_fu_3094_ap_ce <= ap_const_logic_1;
+            grp_reduce_20_fu_3094_ap_ce <= ap_const_logic_1;
         else 
-            grp_reduce_6_fu_3094_ap_ce <= ap_const_logic_0;
+            grp_reduce_20_fu_3094_ap_ce <= ap_const_logic_0;
         end if; 
     end process;
 
-    icmp_ln895_fu_3878_p2 <= "1" when (grp_reduce_6_fu_3094_ap_return_0 = ap_const_lv16_0) else "0";
-    select_ln102_fu_3884_p3 <= 
-        ap_const_lv10_0 when (icmp_ln895_fu_3878_p2(0) = '1') else 
-        grp_reduce_6_fu_3094_ap_return_1;
-    select_ln103_fu_3892_p3 <= 
-        ap_const_lv10_0 when (icmp_ln895_fu_3878_p2(0) = '1') else 
-        grp_reduce_6_fu_3094_ap_return_2;
+    icmp_ln1494_fu_3878_p2 <= "1" when (grp_reduce_20_fu_3094_ap_return_0 = ap_const_lv16_0) else "0";
+    select_ln166_fu_3884_p3 <= 
+        ap_const_lv10_0 when (icmp_ln1494_fu_3878_p2(0) = '1') else 
+        grp_reduce_20_fu_3094_ap_return_1;
+    select_ln167_fu_3892_p3 <= 
+        ap_const_lv10_0 when (icmp_ln1494_fu_3878_p2(0) = '1') else 
+        grp_reduce_20_fu_3094_ap_return_2;
 end behav;

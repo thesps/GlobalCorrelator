@@ -5,23 +5,23 @@ use IEEE.numeric_std.all;
 
 entity algo_main_mul_muldEe_DSP48_2 is
 port (
-    a: in std_logic_vector(15 - 1 downto 0);
-    b: in std_logic_vector(10 - 1 downto 0);
-    p: out std_logic_vector(22 - 1 downto 0));
+    a: in std_logic_vector(16 - 1 downto 0);
+    b: in std_logic_vector(11 - 1 downto 0);
+    p: out std_logic_vector(24 - 1 downto 0));
 
 end entity;
 
 architecture behav of algo_main_mul_muldEe_DSP48_2 is
-    signal a_cvt: unsigned(15 - 1 downto 0);
-    signal b_cvt: signed(10 - 1 downto 0);
-    signal p_cvt: signed(22 - 1 downto 0);
+    signal a_cvt: unsigned(16 - 1 downto 0);
+    signal b_cvt: signed(11 - 1 downto 0);
+    signal p_cvt: signed(24 - 1 downto 0);
 
 
 begin
 
     a_cvt <= unsigned(a);
     b_cvt <= signed(b);
-    p_cvt <= signed (resize(unsigned (signed ('0' & a_cvt) * signed (b_cvt)), 22));
+    p_cvt <= signed (resize(unsigned (signed ('0' & a_cvt) * signed (b_cvt)), 24));
     p <= std_logic_vector(p_cvt);
 
 end architecture;

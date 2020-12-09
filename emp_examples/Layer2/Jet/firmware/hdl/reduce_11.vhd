@@ -9,16 +9,16 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity reduce_4 is
+entity reduce_11 is
 port (
     ap_ready : OUT STD_LOGIC;
-    x_0_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_1_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    ap_return : OUT STD_LOGIC_VECTOR (15 downto 0) );
+    x_0_V_read : IN STD_LOGIC_VECTOR (21 downto 0);
+    x_1_V_read : IN STD_LOGIC_VECTOR (21 downto 0);
+    ap_return : OUT STD_LOGIC_VECTOR (21 downto 0) );
 end;
 
 
-architecture behav of reduce_4 is 
+architecture behav of reduce_11 is 
     constant ap_const_logic_1 : STD_LOGIC := '1';
     constant ap_const_boolean_1 : BOOLEAN := true;
     constant ap_const_logic_0 : STD_LOGIC := '0';

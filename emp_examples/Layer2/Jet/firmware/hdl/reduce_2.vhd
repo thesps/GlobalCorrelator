@@ -12,103 +12,52 @@ use IEEE.numeric_std.all;
 entity reduce_2 is
 port (
     ap_ready : OUT STD_LOGIC;
-    x_0_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_1_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_2_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_3_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    x_0_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_1_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_2_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_3_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_0_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_1_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_2_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    x_3_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-    ap_return_0 : OUT STD_LOGIC_VECTOR (15 downto 0);
-    ap_return_1 : OUT STD_LOGIC_VECTOR (9 downto 0);
-    ap_return_2 : OUT STD_LOGIC_VECTOR (9 downto 0) );
+    x_0_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_1_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_2_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    x_3_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+    ap_return : OUT STD_LOGIC_VECTOR (15 downto 0) );
 end;
 
 
 architecture behav of reduce_2 is 
     constant ap_const_logic_1 : STD_LOGIC := '1';
     constant ap_const_boolean_1 : BOOLEAN := true;
-    constant ap_const_lv1_1 : STD_LOGIC_VECTOR (0 downto 0) := "1";
     constant ap_const_logic_0 : STD_LOGIC := '0';
 
-    signal call_ret5_reduce_4_fu_114_ap_ready : STD_LOGIC;
-    signal call_ret5_reduce_4_fu_114_ap_return_0 : STD_LOGIC_VECTOR (15 downto 0);
-    signal call_ret5_reduce_4_fu_114_ap_return_1 : STD_LOGIC_VECTOR (9 downto 0);
-    signal call_ret5_reduce_4_fu_114_ap_return_2 : STD_LOGIC_VECTOR (9 downto 0);
-    signal call_ret6_reduce_4_fu_130_ap_ready : STD_LOGIC;
-    signal call_ret6_reduce_4_fu_130_ap_return_0 : STD_LOGIC_VECTOR (15 downto 0);
-    signal call_ret6_reduce_4_fu_130_ap_return_1 : STD_LOGIC_VECTOR (9 downto 0);
-    signal call_ret6_reduce_4_fu_130_ap_return_2 : STD_LOGIC_VECTOR (9 downto 0);
-    signal icmp_ln891_fu_170_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal xor_ln891_fu_176_p2 : STD_LOGIC_VECTOR (0 downto 0);
-    signal select_ln84_fu_182_p3 : STD_LOGIC_VECTOR (15 downto 0);
-    signal select_ln84_5_fu_190_p3 : STD_LOGIC_VECTOR (9 downto 0);
-    signal select_ln84_6_fu_198_p3 : STD_LOGIC_VECTOR (9 downto 0);
+    signal p_Val2_s_reduce_4_fu_44_ap_ready : STD_LOGIC;
+    signal p_Val2_s_reduce_4_fu_44_ap_return : STD_LOGIC_VECTOR (15 downto 0);
+    signal p_Val2_3_reduce_4_fu_52_ap_ready : STD_LOGIC;
+    signal p_Val2_3_reduce_4_fu_52_ap_return : STD_LOGIC_VECTOR (15 downto 0);
 
     component reduce_4 IS
     port (
         ap_ready : OUT STD_LOGIC;
-        x_0_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_1_hwPt_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-        x_0_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_1_hwEta_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_0_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        x_1_hwPhi_V_read : IN STD_LOGIC_VECTOR (9 downto 0);
-        ap_return_0 : OUT STD_LOGIC_VECTOR (15 downto 0);
-        ap_return_1 : OUT STD_LOGIC_VECTOR (9 downto 0);
-        ap_return_2 : OUT STD_LOGIC_VECTOR (9 downto 0) );
+        x_0_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        x_1_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
+        ap_return : OUT STD_LOGIC_VECTOR (15 downto 0) );
     end component;
 
 
 
 begin
-    call_ret5_reduce_4_fu_114 : component reduce_4
+    p_Val2_s_reduce_4_fu_44 : component reduce_4
     port map (
-        ap_ready => call_ret5_reduce_4_fu_114_ap_ready,
-        x_0_hwPt_V_read => x_0_hwPt_V_read,
-        x_1_hwPt_V_read => x_1_hwPt_V_read,
-        x_0_hwEta_V_read => x_0_hwEta_V_read,
-        x_1_hwEta_V_read => x_1_hwEta_V_read,
-        x_0_hwPhi_V_read => x_0_hwPhi_V_read,
-        x_1_hwPhi_V_read => x_1_hwPhi_V_read,
-        ap_return_0 => call_ret5_reduce_4_fu_114_ap_return_0,
-        ap_return_1 => call_ret5_reduce_4_fu_114_ap_return_1,
-        ap_return_2 => call_ret5_reduce_4_fu_114_ap_return_2);
+        ap_ready => p_Val2_s_reduce_4_fu_44_ap_ready,
+        x_0_V_read => x_0_V_read,
+        x_1_V_read => x_1_V_read,
+        ap_return => p_Val2_s_reduce_4_fu_44_ap_return);
 
-    call_ret6_reduce_4_fu_130 : component reduce_4
+    p_Val2_3_reduce_4_fu_52 : component reduce_4
     port map (
-        ap_ready => call_ret6_reduce_4_fu_130_ap_ready,
-        x_0_hwPt_V_read => x_2_hwPt_V_read,
-        x_1_hwPt_V_read => x_3_hwPt_V_read,
-        x_0_hwEta_V_read => x_2_hwEta_V_read,
-        x_1_hwEta_V_read => x_3_hwEta_V_read,
-        x_0_hwPhi_V_read => x_2_hwPhi_V_read,
-        x_1_hwPhi_V_read => x_3_hwPhi_V_read,
-        ap_return_0 => call_ret6_reduce_4_fu_130_ap_return_0,
-        ap_return_1 => call_ret6_reduce_4_fu_130_ap_return_1,
-        ap_return_2 => call_ret6_reduce_4_fu_130_ap_return_2);
+        ap_ready => p_Val2_3_reduce_4_fu_52_ap_ready,
+        x_0_V_read => x_2_V_read,
+        x_1_V_read => x_3_V_read,
+        ap_return => p_Val2_3_reduce_4_fu_52_ap_return);
 
 
 
 
     ap_ready <= ap_const_logic_1;
-    ap_return_0 <= select_ln84_fu_182_p3;
-    ap_return_1 <= select_ln84_5_fu_190_p3;
-    ap_return_2 <= select_ln84_6_fu_198_p3;
-    icmp_ln891_fu_170_p2 <= "1" when (unsigned(call_ret5_reduce_4_fu_114_ap_return_0) < unsigned(call_ret6_reduce_4_fu_130_ap_return_0)) else "0";
-    select_ln84_5_fu_190_p3 <= 
-        call_ret5_reduce_4_fu_114_ap_return_1 when (xor_ln891_fu_176_p2(0) = '1') else 
-        call_ret6_reduce_4_fu_130_ap_return_1;
-    select_ln84_6_fu_198_p3 <= 
-        call_ret5_reduce_4_fu_114_ap_return_2 when (xor_ln891_fu_176_p2(0) = '1') else 
-        call_ret6_reduce_4_fu_130_ap_return_2;
-    select_ln84_fu_182_p3 <= 
-        call_ret5_reduce_4_fu_114_ap_return_0 when (xor_ln891_fu_176_p2(0) = '1') else 
-        call_ret6_reduce_4_fu_130_ap_return_0;
-    xor_ln891_fu_176_p2 <= (icmp_ln891_fu_170_p2 xor ap_const_lv1_1);
+    ap_return <= std_logic_vector(unsigned(p_Val2_3_reduce_4_fu_52_ap_return) + unsigned(p_Val2_s_reduce_4_fu_44_ap_return));
 end behav;
