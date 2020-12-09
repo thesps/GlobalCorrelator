@@ -53,7 +53,9 @@ package body DataType is
   function WriteHeader return string is
     variable x : line;
   begin
-    write(x, string'("data"), right, 15);
+    write(x, string'("pt"), right, 15);
+    write(x, string'("eta"), right, 15);
+    write(x, string'("phi"), right, 15);
     write(x, string'("FrameValid"), right, 15);
     write(x, string'("DataValid"), right, 15);
     return x.all;
@@ -62,7 +64,9 @@ package body DataType is
   function WriteData(d : tData) return string is 
     variable x : line;
   begin
-    write(x, to_integer(unsigned(d.data)), right, 15);
+    write(x, to_integer(unsigned(d.data(15 downto 0))), right, 15);
+    write(x, to_integer(signed(d.data(25 downto 16))), right, 15);
+    write(x, to_integer(signed(d.data(35 downto 26))), right, 15);
     write(x, d.FrameValid, right, 15);
     write(x, d.DataValid, right, 15);
     return x.all;
