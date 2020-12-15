@@ -76,6 +76,10 @@ begin
                 exit;
             end if;
         end loop;
+        -- edge condition (all of a was valid)
+        if a(15).DataValid then
+            N <= 16;
+        end if;
     end process;
     
     -- Compute an address for every input
