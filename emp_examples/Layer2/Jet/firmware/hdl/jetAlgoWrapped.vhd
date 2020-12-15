@@ -17,6 +17,7 @@ end;
 
 architecture rtl of jetAlgoWrapped is
     signal qi : Vector(0 to 9) := NullVector(10);
+    signal done : std_logic := '0';
 begin
 
     algo : entity work.algo_main
@@ -24,6 +25,7 @@ begin
     ap_clk => clk,
     ap_rst => '0',
     ap_start => start,
+    ap_done => done,
     particles_0 => d(0).data(35 downto 0),
     particles_1 => d(1).data(35 downto 0),
     particles_2 => d(2).data(35 downto 0),
@@ -166,8 +168,8 @@ begin
     GenValid:
     for i in 0 to 9 generate
     begin
-        q(i).DataValid <= qi(i).data /= (63 downto 0 => '0');
-        q(i).FrameValid <= qi(i).data /= (63 downto 0 => '0');
+        q(i).DataValid <= done = '1';
+        q(i).FrameValid <= done = '1';
         q(i).data <= qi(i).data;
     end generate;
 

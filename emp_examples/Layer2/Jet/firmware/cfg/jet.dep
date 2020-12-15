@@ -1,33 +1,33 @@
-src jetAlgoWrapped.vhd
-src algo_main.vhd
-src addJetPtSorted.vhd
-src copyInput.vhd
-src findSeed.vhd
-src formJet.vhd
-src updateWork.vhd
-src algo_main_inv_tabeOg.vhd
-src algo_main_mac_mulcud.vhd
-src algo_main_mul_mulbkb.vhd
-src algo_main_mul_muldEe.vhd
-src algo_main_mul_mulfYi.vhd
-src reduce_10.vhd
-src reduce_11.vhd
-src reduce_12.vhd
-src reduce_13.vhd
-src reduce_14.vhd
-src reduce_15.vhd
-src reduce_16.vhd
-src reduce_17.vhd
-src reduce_18.vhd
-src reduce_19.vhd
-src reduce_1.vhd
-src reduce_20.vhd
-src reduce_2.vhd
-src reduce_3.vhd
-src reduce_4.vhd
-src reduce_5.vhd
-src reduce_6.vhd
-src reduce_7.vhd
-src reduce_8.vhd
-src reduce_9.vhd
-src reduce.vhd
+src -l Jet jetAlgoWrapped.vhd
+src -l Jet algo_main.vhd
+src -l Jet addJetPtSorted.vhd
+src -l Jet copyInput.vhd
+src -l Jet findSeed.vhd
+src -l Jet formJet.vhd
+src -l Jet updateWork.vhd
+src -l Jet algo_main_inv_tabeOg.vhd
+src -l Jet algo_main_mac_mulcud.vhd
+src -l Jet algo_main_mul_mulbkb.vhd
+src -l Jet algo_main_mul_muldEe.vhd
+src -l Jet algo_main_mul_mulfYi.vhd
+src -l Jet reduce_10.vhd
+src -l Jet reduce_11.vhd
+src -l Jet reduce_12.vhd
+src -l Jet reduce_13.vhd
+src -l Jet reduce_14.vhd
+src -l Jet reduce_15.vhd
+src -l Jet reduce_16.vhd
+src -l Jet reduce_17.vhd
+src -l Jet reduce_18.vhd
+src -l Jet reduce_19.vhd
+src -l Jet reduce_1.vhd
+src -l Jet reduce_20.vhd
+src -l Jet reduce_2.vhd
+src -l Jet reduce_3.vhd
+src -l Jet reduce_4.vhd
+src -l Jet reduce_5.vhd
+src -l Jet reduce_6.vhd
+src -l Jet reduce_7.vhd
+src -l Jet reduce_8.vhd
+src -l Jet reduce_9.vhd
+src -l Jet reduce.vhd
