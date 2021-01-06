@@ -42,7 +42,7 @@ begin
     QPipe : entity work.DataPipe
     port map(clk, EventParticlesInt, EventParticlesPipe);
 
-    EventParticles <= EventParticlesPipe(3);
+    --EventParticles <= EventParticlesPipe(3);
 
     StartSigProc:
     process(clk)
@@ -55,6 +55,20 @@ begin
             end if;
         end if;
     end process;
+
+    GenOutput:
+    for i in 0 to 127 generate
+    begin
+        Proc:
+        process(clk)
+        begin
+            if rising_edge(clk) then
+                EventParticles(i).data <= EventParticlesPipe(2)(i).data;
+                EventParticles(i).DataValid <= EventParticlesPipe(2)(i).DataValid and (not EventParticlesPipe(1)(i).FrameValid and EventParticlesPipe(2)(i).FrameValid);
+                EventParticles(i).FrameValid <= EventParticlesPipe(2)(i).FrameValid;
+            end if;
+        end process;
+    end generate;
 
     Debug : entity work.Debug
     generic map("Regionizer-EventParticles", "./")
