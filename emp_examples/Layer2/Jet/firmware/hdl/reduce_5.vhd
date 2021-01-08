@@ -11,7 +11,8 @@ use IEEE.numeric_std.all;
 
 entity reduce_5 is
 port (
-    ap_ready : OUT STD_LOGIC;
+    ap_clk : IN STD_LOGIC;
+    ap_rst : IN STD_LOGIC;
     x_0_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
     x_1_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
     x_2_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
@@ -28,19 +29,27 @@ port (
     x_13_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
     x_14_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
     x_15_V_read : IN STD_LOGIC_VECTOR (15 downto 0);
-    ap_return : OUT STD_LOGIC_VECTOR (15 downto 0) );
+    ap_return : OUT STD_LOGIC_VECTOR (15 downto 0);
+    ap_ce : IN STD_LOGIC );
 end;
 
 
 architecture behav of reduce_5 is 
     constant ap_const_logic_1 : STD_LOGIC := '1';
     constant ap_const_boolean_1 : BOOLEAN := true;
+    constant ap_const_boolean_0 : BOOLEAN := false;
     constant ap_const_logic_0 : STD_LOGIC := '0';
 
-    signal p_Val2_s_reduce_fu_140_ap_ready : STD_LOGIC;
     signal p_Val2_s_reduce_fu_140_ap_return : STD_LOGIC_VECTOR (15 downto 0);
-    signal p_Val2_5_reduce_fu_160_ap_ready : STD_LOGIC;
+    signal p_Val2_s_reg_184 : STD_LOGIC_VECTOR (15 downto 0);
+    signal ap_block_state1_pp0_stage0_iter0 : BOOLEAN;
+    signal ap_block_state2_pp0_stage0_iter1 : BOOLEAN;
+    signal ap_block_pp0_stage0_11001 : BOOLEAN;
     signal p_Val2_5_reduce_fu_160_ap_return : STD_LOGIC_VECTOR (15 downto 0);
+    signal p_Val2_5_reg_189 : STD_LOGIC_VECTOR (15 downto 0);
+    signal p_Val2_s_reduce_fu_140_ap_ready : STD_LOGIC;
+    signal p_Val2_5_reduce_fu_160_ap_ready : STD_LOGIC;
+    signal ap_block_pp0_stage0 : BOOLEAN;
 
     component reduce IS
     port (
@@ -88,6 +97,18 @@ begin
 
 
 
-    ap_ready <= ap_const_logic_1;
-    ap_return <= std_logic_vector(unsigned(p_Val2_5_reduce_fu_160_ap_return) + unsigned(p_Val2_s_reduce_fu_140_ap_return));
+    process (ap_clk)
+    begin
+        if (ap_clk'event and ap_clk = '1') then
+            if (((ap_const_boolean_0 = ap_block_pp0_stage0_11001) and (ap_const_logic_1 = ap_ce))) then
+                p_Val2_5_reg_189 <= p_Val2_5_reduce_fu_160_ap_return;
+                p_Val2_s_reg_184 <= p_Val2_s_reduce_fu_140_ap_return;
+            end if;
+        end if;
+    end process;
+        ap_block_pp0_stage0 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_pp0_stage0_11001 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_state1_pp0_stage0_iter0 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_state2_pp0_stage0_iter1 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+    ap_return <= std_logic_vector(unsigned(p_Val2_5_reg_189) + unsigned(p_Val2_s_reg_184));
 end behav;

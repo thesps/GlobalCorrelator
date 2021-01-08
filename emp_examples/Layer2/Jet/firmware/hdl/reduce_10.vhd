@@ -56,23 +56,28 @@ architecture behav of reduce_10 is
     constant ap_const_boolean_1 : BOOLEAN := true;
     constant ap_const_boolean_0 : BOOLEAN := false;
 
-    signal p_Val2_s_reduce_12_fu_268_ap_return : STD_LOGIC_VECTOR (21 downto 0);
-    signal p_Val2_s_reg_344 : STD_LOGIC_VECTOR (21 downto 0);
+    signal grp_reduce_12_fu_268_ap_return : STD_LOGIC_VECTOR (21 downto 0);
+    signal grp_reduce_12_fu_268_ap_ce : STD_LOGIC;
+    signal ap_block_state1_pp0_stage0_iter0_ignore_call33 : BOOLEAN;
+    signal ap_block_state2_pp0_stage0_iter1_ignore_call33 : BOOLEAN;
+    signal ap_block_pp0_stage0_11001_ignoreCallOp35 : BOOLEAN;
+    signal grp_reduce_12_fu_304_ap_return : STD_LOGIC_VECTOR (21 downto 0);
+    signal grp_reduce_12_fu_304_ap_ce : STD_LOGIC;
+    signal ap_block_state1_pp0_stage0_iter0_ignore_call34 : BOOLEAN;
+    signal ap_block_state2_pp0_stage0_iter1_ignore_call34 : BOOLEAN;
+    signal ap_block_pp0_stage0_11001_ignoreCallOp36 : BOOLEAN;
+    signal ap_block_pp0_stage0 : BOOLEAN;
     signal ap_block_state1_pp0_stage0_iter0 : BOOLEAN;
     signal ap_block_state2_pp0_stage0_iter1 : BOOLEAN;
     signal ap_block_pp0_stage0_11001 : BOOLEAN;
-    signal p_Val2_8_reduce_12_fu_304_ap_return : STD_LOGIC_VECTOR (21 downto 0);
-    signal p_Val2_8_reg_349 : STD_LOGIC_VECTOR (21 downto 0);
-    signal p_Val2_s_reduce_12_fu_268_ap_ready : STD_LOGIC;
-    signal p_Val2_8_reduce_12_fu_304_ap_ready : STD_LOGIC;
-    signal ap_block_pp0_stage0 : BOOLEAN;
     signal add_ln703_fu_340_p2 : STD_LOGIC_VECTOR (21 downto 0);
     signal ap_ce_reg : STD_LOGIC;
     signal ap_return_int_reg : STD_LOGIC_VECTOR (21 downto 0);
 
     component reduce_12 IS
     port (
-        ap_ready : OUT STD_LOGIC;
+        ap_clk : IN STD_LOGIC;
+        ap_rst : IN STD_LOGIC;
         x_0_V_read : IN STD_LOGIC_VECTOR (21 downto 0);
         x_1_V_read : IN STD_LOGIC_VECTOR (21 downto 0);
         x_2_V_read : IN STD_LOGIC_VECTOR (21 downto 0);
@@ -89,15 +94,17 @@ architecture behav of reduce_10 is
         x_13_V_read : IN STD_LOGIC_VECTOR (21 downto 0);
         x_14_V_read : IN STD_LOGIC_VECTOR (21 downto 0);
         x_15_V_read : IN STD_LOGIC_VECTOR (21 downto 0);
-        ap_return : OUT STD_LOGIC_VECTOR (21 downto 0) );
+        ap_return : OUT STD_LOGIC_VECTOR (21 downto 0);
+        ap_ce : IN STD_LOGIC );
     end component;
 
 
 
 begin
-    p_Val2_s_reduce_12_fu_268 : component reduce_12
+    grp_reduce_12_fu_268 : component reduce_12
     port map (
-        ap_ready => p_Val2_s_reduce_12_fu_268_ap_ready,
+        ap_clk => ap_clk,
+        ap_rst => ap_rst,
         x_0_V_read => x_0_V_read,
         x_1_V_read => x_1_V_read,
         x_2_V_read => x_2_V_read,
@@ -114,11 +121,13 @@ begin
         x_13_V_read => x_13_V_read,
         x_14_V_read => x_14_V_read,
         x_15_V_read => x_15_V_read,
-        ap_return => p_Val2_s_reduce_12_fu_268_ap_return);
+        ap_return => grp_reduce_12_fu_268_ap_return,
+        ap_ce => grp_reduce_12_fu_268_ap_ce);
 
-    p_Val2_8_reduce_12_fu_304 : component reduce_12
+    grp_reduce_12_fu_304 : component reduce_12
     port map (
-        ap_ready => p_Val2_8_reduce_12_fu_304_ap_ready,
+        ap_clk => ap_clk,
+        ap_rst => ap_rst,
         x_0_V_read => x_16_V_read,
         x_1_V_read => x_17_V_read,
         x_2_V_read => x_18_V_read,
@@ -135,7 +144,8 @@ begin
         x_13_V_read => x_29_V_read,
         x_14_V_read => x_30_V_read,
         x_15_V_read => x_31_V_read,
-        ap_return => p_Val2_8_reduce_12_fu_304_ap_return);
+        ap_return => grp_reduce_12_fu_304_ap_return,
+        ap_ce => grp_reduce_12_fu_304_ap_ce);
 
 
 
@@ -155,20 +165,17 @@ begin
             end if;
         end if;
     end process;
-    process (ap_clk)
-    begin
-        if (ap_clk'event and ap_clk = '1') then
-            if (((ap_const_boolean_0 = ap_block_pp0_stage0_11001) and (ap_const_logic_1 = ap_const_logic_1))) then
-                p_Val2_8_reg_349 <= p_Val2_8_reduce_12_fu_304_ap_return;
-                p_Val2_s_reg_344 <= p_Val2_s_reduce_12_fu_268_ap_return;
-            end if;
-        end if;
-    end process;
-    add_ln703_fu_340_p2 <= std_logic_vector(unsigned(p_Val2_8_reg_349) + unsigned(p_Val2_s_reg_344));
+    add_ln703_fu_340_p2 <= std_logic_vector(unsigned(grp_reduce_12_fu_304_ap_return) + unsigned(grp_reduce_12_fu_268_ap_return));
         ap_block_pp0_stage0 <= not((ap_const_boolean_1 = ap_const_boolean_1));
         ap_block_pp0_stage0_11001 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_pp0_stage0_11001_ignoreCallOp35 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_pp0_stage0_11001_ignoreCallOp36 <= not((ap_const_boolean_1 = ap_const_boolean_1));
         ap_block_state1_pp0_stage0_iter0 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_state1_pp0_stage0_iter0_ignore_call33 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_state1_pp0_stage0_iter0_ignore_call34 <= not((ap_const_boolean_1 = ap_const_boolean_1));
         ap_block_state2_pp0_stage0_iter1 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_state2_pp0_stage0_iter1_ignore_call33 <= not((ap_const_boolean_1 = ap_const_boolean_1));
+        ap_block_state2_pp0_stage0_iter1_ignore_call34 <= not((ap_const_boolean_1 = ap_const_boolean_1));
 
     ap_return_assign_proc : process(add_ln703_fu_340_p2, ap_ce_reg, ap_return_int_reg)
     begin
@@ -176,6 +183,26 @@ begin
             ap_return <= ap_return_int_reg;
         elsif ((ap_const_logic_1 = ap_ce_reg)) then 
             ap_return <= add_ln703_fu_340_p2;
+        end if; 
+    end process;
+
+
+    grp_reduce_12_fu_268_ap_ce_assign_proc : process(ap_block_pp0_stage0_11001_ignoreCallOp35)
+    begin
+        if (((ap_const_boolean_0 = ap_block_pp0_stage0_11001_ignoreCallOp35) and (ap_const_logic_1 = ap_const_logic_1))) then 
+            grp_reduce_12_fu_268_ap_ce <= ap_const_logic_1;
+        else 
+            grp_reduce_12_fu_268_ap_ce <= ap_const_logic_0;
+        end if; 
+    end process;
+
+
+    grp_reduce_12_fu_304_ap_ce_assign_proc : process(ap_block_pp0_stage0_11001_ignoreCallOp36)
+    begin
+        if (((ap_const_boolean_0 = ap_block_pp0_stage0_11001_ignoreCallOp36) and (ap_const_logic_1 = ap_const_logic_1))) then 
+            grp_reduce_12_fu_304_ap_ce <= ap_const_logic_1;
+        else 
+            grp_reduce_12_fu_304_ap_ce <= ap_const_logic_0;
         end if; 
     end process;
 
