@@ -206,7 +206,13 @@ begin
         end generate;
     end generate;
 
-    q <= Y;
+    ProcOut:
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            q <= Y;
+        end if;
+    end process;
 
 end rtl;
 
