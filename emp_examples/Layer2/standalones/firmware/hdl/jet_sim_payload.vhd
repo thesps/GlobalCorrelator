@@ -59,7 +59,7 @@ architecture rtl of emp_payload is
 begin
 
     LinkMap : entity work.link_map
-    generic map(True)
+    generic map(False)
     port map(clk_p, d, dIO);
 
     Merge : entity IO.MergeAccumulateInputRegions

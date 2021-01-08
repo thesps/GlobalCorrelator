@@ -2,7 +2,7 @@
 include -c emp-fwk:boards/testbench
 
 # jet project
-src --vhdl2008 jet_test_payload.vhd
+src --vhdl2008 jet_sim_payload.vhd
 src --vhdl2008 link_map.vhd
 include -c emp_examples/Layer2/Jet jet.dep
 include -c emp_examples/Layer2/deregionizer deregionizer.dep
