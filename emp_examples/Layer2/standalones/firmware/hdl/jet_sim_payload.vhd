@@ -68,8 +68,11 @@ begin
     --MergeOutPipe : entity IO.DataPipe
     --port map(clk_p, qIO, qIOP);
 
-    JetAlgo : entity Jet.JetAlgoWrapped
-    port map(clk_p, qIO, jetStart, jetsIO);
+    --JetAlgo : entity Jet.JetAlgoWrapped
+    --port map(clk_p, qIO, jetStart, jetsIO);
+
+    JetAlgo : entity work.JetAlgo
+    port map(clk_p, qIO, jetsIO);
 
     JetsOutPipe : entity IO.DataPipe
     port map(clk_p, jetsIO, jetsIOP);

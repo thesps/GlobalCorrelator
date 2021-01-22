@@ -6,6 +6,7 @@ src --vhdl2008 jet_sim_payload.vhd
 src --vhdl2008 link_map.vhd
 include -c emp_examples/Layer2/Jet jet.dep
 include -c emp_examples/Layer2/deregionizer deregionizer.dep
+src -c emp_examples/Layer2/components PkgConstants.vhd
 src --vhdl2008 -c RuflCore: -l Utilities ReuseableElements/PkgUtilities.vhd
 src --vhdl2008 -c RuflCore: -l Utilities ReuseableElements/PkgDebug.vhd
 
