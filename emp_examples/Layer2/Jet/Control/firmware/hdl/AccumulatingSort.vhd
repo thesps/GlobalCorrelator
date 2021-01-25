@@ -19,23 +19,21 @@ architecture rtl of AccumulatingSort is
     signal M : Vector(0 to Q'length) := NullVector(Q'length+1);
     -- the static list
     signal S : Vector(0 to Q'length-1) := NullVector(Q'length);
-    -- a valid signal to determine when to read out
-    signal V : std_logic_vector(0 to Q'length) := (others => '0');
+    -- a signal to determine when to read out
     signal flush : boolean := false;
     type bool_arr is array(natural range <>) of boolean;
     signal comp : bool_arr(0 to Q'length) := (others => false);
 begin
     -- Connect the new data to the start of the moving list
     M(0) <= D;
-    -- Connect the start of the valid pipe to the incoming data, and pipeline it
-    V(0) <= '1' when D.FrameValid else '0';
-    V(1 to Q'length) <= V(0 to Q'length-1) when rising_edge(clk);
 
     CtrlProc:
     process(clk) is
     begin
     if rising_edge(clk) then
-        flush <= V(Q'length-1) = '0' and V(Q'length) = '1';
+        -- When the final element in 'S' is valid we have process NJETS jets
+        -- so flush and read out
+        flush <= S(S'length-1).DataValid;
         if flush then
             Q <= S;
         else

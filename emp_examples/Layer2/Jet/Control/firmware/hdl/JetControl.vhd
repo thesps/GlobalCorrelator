@@ -69,7 +69,7 @@ begin
             else
                 loop_parts_in <= loop_parts_out;
                 -- if it's had NJETS iterations, it's finished
-                if n_iter(JETLOOPLATENCY-1).x = NJETS then
+                if n_iter(JETLOOPLATENCY).x = NJETS then
                     n_iter(0).x <= 0;
                     n_event.x <= 0;
                     n_events(0).x <= 0;
@@ -90,7 +90,7 @@ begin
             if D(0).DataValid then
                 DWait <= D;
             -- When the internal FIFO is read into the algo, clear it
-            elsif DWait(0).DataValid and n_iter(JETLOOPLATENCY-1).x = 0 then
+            elsif DWait(0).DataValid and n_iter(JETLOOPLATENCY).x = 0 then
                 DWait <= NullVector(NPARTICLES);
             end if;
         end if;
@@ -120,6 +120,7 @@ begin
                 jet_ev.eta <= jet_o.eta;
                 jet_ev.phi <= jet_o.phi;
                 jet_ev.DataValid <= True;
+                jet_ev.FrameValid <= True;
                 if n_iter_o(i).x = NJETS then
                     n_iter_o(i).x <= 0;
                 else
@@ -130,8 +131,8 @@ begin
                 jet_ev.eta <= Jet.DataType.cNull.eta;
                 jet_ev.phi <= Jet.DataType.cNull.phi;
                 jet_ev.DataValid <= False;
+                jet_ev.FrameValid <= False;
             end if;
-            jet_ev.FrameValid <= n_iter_o(i).x > 0;
         end if;
         end process;
         Sort : entity work.AccumulatingSort
@@ -143,14 +144,20 @@ begin
     -- At that moment output the jets
     OutProc:
     process(clk) is
+        variable any_valid : boolean := false;
     begin
     if rising_edge(clk) then
+        any_valid := false;
         OutLoop:
         for i in 0 to EVENTSINFLIGHT-1 loop
             if jets_all(i)(NJETS-1).DataValid then
                 Qint <= jets_all(i);
+                any_valid := true;
             end if;
         end loop;
+        if not any_valid then
+            Qint <= Jet.ArrayTypes.NullVector(NJETS);
+        end if;
     end if;
     end process;
 
