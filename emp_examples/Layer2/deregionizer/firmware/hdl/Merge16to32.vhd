@@ -76,6 +76,10 @@ begin
                 exit;
             end if;
         end loop;
+        -- edge condition (all of a was valid)
+        if a(15).DataValid then
+            N <= 16;
+        end if;
     end process;
     
     -- Compute an address for every input
@@ -202,7 +206,13 @@ begin
         end generate;
     end generate;
 
-    q <= Y;
+    ProcOut:
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            q <= Y;
+        end if;
+    end process;
 
 end rtl;
 

@@ -20,7 +20,7 @@ end Merge32to64;
 
 architecture rtl of Merge32to64 is
 
-    constant RouterLatency : integer := 4; -- a guess for now
+    constant RouterLatency : integer := 7; -- a guess for now
     signal aPipe : VectorPipe(0 to RouterLatency - 1)(0 to 32 - 1) := NulLVectorPipe(RouterLatency, 32);
 
     -- Layer input arrays
@@ -113,6 +113,10 @@ begin
                 exit;
             end if;
         end loop;
+        -- edge condition (all of a was valid)
+        if a(31).DataValid then
+            N <= 32;
+        end if;
     end process;
     
     -- Compute an address for every input
@@ -135,9 +139,6 @@ begin
     	    constant aj : integer := j mod 4;
 	        constant bj : integer := i + 4 * (j / 4);
         begin
-            --AddrInProc:
-            --process(clk)
-            --begin
             k0 <= N + 8 * i + j;
             -- Slice the lowest 3 bits. Aka x % 8
             k1 <= to_integer(to_unsigned(k0, 6)(2 downto 0));
@@ -149,18 +150,22 @@ begin
             ki0.x <= k0;
             ki1.x <= k1;
             ki2.x <= k2;
-            X0(i)(j) <= b(8*i + j);
-            XA0(i)(j) <= ki0; 
-            XLA0(i)(j) <= ki1;
-            XLA1(i)(j) <= ki2; 
-            --end process;
-
-            -- Inter layer connections
-            -- Update for 4 x 8 router grouping
-            X1(i)(j) <= Y0(aj)(bj);
-            XA1(i)(j) <= YA0(aj)(bj);
-            X2(i)(j) <= Y1(aj)(bj);
-            XA2(i)(j) <= YA1(aj)(bj);
+            LayerClocks:
+            process(clk)
+            begin
+                if rising_edge(clk) then
+                    X0(i)(j) <= b(8*i + j);
+                    XA0(i)(j) <= ki0; 
+                    XLA0(i)(j) <= ki1;
+                    XLA1(i)(j) <= ki2; 
+                    -- Inter layer connections
+                    -- Update for 4 x 8 router grouping
+                    X1(i)(j) <= Y0(aj)(bj);
+                    XA1(i)(j) <= YA0(aj)(bj);
+                    X2(i)(j) <= Y1(aj)(bj);
+                    XA2(i)(j) <= YA1(aj)(bj);
+                end if;
+            end process;
         end generate;
 
         -- First route layer

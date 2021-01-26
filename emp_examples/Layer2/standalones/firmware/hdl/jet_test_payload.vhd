@@ -13,6 +13,9 @@ use IO.ArrayTypes;
 
 library Jet;
 
+library Utilities;
+use Utilities.Debugging;
+
 use work.ipbus.all;
 use work.emp_data_types.all;
 use work.emp_project_decl.all;
@@ -43,36 +46,40 @@ end emp_payload;
 
 architecture rtl of emp_payload is
 	
-    --signal dVIO  : IO.ArrayTypes.Vector(0 to 6 * 16 - 1) := IO.ArrayTypes.NullVector(6 * 16);
-    signal dIO     : IO.ArrayTypes.Matrix(0 to 5)(0 to 15)      := IO.ArrayTypes.NullMatrix(6, 16);
-    signal qIO     : IO.ArrayTypes.Vector(0 to 127)             := IO.ArrayTypes.NullVector(128);
-    signal qIOP    : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 127) := IO.ArrayTypes.NullVectorPipe(5, 128);
-    signal jetsIO  : IO.ArrayTypes.Vector(0 to 9)               := IO.ArrayTypes.NullVector(10);
-    signal jetsIOP : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 9)   := IO.ArrayTypes.NullVectorPipe(5, 10);
+    --signal dVIO   : IO.ArrayTypes.Vector(0 to 6 * 16 - 1) := IO.ArrayTypes.NullVector(6 * 16);
+    signal dIO      : IO.ArrayTypes.Matrix(0 to 5)(0 to 15)      := IO.ArrayTypes.NullMatrix(6, 16);
+    signal qIO      : IO.ArrayTypes.Vector(0 to 127)             := IO.ArrayTypes.NullVector(128);
+    signal qIOP     : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 127) := IO.ArrayTypes.NullVectorPipe(5, 128);
+    signal jetsIO   : IO.ArrayTypes.Vector(0 to 9)               := IO.ArrayTypes.NullVector(10);
+    signal jetsIOP  : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 9)   := IO.ArrayTypes.NullVectorPipe(5, 10);
+    signal jetStart : std_logic := '0';
+    signal jetsDone : std_logic := '0';
+    signal jetsDonePipe : std_logic_vector(0 to 4) := (others => '0');
 
 begin
 
     LinkMap : entity work.link_map
+    generic map(True)
     port map(clk_p, d, dIO);
 
     Merge : entity IO.MergeAccumulateInputRegions
-    port map(clk_p, dIO, qIO);
+    port map(clk_p, dIO, qIO, jetStart);
 
-    MergeOutPipe : entity IO.DataPipe
-    port map(clk_p, qIO, qIOP);
+    --MergeOutPipe : entity IO.DataPipe
+    --port map(clk_p, qIO, qIOP);
 
     JetAlgo : entity Jet.JetAlgoWrapped
-    port map(clk_p, qIOP(4), jetsIO);
+    port map(clk_p, qIO, jetStart, jetsIO);
 
     JetsOutPipe : entity IO.DataPipe
     port map(clk_p, jetsIO, jetsIOP);
 
     GenOut:
     for i in 0 to 9 generate
-        q(i).data   <= jetsIOP(4)(i).data;
-        q(i).valid  <= '1';
-        q(i).strobe <= '1';
-        q(i).start  <= '0';
+        q(4*9 + i).data   <= jetsIOP(4)(i).data;
+        q(4*9 + i).valid  <= '1' when jetsIOP(4)(i).DataValid else '0';
+        q(4*9 + i).strobe <= '1';
+        q(4*9 + i).start  <= '0';
     end generate;
 
 	ipb_out <= IPB_RBUS_NULL;
@@ -80,5 +87,17 @@ begin
 	
 	gpio <= (others => '0');
 	gpio_en <= (others => '0');
+
+    SimCounter:
+    process(clk_p)
+    begin
+        if rising_edge(clk_p) then
+            Utilities.Debugging.SimulationClockCounter <= Utilities.Debugging.SimulationClockCounter + 1;
+        end if;
+    end process;
+
+    Debug : entity IO.Debug
+    generic map("Jets", "./")
+    port map(clk_p, jetsIO);
 
 end rtl;

@@ -13,6 +13,9 @@ use work.emp_device_decl.all;
 -- Map links to regions such that each group originates from the same SLR
 -- Using the map of https://gitlab.cern.ch/p2-xware/firmware/emp-fwk/blob/task/board-datapath-region-diagrams/boards/vcu118/regions.md
 entity link_map is
+    generic(
+        opt : boolean := false
+    );
 	port(
 		clk: in std_logic; -- ipbus signals
 		d: in ldata(4 * N_REGION - 1 downto 0); -- data in
@@ -38,21 +41,34 @@ begin
     Pipe : entity IO.DataPipe
     port map(clk, dVIO, dPIO);
 
-    -- Regions 0 - 3 (4 regions) are in SLR0
-    -- Other regions are in groups of 5 per-side-of-SLR
-    -- Final group is a group of 4 in SLR0
-    Q0:
-    for i in 0 to 15 generate
-        qInt(0)(i) <= dPIO(4)(i);
-    end generate;
+    GMap:
+    if opt generate
+        -- Regions 0 - 3 (4 regions) are in SLR0
+        -- Other regions are in groups of 5 per-side-of-SLR
+        -- Final group is a group of 4 in SLR0
+        Q0:
+        for i in 0 to 15 generate
+            qInt(0)(i) <= dPIO(4)(i);
+        end generate;
 
-    Q1to5:
-    for i in 0 to 4 generate
-        QJ:
-        for j in 0 to 15 generate
-            qInt(i+1)(j) <= dPIO(4)(20 * i + j + 16);
+        Q1to5:
+        for i in 0 to 4 generate
+            QJ:
+            for j in 0 to 15 generate
+                qInt(i+1)(j) <= dPIO(4)(20 * i + j + 16);
+            end generate;
+        end generate;
+    else generate
+        Gi:
+        for i in 0 to 5 generate
+            Gj:
+            for j in 0 to 15 generate
+            begin
+                qInt(i)(j) <= dPIO(4)(16*i + j);
+            end generate;
         end generate;
     end generate;
+
 
     -- Map to the Merge inputs such that the first layer of merging uses
     -- inputs in the same SLR
@@ -62,4 +78,8 @@ begin
     q(3) <= qInt(4);
     q(4) <= qInt(2);
     q(5) <= qInt(3);
+
+    Debug : entity IO.Debug
+    generic map("Regionizer-Inputs", "./")
+    port map(clk, dVIO);
 end rtl;

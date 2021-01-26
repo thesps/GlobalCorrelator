@@ -8,23 +8,23 @@ port (
     clk: in std_logic;
     rst: in std_logic;
     ce: in std_logic;
-    a: in std_logic_vector(17 - 1 downto 0);
-    b: in std_logic_vector(18 - 1 downto 0);
-    p: out std_logic_vector(31 - 1 downto 0));
+    a: in std_logic_vector(18 - 1 downto 0);
+    b: in std_logic_vector(22 - 1 downto 0);
+    p: out std_logic_vector(40 - 1 downto 0));
 
 end entity;
 
 architecture behav of algo_main_mul_mulfYi_DSP48_3 is
-    signal a_cvt: signed(17 - 1 downto 0);
-    signal b_cvt: unsigned(18 - 1 downto 0);
-    signal p_cvt: signed(31 - 1 downto 0);
+    signal a_cvt: unsigned(18 - 1 downto 0);
+    signal b_cvt: signed(22 - 1 downto 0);
+    signal p_cvt: signed(40 - 1 downto 0);
 
-    signal p_reg: signed(31 - 1 downto 0);
+    signal p_reg: signed(40 - 1 downto 0);
 
 begin
 
-    a_cvt <= signed(a);
-    b_cvt <= unsigned(b);
+    a_cvt <= unsigned(a);
+    b_cvt <= signed(b);
 
     process(clk)
     begin
@@ -35,7 +35,7 @@ begin
         end if;
     end process;
 
-    p_cvt <= signed (resize(unsigned (signed (a_cvt) * signed ('0' & b_cvt)), 31));
+    p_cvt <= signed (resize(unsigned (signed ('0' & a_cvt) * signed (b_cvt)), 40));
     p <= std_logic_vector(p_reg);
 
 end architecture;
