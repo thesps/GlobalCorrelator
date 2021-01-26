@@ -1,0 +1,3 @@
+src --vhdl2008 -l Int Debugger.vhd
+src --vhdl2008 -l Int PkgArrayTypes.vhd
+src --vhdl2008 -c emp_examples/Layer2/components -l Int PkgInt.vhd

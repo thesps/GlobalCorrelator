@@ -7,5 +7,5 @@ src --vhdl2008 -l IO Merge32to64.vhd
 src --vhdl2008 -l IO UniqueRouting.vhd
 
 include -c emp_examples/Layer2/IO IO.dep
-src --vhdl2008 -c emp_examples/Layer2/Int -l Int PkgArrayTypes.vhd
-src --vhdl2008 -c emp_examples/Layer2/components -l Int PkgInt.vhd
+include -c emp_examples/Layer2/Int Int.dep
+

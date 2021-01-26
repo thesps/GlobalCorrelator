@@ -62,17 +62,19 @@ begin
                 if n_event.x = EVENTSINFLIGHT then
                     n_event.x <= 1;
                     n_events(0).x <= 1;
+                    n_events(0).DataValid <= True;
                 else
                     n_event.x <= n_event.x + 1;
                     n_events(0).x <= n_event.x + 1;
+                    n_events(0).DataValid <= True;
                 end if;
             else
                 loop_parts_in <= loop_parts_out;
                 -- if it's had NJETS iterations, it's finished
                 if n_iter(JETLOOPLATENCY).x = NJETS then
                     n_iter(0).x <= 0;
-                    n_event.x <= 0;
                     n_events(0).x <= 0;
+                    n_events(0).DataValid <= False;
                 -- if it's a jet in progress, increment the counter
                 elsif n_iter(JETLOOPLATENCY).x > 0 then
                     n_iter(0).x <= n_iter(JETLOOPLATENCY).x + 1;
@@ -80,7 +82,7 @@ begin
                     n_events(0) <= n_events(JETLOOPLATENCY);
                 else
                     n_iter(0).x <= 0;
-                    n_events(0).x <= 0;
+                    n_events(0) <= Int.DataType.cNull;
                 end if;
             end if;
             n_iter(1 to JETLOOPLATENCY) <= n_iter(0 to JETLOOPLATENCY-1);
@@ -179,6 +181,11 @@ begin
         end if;
         end process;
     end generate;
+
+    -- Debug file output
+    Debug : entity Int.Debug
+    generic map("n_events", "./")
+    port map(clk, n_events);
 
 end rtl;
 

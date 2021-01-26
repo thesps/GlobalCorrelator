@@ -72,4 +72,8 @@ begin
         end process;
     end generate;
 
+    Debug : entity Jet.Debug
+    generic map("AccumulatingSort", "./")
+    port map(clk, S);
+
 end rtl;
