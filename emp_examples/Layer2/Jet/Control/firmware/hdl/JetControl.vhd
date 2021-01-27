@@ -28,10 +28,7 @@ architecture rtl of JetAlgo is
     signal DWait : Vector(0 to NPARTICLES-1) := NullVector(NPARTICLES);
     signal loop_parts_in : Vector(0 to NPARTICLES-1) := NullVector(NPARTICLES);
     signal loop_parts_out : Vector(0 to NPARTICLES-1) := NullVector(NPARTICLES);
-    signal in_cone : Vector(0 to NPARTICLES-1) := NullVector(NPARTICLES);
-    signal sum_pts : Vector(0 to NPARTICLES-1) := NullVector(NPARTICLES);
-    signal sum_pt_etas : Vector(0 to NPARTICLES-1) := NullVector(NPARTICLES);
-    signal sum_pt_phis : Vector(0 to NPARTICLES-1) := NullVector(NPARTICLES);
+    signal partialParts : Vector(0 to NPARTICLES-1) := NullVector(NPARTICLES);
     signal seed_eta : tData := cNull;
     signal seed_phi : tData := cNull;
     signal n_iter : Int.ArrayTypes.Vector(0 to JETLOOPLATENCY) := Int.ArrayTypes.NullVector(JETLOOPLATENCY+1);
@@ -99,10 +96,10 @@ begin
     end process;
 
     JetLoop : entity work.JetLoopWrapped
-    port map(clk, loop_parts_in, loop_parts_out, in_cone, sum_pts, sum_pt_etas,  sum_pt_phis, seed_eta, seed_phi);
+    port map(clk, loop_parts_in, loop_parts_out, partialParts, seed_eta, seed_phi);
 
     JetCompute : entity work.JetComputeWrapped
-    port map(clk, sum_pts, sum_pt_etas, sum_pt_phis, seed_eta, seed_phi, jet_slv);
+    port map(clk, partialParts, seed_eta, seed_phi, jet_slv);
 
     jet_o.pt <= Jet.DataType.ToDataType(jet_slv.data).pt;
     jet_o.eta <= Jet.DataType.ToDataType(jet_slv.data).eta;

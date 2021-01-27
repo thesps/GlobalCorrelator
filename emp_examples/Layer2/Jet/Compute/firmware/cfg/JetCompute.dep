@@ -1,8 +1,9 @@
 src JetComputeWrapped.vhd
 src -l JetCompute jet_compute.vhd
 src -l JetCompute formJet.vhd
-src -l JetCompute jet_compute_inv_tbkb.vhd
-src -l JetCompute jet_compute_mul_mcud.vhd
+src -l JetCompute jet_compute_inv_tcud.vhd
+src -l JetCompute jet_compute_mul_mbkb.vhd
+src -l JetCompute jet_compute_mul_mdEe.vhd
 src -l JetCompute reduce_10.vhd
 src -l JetCompute reduce_11.vhd
 src -l JetCompute reduce_12.vhd
