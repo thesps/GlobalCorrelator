@@ -53,7 +53,7 @@ begin
         if rising_edge(clk) then
             -- if there's data in the FIFO and the next slot is free, start counting
             -- count from 1 so 0 can be used for 'no-event'
-            if DWait(0).DataValid and n_iter(JETLOOPLATENCY-1).x = 0 then
+            if DWait(0).DataValid and n_iter(JETLOOPLATENCY).x = 0 then
                 loop_parts_in <= DWait;
                 n_iter(0).x <= 1;
                 if n_event.x = EVENTSINFLIGHT then

@@ -5,6 +5,7 @@ src -l JetLoop findJet.vhd
 src -l JetLoop findSeed.vhd
 src -l JetLoop jet_loop_mac_mulacud.vhd
 src -l JetLoop jet_loop_mul_mul_bkb.vhd
+src -l JetLoop dreg_ap_fixed_s.vhd
 src -l JetLoop reduce_1.vhd
 src -l JetLoop reduce_2.vhd
 src -l JetLoop reduce_3.vhd

@@ -17,6 +17,7 @@ end AccumulatingSort;
 architecture rtl of AccumulatingSort is
     -- the moving list
     signal M : Vector(0 to Q'length) := NullVector(Q'length+1);
+    signal MReg : Vector(0 to Q'length) := NullVector(Q'length+1);
     -- the static list
     signal S : Vector(0 to Q'length-1) := NullVector(Q'length);
     -- a signal to determine when to read out
@@ -26,6 +27,7 @@ architecture rtl of AccumulatingSort is
 begin
     -- Connect the new data to the start of the moving list
     M(0) <= D;
+    MReg <= M when rising_edge(clk);
 
     CtrlProc:
     process(clk) is
@@ -46,7 +48,7 @@ begin
     for i in 0 to Q'length-1 generate
         process(clk) is
         begin
-            if falling_edge(clk) then
+            if rising_edge(clk) then
                 comp(i) <= M(i) > S(i);
             end if;
         end process;
@@ -61,11 +63,11 @@ begin
                     S(i) <= cNull;
                 else
                     if comp(i) then
-                        S(i) <= M(i);
+                        S(i) <= MReg(i);
                         M(i+1) <= S(i);
                     else
                         S(i) <= S(i);
-                        M(i+1) <= M(i);
+                        M(i+1) <= MReg(i);
                     end if;
                 end if;
             end if;
