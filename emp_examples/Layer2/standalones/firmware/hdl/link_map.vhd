@@ -19,7 +19,7 @@ entity link_map is
 	port(
 		clk: in std_logic; -- ipbus signals
 		d: in ldata(4 * N_REGION - 1 downto 0); -- data in
-        q: out IO.ArrayTypes.Matrix(0 to 5)(0 to 15) := IO.ArrayTypes.NullMatrix(6, 16)
+        q: out IO.ArrayTypes.Matrix(0 to 5)(0 to 5) := IO.ArrayTypes.NullMatrix(6, 6)
 	);
 end link_map;
 
@@ -27,7 +27,7 @@ architecture rtl of link_map is
 	
     signal dVIO : IO.ArrayTypes.Vector(0 to 4 * N_REGION - 1) := IO.ArrayTypes.NullVector(4 * N_REGION);
     signal dPIO : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 4 * N_REGION - 1) := IO.ArrayTypes.NullVectorPipe(5, 4 * N_REGION);
-    signal qInt : IO.ArrayTypes.Matrix(0 to 5)(0 to 15) := IO.ArrayTypes.NullMatrix(6, 16);
+    signal qInt : IO.ArrayTypes.Matrix(0 to 5)(0 to 5) := IO.ArrayTypes.NullMatrix(6, 6);
 
 begin
 
@@ -43,28 +43,25 @@ begin
 
     GMap:
     if opt generate
-        -- Regions 0 - 3 (4 regions) are in SLR0
-        -- Other regions are in groups of 5 per-side-of-SLR
-        -- Final group is a group of 4 in SLR0
-        Q0:
-        for i in 0 to 15 generate
-            qInt(0)(i) <= dPIO(4)(i);
+
+        -- Take 3 big-regions from SLR1 RHS
+        Q0to2:
+        for i in 0 to 2 generate
+            qInt(i) <= dPIO(4)(16 + 6*i to 16 + 6*(i+1)-1);
+        end generate;
+        -- Take 3 big-regions from SLR1 LHS
+        Q3to5:
+        for i in 0 to 2 generate
+            qInt(3+i) <= dPIO(4)(76 + 6*i to 76 + 6*(i+1)-1);
         end generate;
 
-        Q1to5:
-        for i in 0 to 4 generate
-            QJ:
-            for j in 0 to 15 generate
-                qInt(i+1)(j) <= dPIO(4)(20 * i + j + 16);
-            end generate;
-        end generate;
     else generate
         Gi:
         for i in 0 to 5 generate
             Gj:
-            for j in 0 to 15 generate
+            for j in 0 to 5 generate
             begin
-                qInt(i)(j) <= dPIO(4)(16*i + j);
+                qInt(i)(j) <= dPIO(4)(6*i + j);
             end generate;
         end generate;
     end generate;
@@ -73,11 +70,11 @@ begin
     -- Map to the Merge inputs such that the first layer of merging uses
     -- inputs in the same SLR
     q(0) <= qInt(0);
-    q(1) <= qInt(5);
-    q(2) <= qInt(1);
-    q(3) <= qInt(4);
-    q(4) <= qInt(2);
-    q(5) <= qInt(3);
+    q(1) <= qInt(1);
+    q(2) <= qInt(2);
+    q(3) <= qInt(3);
+    q(4) <= qInt(4);
+    q(5) <= qInt(5);
 
     Debug : entity IO.Debug
     generic map("Regionizer-Inputs", "./")

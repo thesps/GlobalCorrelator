@@ -102,9 +102,9 @@ begin
             --k1 <= k0 mod 4;
             --k2 <= (XA1(i)(j).x mod 16) / 4;
             -- Slice the lowest 2 bits. Aka x % 4
-            k1 <= to_integer(to_unsigned(k0, 4)(1 downto 0));
+            k1 <= to_integer(to_unsigned(k0, 6)(1 downto 0));
             -- Slice the next 2 bits. Aka (x % 16) // 4
-            k2 <= to_integer(to_unsigned(XA1(i)(j).x, 4)(3 downto 2));
+            k2 <= to_integer(to_unsigned(XA1(i)(j).x, 6)(3 downto 2));
             ki0.x <= k0;
             ki1.x <= k1;
             ki2.x <= k2;

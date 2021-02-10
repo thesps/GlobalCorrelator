@@ -65,6 +65,13 @@ begin
                     n_events(0).x <= n_event.x + 1;
                     n_events(0).DataValid <= True;
                 end if;
+            -- If there's no new event, and no data looping around
+            -- Inject null data
+            elsif n_iter(JETLOOPLATENCY).x = 0 then
+                loop_parts_in <= NullVector(NPARTICLES);
+                n_iter(0).x <= 0;
+                n_events(0) <= Int.DataType.cNull;
+            -- Otherwise an event is looping around
             else
                 loop_parts_in <= loop_parts_out;
                 -- if it's had NJETS iterations, it's finished
