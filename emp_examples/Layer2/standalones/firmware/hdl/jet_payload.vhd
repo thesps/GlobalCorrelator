@@ -54,6 +54,8 @@ architecture rtl of emp_payload is
     signal qIOP     : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 127) := IO.ArrayTypes.NullVectorPipe(5, 128);
     signal jetsIO   : IO.ArrayTypes.Vector(0 to 9)               := IO.ArrayTypes.NullVector(10);
     signal jetsIOP  : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 9)   := IO.ArrayTypes.NullVectorPipe(5, 10);
+    signal jDebugIO : IO.ArrayTypes.Vector(0 to 9)               := IO.ArrayTypes.NullVector(10);
+    signal jDebugIOP: IO.ArrayTypes.VectorPipe(0 to 4)(0 to 9)   := IO.ArrayTypes.NullVectorPipe(5,10);
     signal jetStart : std_logic := '0';
     signal jetsDone : std_logic := '0';
     signal jetsDonePipe : std_logic_vector(0 to 4) := (others => '0');
@@ -75,10 +77,13 @@ begin
     --port map(clk_p, qIO, jetStart, jetsIO);
 
     JetAlgo : entity work.JetAlgo
-    port map(clk_p, qIO, jetsIO);
+    port map(clk_p, qIO, jetsIO, jDebugIO);
 
     JetsOutPipe : entity IO.DataPipe
     port map(clk_p, jetsIO, jetsIOP);
+
+    DebugOutPipe : entity IO.DataPipe
+    port map(clk_p, jDebugIO, jDebugIOP);
 
     GenOut:
     for i in 0 to 9 generate
@@ -87,6 +92,16 @@ begin
         q(80 + i).strobe <= '1';
         q(80 + i).start  <= '0';
     end generate;
+
+    -- Write the jets entering the sorters onto links
+    -- for debugging purposes only
+    --GenDebugOut:
+    --for i in 0 to 9 generate
+    --    q(90 + i).data   <= jDebugIOP(4)(i).data;
+    --    q(90 + i).valid  <= '1' when jDebugIOP(4)(i).DataValid else '0';
+    --    q(90 + i).strobe <= '1';
+    --    q(90 + i).start  <= '0';
+    --end generate;
 
 	ipb_out <= IPB_RBUS_NULL;
 	bc0 <= '0';

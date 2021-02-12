@@ -309,14 +309,14 @@ def write_and_run(pups, regions, t):
     G = ""
     for i in range(10):
         G += "-G/top/payload/JetAlgo/GenJetSorts({})/Sort/Debug/FileName=Sorts{} ".format(i,i)
-    write_pattern_file(pups, regions, mux=True)
+    write_pattern_file(pups, regions, mux=True, link_map=regions.link_map())
     os.chdir('/home/sioni/Work/corrl2-jet-multi/proj/jet-test/')
     os.system('vsim -c -do "vsim -L extras -L Int -L IO -L Jet {} work.top; run {}us; quit -f"'.format(G, t))
     os.chdir('/home/sioni/Work/corrl2-jet-multi/src/GlobalCorrelator/emp_examples/Layer2/testbench/jet')
     
 def write_and_run_cmd_vcu118(pups, regions, cfile):
     assert(len(pups) < 20), "Cannot run {} events through rx/tx buffers".format(len(pups))
-    write_pattern_file(pups, regions, mux=True, link_map=True)
+    write_pattern_file(pups, regions, mux=True, link_map=regions.link_map())
     os.system("empbutler -c {} do vcu118 inspect info.versions.payload".format(cfile))
     os.system("empbutler -c {} do vcu118 reset internal".format(cfile))
     os.system("empbutler -c {} do vcu118 buffers rx PlayOnce -c 16-33,76-93 --inject file://source.txt".format(cfile))

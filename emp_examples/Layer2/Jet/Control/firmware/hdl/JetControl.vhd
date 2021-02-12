@@ -19,7 +19,8 @@ entity JetAlgo is
 port(
     clk : in std_logic;
     D : in IO.ArrayTypes.Vector;
-    Q : out IO.ArrayTypes.Vector
+    Q : out IO.ArrayTypes.Vector;
+    QDebug : out IO.ArrayTypes.Vector
 );
 end JetAlgo;
 
@@ -141,6 +142,9 @@ begin
             end if;
         end if;
         end process;
+        QDebug(i).data <= IO.DataType.ToDataType(Jet.DataType.ToStdLogicVector(jet_ev)).data;
+        QDebug(i).DataValid <= jet_ev.DataValid;
+        QDebug(i).FrameValid <= jet_ev.FrameValid;
         Sort : entity work.AccumulatingSort
         port map(clk, jet_ev, jets_all(i));
     end generate;

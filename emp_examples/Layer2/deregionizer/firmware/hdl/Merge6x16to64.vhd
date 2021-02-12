@@ -12,7 +12,11 @@ entity MergeArrays is
 port(
     clk : in std_logic := '0';
     D : in Matrix(0 to 6 - 1)(0 to 16 - 1) := NullMatrix(6, 16);
-    Q : out Vector(0 to 64 - 1) := NullVector(64)
+    Q : out Vector(0 to 64 - 1) := NullVector(64);
+    -- Just for sending debug data out for standalone deregionizer testing
+    -- Leave unconnected for deregionizer + algorithm designs
+    DebugLayer1 : out Vector(0 to 31) := NullVector(32);
+    DebugLayer2 : out Vector(0 to 63) := NullVector(64)
 );
 end MergeArrays;
 
@@ -57,5 +61,8 @@ begin
         b => d0_pipe(latency_l1-1),
         q => Q
     );
+
+    DebugLayer1 <= d0(0);
+    DebugLayer2 <= d1(0);
 
 end behavioral;

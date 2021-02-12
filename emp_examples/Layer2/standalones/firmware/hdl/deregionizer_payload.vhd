@@ -41,38 +41,112 @@ end emp_payload;
 
 architecture rtl of emp_payload is
 	
-    --signal dVIO  : IO.ArrayTypes.Vector(0 to 6 * 16 - 1) := IO.ArrayTypes.NullVector(6 * 16);
-    signal dIO   : IO.ArrayTypes.Matrix(0 to 5)(0 to 15)      := IO.ArrayTypes.NullMatrix(6, 16);
+    signal dIO   : IO.ArrayTypes.Matrix(0 to 5)(0 to 5)      := IO.ArrayTypes.NullMatrix(6, 6);
     signal qIO   : IO.ArrayTypes.Vector(0 to 127)             := IO.ArrayTypes.NullVector(128);
-    signal qIOP  : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 127) := IO.ArrayTypes.NullVectorPipe(5, 128);
-    signal qMax  : IO.ArrayTypes.Vector(0 to 0)               := IO.ArrayTypes.NullVector(1);
-    signal qMaxP : IO.ArrayTypes.VectorPipe(0 to 4)(0 to 0)   := IO.ArrayTypes.NullVectorPipe(5, 1);
+    signal qIOP  : IO.ArrayTypes.VectorPipe(0 to 7)(0 to 127) := IO.ArrayTypes.NullVectorPipe(8, 128);
+    signal DebugLayer1  : IO.ArrayTypes.Vector(0 to 31) := IO.ArrayTypes.NullVector(32);
+    signal DebugLayer1P : IO.ArrayTypes.VectorPipe(0 to 7)(0 to 31) := IO.ArrayTypes.NullVectorPipe(8, 32);
+    signal DebugLayer2  : IO.ArrayTypes.Vector(0 to 63) := IO.ArrayTypes.NullVector(64);
+    signal DebugLayer2P : IO.ArrayTypes.VectorPipe(0 to 15)(0 to 63) := IO.ArrayTypes.NullVectorPipe(16, 64);
+    signal HLSStart : std_logic := '0';
 
 begin
 
     LinkMap : entity work.link_map
+    generic map(True)
     port map(clk_p, d, dIO);
 
-    Merge : entity IO.MergeAccumulateInputRegions
-    port map(clk_p, dIO, qIO);
+    Merge : entity IO.DemuxMergeAccumulateInputRegions
+    port map(clk_p, dIO, qIO, HLSStart, DebugLayer1, DebugLayer2);
 
     MergeOutPipe : entity IO.DataPipe
     port map(clk_p, qIO, qIOP);
 
-    Reduce : entity IO.PairReduceMax
-    port map(clk_p, qIOP(4), qMax);
+    DebugPipe1 : entity IO.DataPipe
+    port map(clk_p, DebugLayer1, DebugLayer1P);
 
-    OutPipe : entity IO.DataPipe
-    port map(clk_p, qMax, qMaxP);
+    DebugPipe2 : entity IO.DataPipe
+    port map(clk_p, DebugLayer2, DebugLayer2P);
 
-    q(0).data <= qMaxP(4)(0).data;
-    q(0).valid <= qMaxP(4)(0).data(63);
-    q(0).strobe <= '1';
-    q(0).start <= '0';
+    -- Transmit the 128 particles on 32 links over 4 frames
+    OLinkGen:
+    for i in 0 to 15 generate
+        process(clk_p) is
+            variable any_valid : boolean := false;
+        begin
+            any_valid := false;
+            if rising_edge(clk_p) then
+                for j in 0 to 7 loop
+                    if qIOP(j)(i+16*j).DataValid then
+                        q(76 + i).data   <= qIOP(j)(i+16*j).data;
+                        q(76 + i).valid  <= '1';
+                        q(76 + i).strobe <= '1';
+                        q(76 + i).start  <= '0';
+                        any_valid := true;
+                    end if;
+                end loop;
+                if not any_valid then
+                    q(76 + i).data   <= (others => '0');
+                    q(76 + i).valid  <= '0';
+                    q(76 + i).strobe <= '1';
+                    q(76 + i).start <= '0';
+                end if;
+            end if;
+        end process;
+    end generate;
 
-    qUnused:
-    for i in 1 to 4 * N_REGION - 1 generate
-        q(i) <= lword_null;
+    -- Send the DebugLayer1 (32 particle merge of Regions 0 & 1) on some links
+    DebugLinkGen1:
+    for i in 0 to 3 generate
+        process(clk_p) is
+            variable any_valid : boolean := false;
+        begin
+            any_valid := false;
+            if rising_edge(clk_p) then
+                for j in 0 to 7 loop
+                    if debugLayer1P(j)(4*j + i).DataValid then
+                        q(92+i).data  <= debugLayer1P(j)(4*j + i).data;
+                        q(92+i).valid <= '1';
+                        q(92+i).strobe <= '1';
+                        q(92+i).start <= '0';
+                        any_valid := true;
+                    end if;
+                end loop;
+                if not any_valid then
+                    q(92+i).data  <= (others => '0');
+                    q(92+i).valid <= '0';
+                    q(92+i).strobe <= '1';
+                    q(92+i).start <= '0';
+                end if;
+            end if;
+        end process;
+    end generate;
+
+    -- Send the DebugLayer2 (64 particle merge of Regions 0, 1, 2, & 3) on some links
+    DebugLinkGen2:
+    for i in 0 to 3 generate
+        process(clk_p) is
+            variable any_valid : boolean := false;
+        begin
+            any_valid := false;
+            if rising_edge(clk_p) then
+                for j in 0 to 15 loop
+                    if debugLayer2P(j)(4*j + i).DataValid then
+                        q(96+i).data  <= debugLayer2P(j)(4*j+i).data;
+                        q(96+i).valid <= '1';
+                        q(96+i).strobe <= '1';
+                        q(96+i).start <= '0';
+                        any_valid := true;
+                    end if;
+                end loop;
+                if not any_valid then
+                    q(96+i).data  <= (others => '0');
+                    q(96+i).valid <= '0';
+                    q(96+i).strobe <= '1';
+                    q(96+i).start <= '0';
+                end if;
+            end if;
+        end process;
     end generate;
 
 

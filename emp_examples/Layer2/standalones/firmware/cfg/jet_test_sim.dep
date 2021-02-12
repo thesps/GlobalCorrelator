@@ -2,7 +2,7 @@
 include -c emp-fwk:boards/testbench
 
 # jet project
-src --vhdl2008 jet_sim_payload.vhd
+src --vhdl2008 jet_payload.vhd
 src --vhdl2008 link_map.vhd
 include -c emp_examples/Layer2/Jet jet.dep
 include -c emp_examples/Layer2/deregionizer deregionizer.dep
@@ -15,6 +15,6 @@ src -c emp-fwk:components/ttc emp_ttc_decl.vhd
 src -c emp-fwk:boards/testbench emp_device_decl.vhd
 src -c ipbus-firmware:components/ipbus_core ipbus_package.vhd
 include -c emp-fwk:components/testbench
-src -c emp-fwk:projects/examples/testbench emp_project_decl.vhd
+src tb_project_decl.vhd
 src tb_decl.vhd
 include -c emp-fwk:boards/testbench packages.dep

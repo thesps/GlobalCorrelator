@@ -13,7 +13,12 @@ port(
     clk : in std_logic := '0';
     RegionStreams : in Matrix(0 to 5)(0 to 15) := NullMatrix(6, 16);
     EventParticles : out Vector(0 to 127) := NullVector(128);
-    HLSstart : out std_logic := '0'
+    HLSstart : out std_logic := '0';
+    -- Just for sending debug data out for standalone deregionizer testing
+    -- Leave unconnected for deregionizer + algorithm designs
+    DebugLayer1 : out Vector(0 to 31) := NullVector(32);
+    DebugLayer2 : out Vector(0 to 63) := NullVector(64);
+    DebugMerged : out Vector(0 to 63) := NullVector(64)
 );
 end MergeAccumulateInputRegions;
 
@@ -31,7 +36,7 @@ architecture rtl of MergeAccumulateInputRegions is
 begin
 
     Merge : entity work.MergeArrays
-    port map(clk, RegionStreams, RegionsMerged);
+    port map(clk, RegionStreams, RegionsMerged, DebugLayer1, DebugLayer2);
 
     MPipe : entity work.DataPipe
     port map(clk, RegionsMerged, RegionsMergedPiped);
@@ -73,6 +78,8 @@ begin
     Debug : entity work.Debug
     generic map("Regionizer-EventParticles", "./")
     port map(clk, EventParticles);
+
+    DebugMerged <= RegionsMerged;
 
 end rtl;
 

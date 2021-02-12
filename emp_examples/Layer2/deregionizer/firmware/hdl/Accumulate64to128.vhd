@@ -48,6 +48,8 @@ architecture rtl of AccumulateInputs is
     signal Y64: Vector(0 to 63) := NulLVector(64);
     signal Y128 : Vector(0 to 127) := NullVector(128);
 
+    -- Delay the input by 1 clock
+    signal A : Vector(0 to 63) := NulLVector(64);
     -- N is the current base address to route to
     -- M is the max
     -- Use a vector with duplicated logic for each element to ease signal fanout
@@ -59,25 +61,27 @@ architecture rtl of AccumulateInputs is
 
 begin
 
+    A <= d when rising_edge(clk);
+
     NMGen:
     for i in 0 to 7 generate
         NMProc:
         process(clk)
         begin
-            --if rising_edge(clk) then
-            -- Find the first invalid input to increment the base address
-            for j in 0 to 63 loop
-                if not d(j).DataValid then
-                    M(i).x <= j;
-                    exit;
-                end if;
-            end loop;
-            --end if;
+            if rising_edge(clk) then
+                -- Find the first invalid input to increment the base address
+                for j in 0 to 63 loop
+                    if not d(j).DataValid then
+                        M(i).x <= j;
+                        exit;
+                    end if;
+                end loop;
+            end if;
             if rising_edge(clk) then
                 -- Try in the same cycle
                 -- Increment the base address
                 -- Reset on new event
-                if not d(8*i).FrameValid then
+                if not A(8*i).FrameValid then
                     N(i).x <= 0;
                 -- M should lag N by one cycle
                 else
@@ -109,7 +113,7 @@ begin
             -- Slice the lowest 3 bits. Aka x % 8
             k1 <= to_integer(to_unsigned(k0, 7)(2 downto 0));
             ki1.x <= k1;
-            X0(i)(j) <= d(8*i + j);
+            X0(i)(j) <= A(8*i + j);
             XA0(i)(j) <= ki0; 
             XLA0(i)(j) <= ki1;
             -- Slice the next 3 bits. Aka x // 8
