@@ -3,6 +3,7 @@ include -c emp-fwk:boards/testbench
 
 # deregionizer
 src --vhdl2008 deregionizer_payload.vhd
+src -c emp_examples/Layer2/components PkgConstants.vhd
 src --vhdl2008 link_map.vhd
 include -c emp_examples/Layer2/deregionizer deregionizer.dep
 src --vhdl2008 -c RuflCore: -l Utilities ReuseableElements/PkgUtilities.vhd

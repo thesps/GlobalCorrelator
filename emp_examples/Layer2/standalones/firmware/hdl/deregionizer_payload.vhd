@@ -18,6 +18,8 @@ use work.emp_project_decl.all;
 use work.emp_device_decl.all;
 use work.emp_ttc_decl.all;
 
+use work.PkgConstants.all;
+
 entity emp_payload is
 	port(
 		clk: in std_logic; -- ipbus signals
@@ -44,10 +46,10 @@ architecture rtl of emp_payload is
     signal dIO   : IO.ArrayTypes.Matrix(0 to 5)(0 to 5)      := IO.ArrayTypes.NullMatrix(6, 6);
     signal qIO   : IO.ArrayTypes.Vector(0 to 127)             := IO.ArrayTypes.NullVector(128);
     signal qIOP  : IO.ArrayTypes.VectorPipe(0 to 7)(0 to 127) := IO.ArrayTypes.NullVectorPipe(8, 128);
-    signal DebugLayer1  : IO.ArrayTypes.Vector(0 to 31) := IO.ArrayTypes.NullVector(32);
-    signal DebugLayer1P : IO.ArrayTypes.VectorPipe(0 to 7)(0 to 31) := IO.ArrayTypes.NullVectorPipe(8, 32);
-    signal DebugLayer2  : IO.ArrayTypes.Vector(0 to 63) := IO.ArrayTypes.NullVector(64);
-    signal DebugLayer2P : IO.ArrayTypes.VectorPipe(0 to 15)(0 to 63) := IO.ArrayTypes.NullVectorPipe(16, 64);
+    signal DebugLayer1  : IO.ArrayTypes.Vector(0 to 15) := IO.ArrayTypes.NullVector(16);
+    signal DebugLayer1P : IO.ArrayTypes.VectorPipe(0 to 3)(0 to 15) := IO.ArrayTypes.NullVectorPipe(4,16);
+    signal DebugLayer2  : IO.ArrayTypes.Vector(0 to 31) := IO.ArrayTypes.NullVector(32);
+    signal DebugLayer2P : IO.ArrayTypes.VectorPipe(0 to 7)(0 to 31) := IO.ArrayTypes.NullVectorPipe(8, 32);
     signal HLSStart : std_logic := '0';
 
 begin
@@ -56,7 +58,8 @@ begin
     generic map(True)
     port map(clk_p, d, dIO);
 
-    Merge : entity IO.DemuxMergeAccumulateInputRegions
+    Merge : entity IO.MergeAccumulateInputRegions
+    generic map(NFramesPerEvent)
     port map(clk_p, dIO, qIO, HLSStart, DebugLayer1, DebugLayer2);
 
     MergeOutPipe : entity IO.DataPipe
@@ -68,7 +71,7 @@ begin
     DebugPipe2 : entity IO.DataPipe
     port map(clk_p, DebugLayer2, DebugLayer2P);
 
-    -- Transmit the 128 particles on 32 links over 4 frames
+    -- Transmit the 128 particles on 16 links over 8 frames
     OLinkGen:
     for i in 0 to 15 generate
         process(clk_p) is
@@ -95,7 +98,7 @@ begin
         end process;
     end generate;
 
-    -- Send the DebugLayer1 (32 particle merge of Regions 0 & 1) on some links
+    -- Send the DebugLayer1 (16 particle merge of Regions 0 & 1) on some links
     DebugLinkGen1:
     for i in 0 to 3 generate
         process(clk_p) is
@@ -103,9 +106,9 @@ begin
         begin
             any_valid := false;
             if rising_edge(clk_p) then
-                for j in 0 to 7 loop
-                    if debugLayer1P(j)(4*j + i).DataValid then
-                        q(92+i).data  <= debugLayer1P(j)(4*j + i).data;
+                for j in 0 to 3 loop
+                    if debugLayer1P(j)(2*j + i).DataValid then
+                        q(92+i).data  <= debugLayer1P(j)(2*j + i).data;
                         q(92+i).valid <= '1';
                         q(92+i).strobe <= '1';
                         q(92+i).start <= '0';
@@ -130,9 +133,9 @@ begin
         begin
             any_valid := false;
             if rising_edge(clk_p) then
-                for j in 0 to 15 loop
-                    if debugLayer2P(j)(4*j + i).DataValid then
-                        q(96+i).data  <= debugLayer2P(j)(4*j+i).data;
+                for j in 0 to 7 loop
+                    if debugLayer2P(j)(2*j + i).DataValid then
+                        q(96+i).data  <= debugLayer2P(j)(2*j+i).data;
                         q(96+i).valid <= '1';
                         q(96+i).strobe <= '1';
                         q(96+i).start <= '0';

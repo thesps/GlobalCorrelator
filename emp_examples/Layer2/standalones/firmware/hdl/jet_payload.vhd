@@ -66,7 +66,7 @@ begin
     generic map(True)
     port map(clk_p, d, dIO);
 
-    Merge : entity IO.DemuxMergeAccumulateInputRegions
+    Merge : entity IO.MergeAccumulateInputRegions
     generic map(NFRAMESPEREVENT)
     port map(clk_p, dIO, qIO, jetStart);
 

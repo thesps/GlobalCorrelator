@@ -10,10 +10,13 @@ use Int.DataType;
 use Int.ArrayTypes;
 
 entity AccumulateInputs is
+generic(
+    NFramesPerEvent : integer := 54
+);
 port(
   clk : in std_logic := '0';
-  d : in Vector(0 to 64 - 1) := NullVector(64);
-  q : out Vector(0 to 128 - 1) := NullVector(128)
+  d : in Vector(0 to 63) := NullVector(64);
+  q : out Vector(0 to 127) := NullVector(128)
 );
 end AccumulateInputs;
 
@@ -45,8 +48,9 @@ architecture rtl of AccumulateInputs is
     signal XLA2 : Int.ArrayTypes.Matrix(0 to 7)(0 to 7) := Int.ArrayTypes.NullMatrix(8,8);
 
     -- Final route arrays
-    signal Y64: Vector(0 to 63) := NulLVector(64);
-    signal Y128 : Vector(0 to 127) := NullVector(128);
+    signal Y64   : Vector(0 to 63) := NulLVector(64);
+    signal Y128  : Vector(0 to 127) := NullVector(128);
+    signal Y128P : VectorPipe(0 to 1)(0 to 127) := NullVectorPipe(2, 128);
 
     -- Delay the input by 1 clock
     signal A : Vector(0 to 63) := NulLVector(64);
@@ -55,13 +59,43 @@ architecture rtl of AccumulateInputs is
     -- Use a vector with duplicated logic for each element to ease signal fanout
     signal N : Int.ArrayTypes.Vector(0 to 7) := Int.ArrayTypes.NullVector(8);
     signal M : Int.ArrayTypes.Vector(0 to 7) := Int.ArrayTypes.NullVector(8);
-    --signal N : integer range 0 to 127 := 0;
-    --signal M : integer range 0 to 127 := 0;
-    
+
+    -- Counters for frames, wraps around and NFramesPerEvent
+    -- Array of identical counters to avoid broadcast
+    -- OLatency is used to control when to switch events, needs to be precise!
+    -- The counter rests at 0 when in between events (if that happens)
+    -- While event counting goes from 1 to NFramesPerEvent inclusive
+    constant OLatency : integer := 4;
+    signal frameCounter : Int.ArrayTypes.Vector(0 to 7) := Int.ArrayTypes.NullVector(8);    
+    signal frameCounterP : Int.ArrayTypes.VectorPipe(0 to OLatency+5)(0 to 7) := Int.ArrayTypes.NullVectorPipe(OLatency+6,8);    
 
 begin
 
     A <= d when rising_edge(clk);
+
+    -- The counter rests at 0 when in between events (if that happens)
+    -- While event counting goes from 1 to NFramesPerEvent inclusive
+    CounterGen:
+    for i in 0 to 7 generate
+        process(clk)
+        begin
+            if rising_edge(clk) then
+                if not d(i).FrameValid then
+                    frameCounter(i).x <= 0;
+                --New packet
+                elsif d(i).FrameValid and not A(i).FrameValid then
+                    frameCounter(i).x <= 1;
+                elsif frameCounter(i).x = NFramesPerEvent then
+                    frameCounter(i).x <= 1;
+                else
+                    frameCounter(i).x <= frameCounter(i).x + 1;
+                end if;
+            end if;
+        end process;
+    end generate;
+
+    CounterPipe : entity Int.DataPipe
+    port map(clk, frameCounter, frameCounterP);
 
     NMGen:
     for i in 0 to 7 generate
@@ -81,7 +115,8 @@ begin
                 -- Try in the same cycle
                 -- Increment the base address
                 -- Reset on new event
-                if not A(8*i).FrameValid then
+                --if not A(8*i).FrameValid then
+                if frameCounter(i).x = 0 or frameCounter(i).x = NFramesPerEvent then
                     N(i).x <= 0;
                 -- M should lag N by one cycle
                 else
@@ -161,20 +196,18 @@ begin
     end generate;
 
     -- Fan out the 64 to 128
+    -- At the accumulate step new data arrives every cycle, when the counter reaches
+    -- NFramesPerEvent we start routing to 0 again.
+    -- We still need to route the data at that point, but everything else should reset
     FinalRoute:
     for i in 0 to 127 generate
         FinalRouteProc:
         process(clk)
         begin
             if rising_edge(clk) then
-                if X2((i mod 64) / 8)(i mod 8).FrameValid then
-                    if XA2((i mod 64) / 8)(i mod 8).x = i and X2((i mod 64) / 8)(i mod 8).DataValid then
-                        Y128(i) <= X2((i mod 64) / 8)(i mod 8);
-                    else
-                        --Y128(i) <= cNull;
-                        Y128(i).FrameValid <= True;
-                    end if;
-                elsif not X2((i mod 64) / 8)(i mod 8).FrameValid then
+                if XA2((i mod 64) / 8)(i mod 8).x = i and X2((i mod 64) / 8)(i mod 8).DataValid then
+                    Y128(i) <= X2((i mod 64) / 8)(i mod 8);
+                elsif frameCounterP(OLatency)(i / 16).x = NFramesPerEvent then
                     -- new event reset
                     Y128(i) <= cNull;
                 end if;
@@ -182,7 +215,28 @@ begin
         end process;
     end generate;    
 
-    q <= Y128;
+    OPipe: entity work.DataPipe
+    port map(clk, Y128, Y128P);
+
+    -- Only output the event particles once per TM Period
+    -- Use all the frameCounter replicas to avoid over-broadcasting
+    -- of the counters. (All counters are in sync)
+    OGen:
+    for i in 0 to 127 generate
+        OProc:
+        process(clk)
+        begin
+            if rising_edge(clk) then
+                if frameCounterP(OLatency)(i / 16).x = NFramesPerEvent then
+                    q(i).data <= Y128(i).data;
+                    q(i).DataValid <= Y128(i).DataValid;
+                    q(i).FrameValid <= True;
+                else
+                    q(i) <= cNull;
+                end if;
+            end if;
+        end process;
+    end generate;
 
 end rtl;
 

@@ -1,10 +1,8 @@
-src --vhdl2008 -l IO DemuxMergeAccumulateInputs.vhd
-src --vhdl2008 -l IO Demux.vhd
 src --vhdl2008 -l IO MergeAccumulateInputs.vhd
-src --vhdl2008 -l IO Merge6x16to64.vhd
+src --vhdl2008 -l IO Merge6x6to32.vhd
 src --vhdl2008 -l IO Accumulate64to128.vhd
+src --vhdl2008 -l IO Merge6to12.vhd
 src --vhdl2008 -l IO Merge16to32.vhd
-src --vhdl2008 -l IO Merge32and64to64.vhd
 src --vhdl2008 -l IO Merge32to64.vhd
 src --vhdl2008 -l IO UniqueRouting.vhd
 
