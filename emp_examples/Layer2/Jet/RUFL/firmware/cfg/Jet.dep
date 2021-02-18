@@ -1,5 +1,0 @@
-src --vhdl2008 -l Jet DataPipe.vhd
-src --vhdl2008 -l Jet DataRam.vhd
-src --vhdl2008 -l Jet Debugger.vhd
-src --vhdl2008 -l Jet PkgArrayTypes.vhd
-src --vhdl2008 -l Jet -c emp_examples/Layer2/components PkgJet.vhd

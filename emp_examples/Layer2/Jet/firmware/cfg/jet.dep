@@ -1,4 +1,0 @@
-include -c emp_examples/Layer2/Jet/Control JetControl.dep
-include -c emp_examples/Layer2/Jet/Compute JetCompute.dep
-include -c emp_examples/Layer2/Jet/Loop JetLoop.dep
-include -c emp_examples/Layer2/Jet/RUFL Jet.dep
