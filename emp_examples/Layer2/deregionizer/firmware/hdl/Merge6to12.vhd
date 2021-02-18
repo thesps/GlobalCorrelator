@@ -25,9 +25,10 @@ architecture rtl of Merge6to12 is
     -- Internally we map the length-6 arrays to length-8 (with null data)
     -- and the length-12 output is initially length-16, then truncated
     -- Just use one layer of 'Unique Router' since 8 inputs is small enough
-    constant RouterLatency : integer := 3;
-    signal a8    : Vector(0 to 7) := NullVector(8);
-    signal b8    : Vector(0 to 7) := NullVector(8);
+    constant RouterLatency : integer := 4;
+    signal a8        : Vector(0 to 7) := NullVector(8);
+    signal b8        : Vector(0 to 7) := NullVector(8);
+    signal b8_reg    : Vector(0 to 7) := NullVector(8);
     signal aPipe : VectorPipe(0 to RouterLatency - 1)(0 to 7) := NulLVectorPipe(RouterLatency, 8);
 
     -- Layer input arrays
@@ -58,7 +59,8 @@ begin
     a8(6 to 7) <= (others => ((others => '0'), false, a(5).FrameValid));
     b8(0 to 5) <= b;
     b8(6 to 7) <= (others => ((others => '0'), false, b(5).FrameValid));
- 
+    b8_reg <= b8 when rising_edge(clk);
+
     aPipeEnt:
     entity work.DataPipe
     port map(clk, a8, aPipe);
@@ -66,17 +68,19 @@ begin
     NMProc:
     process(clk)
     begin
-        -- Find the first invalid input in a to route the b array
-        -- to that position
-        for i in 0 to 5 loop
-            if not a8(i).DataValid then
-                N <= i;
-                exit;
+        if rising_edge(clk) then
+            -- Find the first invalid input in a to route the b array
+            -- to that position
+            for i in 0 to 5 loop
+                if not a8(i).DataValid then
+                    N <= i;
+                    exit;
+                end if;
+            end loop;
+            -- edge condition (all of a was valid)
+            if a8(5).DataValid then
+                N <= 6;
             end if;
-        end loop;
-        -- edge condition (all of a was valid)
-        if a8(5).DataValid then
-            N <= 6;
         end if;
     end process;
     
@@ -89,7 +93,7 @@ begin
     begin
         k0.x <= N + i;
         k1.x <= to_integer(to_unsigned(k0.x, 6)(2 downto 0));
-        X0(i) <= b8(i);
+        X0(i) <= b8_reg(i);
         XA0(i) <= k0; 
         XLA0(i) <= k1;
     end generate;

@@ -16,16 +16,17 @@ use Int.ArrayTypes;
 entity Merge32to64 is
 port(
     clk : in std_logic := '0';
-    a : in Vector(0 to 32 - 1) := NullVector(32);
-    b : in Vector(0 to 32 - 1) := NullVector(32);
-    q : out Vector(0 to 64 - 1) := NullVector(64)
+    a : in Vector(0 to 31) := NullVector(32);
+    b : in Vector(0 to 31) := NullVector(32);
+    q : out Vector(0 to 63) := NullVector(64)
 );
 end Merge32to64;
 
 architecture rtl of Merge32to64 is
 
-    constant RouterLatency : integer := 7; -- a guess for now
+    constant RouterLatency : integer := 8; -- a guess for now
     signal aPipe : VectorPipe(0 to RouterLatency - 1)(0 to 32 - 1) := NulLVectorPipe(RouterLatency, 32);
+    signal b_reg : Vector(0 to 31) := NullVector(32);
 
     -- Layer input arrays
     -- First index is group, second is within-group
@@ -69,22 +70,24 @@ begin
     aPipeEnt:
     entity work.DataPipe
     port map(clk, a, aPipe);
+    b_reg <= b when rising_edge(clk);
     
     NMProc:
     process(clk)
     begin
-        --if rising_edge(clk) then
-        -- Find the first invalid input in a to route the b array
-        -- to that position
-        for i in 0 to 31 loop
-            if not a(i).DataValid then
-                N <= i;
-                exit;
+        if rising_edge(clk) then
+            -- Find the first invalid input in a to route the b array
+            -- to that position
+            for i in 0 to 31 loop
+                if not a(i).DataValid then
+                    N <= i;
+                    exit;
+                end if;
+            end loop;
+            -- edge condition (all of a was valid)
+            if a(31).DataValid then
+                N <= 32;
             end if;
-        end loop;
-        -- edge condition (all of a was valid)
-        if a(31).DataValid then
-            N <= 32;
         end if;
     end process;
     
@@ -105,7 +108,7 @@ begin
             process(clk)
             begin
                 if rising_edge(clk) then
-                    X0(i)(j) <= b(8*j + i);
+                    X0(i)(j) <= b_reg(8*j + i);
                     XA0(i)(j) <= k0; 
                     XLA0(i)(j) <= k1;
                 end if;

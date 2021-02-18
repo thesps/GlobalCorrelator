@@ -1,5 +1,5 @@
 src --vhdl2008 -l IO MergeAccumulateInputs.vhd
-src --vhdl2008 -l IO Merge6x6to32.vhd
+src --vhdl2008 -l IO Merge6x6to64.vhd
 src --vhdl2008 -l IO Accumulate64to128.vhd
 src --vhdl2008 -l IO Merge6to12.vhd
 src --vhdl2008 -l IO Merge16to32.vhd

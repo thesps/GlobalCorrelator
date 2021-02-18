@@ -12,16 +12,17 @@ use Int.ArrayTypes;
 entity Merge16to32 is
 port(
     clk : in std_logic := '0';
-    a : in Vector(0 to 16 - 1) := NullVector(16);
-    b : in Vector(0 to 16 - 1) := NullVector(16);
-    q : out Vector(0 to 32 - 1) := NullVector(32)
+    a : in Vector(0 to 15) := NullVector(16);
+    b : in Vector(0 to 15) := NullVector(16);
+    q : out Vector(0 to 31) := NullVector(32)
 );
 end Merge16to32;
 
 architecture rtl of Merge16to32 is
 
-    constant RouterLatency : integer := 4; -- a guess for now
+    constant RouterLatency : integer := 5; -- a guess for now
     signal aPipe : VectorPipe(0 to RouterLatency - 1)(0 to 16 - 1) := NulLVectorPipe(RouterLatency, 16);
+    signal b_reg : Vector(0 to 15) := NullVector(16);
 
     -- Layer input arrays
     -- First index is group, second is within-group
@@ -63,22 +64,24 @@ begin
     aPipeEnt:
     entity work.DataPipe
     port map(clk, a, aPipe);
+    b_reg <= b when rising_edge(clk);
     
     NMProc:
     process(clk)
     begin
-        --if rising_edge(clk) then
-        -- Find the first invalid input in a to route the b array
-        -- to that position
-        for i in 0 to 15 loop
-            if not a(i).DataValid then
-                N <= i;
-                exit;
+        if rising_edge(clk) then
+            -- Find the first invalid input in a to route the b array
+            -- to that position
+            for i in 0 to 15 loop
+                if not a(i).DataValid then
+                    N <= i;
+                    exit;
+                end if;
+            end loop;
+            -- edge condition (all of a was valid)
+            if a(15).DataValid then
+                N <= 16;
             end if;
-        end loop;
-        -- edge condition (all of a was valid)
-        if a(15).DataValid then
-            N <= 16;
         end if;
     end process;
     
@@ -95,12 +98,7 @@ begin
             signal ki1 : Int.DataType.tData := (0, True, True);
             signal ki2 : Int.DataType.tData := (0, True, True);
         begin
-            --AddrInProc:
-            --process(clk)
-            --begin
             k0 <= N + 4 * i + j;
-            --k1 <= k0 mod 4;
-            --k2 <= (XA1(i)(j).x mod 16) / 4;
             -- Slice the lowest 2 bits. Aka x % 4
             k1 <= to_integer(to_unsigned(k0, 6)(1 downto 0));
             -- Slice the next 2 bits. Aka (x % 16) // 4
@@ -108,11 +106,10 @@ begin
             ki0.x <= k0;
             ki1.x <= k1;
             ki2.x <= k2;
-            X0(i)(j) <= b(4*i + j);
+            X0(i)(j) <= b_reg(4*i + j);
             XA0(i)(j) <= ki0; 
             XLA0(i)(j) <= ki1;
             XLA1(i)(j) <= ki2; 
-            --end process;
 
             -- Inter layer connections
             X1(i)(j) <= Y0(j)(i);
