@@ -51,14 +51,14 @@ class DemoRegions(Regions):
     def __init__(self):
         super().__init__(5, 12, 9)
         
-    def pack_event(self, pups, startframe=0, mux=False, link_map=None):
-        return self.pack_event_mux(pups, startframe) if mux else \
-               self.pack_event_nomux(pups, startframe, link_map)
+    def pack_event(self, pups, startframe=0, mux=False, link_map=None, apx=False):
+        return self.pack_event_mux(pups, startframe=startframe, link_map=link_map, apx=apx) if mux else \
+               self.pack_event_nomux(pups, startframe, apx)
         
-    def pack_event_nomux(self, pups, startframe=0):
+    def pack_event_nomux(self, pups, startframe=0, apx=False):
         '''Return frames of a PatternFile for the unregionized event pups.
         Doesn't treate the regions in a specific order, just groups them in appropriate numbers.'''
-        zeropup = PuppiCand(0,0,0).toVHex(True)
+        zeropup = PuppiCand(0,0,0).toVHex(True, apx)
         pups = np.array(self.regionize(pups, sort=True)).flatten()
         # 18 links per 6 regions (frames), 16 candidates per region
         # 20 appears because of the link_map SLR handling
@@ -71,12 +71,12 @@ class DemoRegions(Regions):
                 pups_r = pups[18 * i + j]
                 for k in range(16):
                     if k < len(pups_r):
-                        pup = pups_r[k].toVHex(True)
+                        pup = pups_r[k].toVHex(True), apx
                     else:
                         pup = zeropup
                     muxed_cands[j][16 * i + k] = pup
         for i, f in enumerate(muxed_cands):
-            yield frame(f, startframe+i, 6*16)
+            yield frame(f, startframe+i, 6*16, apx=apx)
         
     def link_map(self):
         the_map = np.zeros(36, dtype='int')
@@ -88,11 +88,11 @@ class DemoRegions(Regions):
                 the_map[6*(i+3)+j] = 76 + 6*i + j
         return the_map
         
-    def pack_event_mux(self, pups, startframe=0, debug=False, link_map=None):
+    def pack_event_mux(self, pups, startframe=0, debug=False, link_map=None, apx=False):
         '''Return frames of a PatternFile for the unregionized event pups.
            Doesn't treate the regions in a specific order, just groups them in appropriate numbers.
            Muxes 18 particles per region into 6 links over 3 frames'''
-        zeropup = PuppiCand(0,0,0).toVHex(True)
+        zeropup = PuppiCand(0,0,0).toVHex(True, apx=apx, sideband=apx)
         if debug:
             zeropup = PuppiCand(0,0,0)
         pups = np.array(self.regionize(pups, sort=True)).flatten()
@@ -106,7 +106,7 @@ class DemoRegions(Regions):
                 pups_r = pups[18 * i + j]
                 for k in range(18):
                     if k < len(pups_r):
-                        pup = pups_r[k].toVHex(True)
+                        pup = pups_r[k].toVHex(True, apx=apx, sideband=True)
                         if debug:
                             pup = pups_r[k] 
                     else:
@@ -118,7 +118,7 @@ class DemoRegions(Regions):
         else:
             for i, f in enumerate(muxed_cands):
                 nlinks = 36 if link_map is None else 118
-                yield frame(f, startframe+i, 36, link_map)
+                yield frame(f, startframe+i, 36, apx=apx)
             
 class Particle:
     def __init__(self, pt, eta, phi, hexdata=None):
@@ -180,8 +180,12 @@ class Particle:
         bs = bitstring.pack('uint:1,uint:27,int:10,int:10,uint:16',v,0,phi,eta,pt)
         return bs.hex
     
-    def toVHex(self, valid):
-        return str(int(valid)) + 'v' + self.pack()
+    def toVHex(self, valid, apx=False, sideband=False):
+        if apx:
+            start = '0x{:02x} '.format(int(valid)) if sideband else ''
+            return start + '0x' + self.pack()
+        else:
+            return str(int(valid)) + 'v' + self.pack()
     
     
 class PuppiCand(Particle):
@@ -226,7 +230,9 @@ def write_event_hr(f, pups, jets):
         f.write(jet)
     f.write("\n")
     
-def header(nlinks, board='JETS', link_map=None):
+def header(nlinks, board='JETS', link_map=None, apx=False):
+    if apx:
+        return header_apx(nlinks, board, link_map)
     txt = 'Board {}\n'.format(board)
     txt += 'Quad/Chan :'
     for i in range(nlinks):
@@ -240,32 +246,47 @@ def header(nlinks, board='JETS', link_map=None):
     txt += '\n'
     return txt
 
-def frame(vhexdata, iframe, nlinks, link_map=None):
+def header_apx(nlinks, board, link_map):
+    txt = '#Sideband ON\n'
+    txt += '#LinkLabel'
+    for i in range(nlinks):
+        j = i if link_map is None else link_map[i]
+        txt += '               LINK_{:02d}'.format(j)
+    txt += '\n#BeginData\n'
+    return txt  
+
+def frame(vhexdata, iframe, nlinks, apx=False):
     #assert(len(vhexdata) == nlinks), "Data length doesn't match expected number of links"
     #txt = 'Frame {:04d} :'.format(iframe)
-    txt = 'Frame {:04d} :'.format(iframe)
-    #if link_map is None:
-    if True:
-        for d in vhexdata:
-            txt += ' ' + d
+    if apx:
+        txt = '0x{:04x}'.format(iframe)
     else:
-        for i in range(nlinks):
-            if i in link_map:
-                j = np.argwhere(link_map == i)[0]
-                txt += ' ' + vhexdata[j]
-            else:
-                txt += ' 0v0000000000000000'
+        txt = 'Frame {:04d} :'.format(iframe)
+    #if True:
+    for d in vhexdata:
+        txt += ' ' + d
+    #else:
+    #    for i in range(nlinks):
+    #        if i in link_map:
+    #            j = np.argwhere(link_map == i)[0]
+    #            txt += ' ' + vhexdata[j]
+    #        else:
+    #            txt += ' 0v0000000000000000'
     txt += '\n'
     return txt
 
-def empty_frames(n, istart, nlinks):
+def empty_frames(n, istart, nlinks, apx=False, sideband=False):
     ''' Make n empty frames for nlinks with starting frame number istart '''
-    empty_data = '0v0000000000000000'
+    if apx:
+        start = '0x00 ' if sideband else ''
+        empty_data = start + '0x0000000000000000'
+    else:
+        empty_data = '0v0000000000000000'
     empty_frame = [empty_data] * nlinks
     iframe = istart
     frames = []
     for i in range(n):
-        frames.append(frame(empty_frame, iframe, nlinks))
+        frames.append(frame(empty_frame, iframe, nlinks, apx=apx))
         iframe += 1
     return frames
 
@@ -286,21 +307,21 @@ def pups_and_jets(d, emulator=False):
     jets = Jet.fromUproot(pt, eta, phi, 5, doround=True)
     return (pups, jets)
 
-def write_pattern_file(events, regions, mux=False, link_map=None):
+def write_pattern_file(events, regions, mux=False, link_map=None, apx=False):
     f = open('source.txt', 'w')
     iframe = 0
     nLinks = 36 if mux else 6*16
-    f.write(header(nLinks, link_map=link_map))
-    for d in empty_frames(6, iframe, nLinks):
+    f.write(header(nLinks, link_map=link_map, apx=apx))
+    for d in empty_frames(6, iframe, nLinks, apx=apx, sideband=apx):
         f.write(d)
     iframe += 6
     for pups in events:
-        for d in regions.pack_event(pups, startframe=iframe, mux=mux, link_map=link_map):
+        for d in regions.pack_event(pups, startframe=iframe, mux=mux, link_map=link_map, apx=apx):
             f.write(d)
             iframe += 1
         # Inter-event empty frames
         if True:
-            for d in empty_frames(0, iframe, nLinks):
+            for d in empty_frames(0, iframe, nLinks, apx=apx):
                 f.write(d)
         #iframe += 240
     f.close()
